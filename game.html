@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#1a1a2e">
     <link rel="manifest" href="manifest.webmanifest">
+    <script src="i18n.js"></script>
     <link rel="apple-touch-icon" href="icons/icon-192.png">
     <title>世界语言方块</title>
     <style>
@@ -168,6 +169,20 @@
         .mode-card .mc-name { font-size: 1.1rem; font-weight: 900; color: #fff; letter-spacing: 1px; }
         .mode-card .mc-desc { font-size: .76rem; color: rgba(255,255,255,.6); }
         .mode-card.mc-tetris { --mc: #00c3ff; --mc-glow: rgba(0,195,255,.4); }
+        /* ==================== UI 界面语言切换（i18n） ==================== */
+        #uiLangBtn { position: absolute; top: 14px; right: 14px; z-index: 30; width: 46px; height: 46px; border-radius: 50%; border: 2px solid rgba(255,255,255,.25); background: rgba(15,52,96,.85); font-size: 1.3rem; cursor: pointer; line-height: 1; display: flex; align-items: center; justify-content: center; transition: transform .15s, border-color .2s; }
+        #uiLangBtn:active { transform: scale(.9); border-color: #f1c40f; }
+        [dir="rtl"] #uiLangBtn { right: auto; left: 14px; }
+        #uiLangModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1100; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.6); }
+        #uiLangModal.hidden { display: none; }
+        .uilang-panel { width: 340px; max-width: 90vw; max-height: 78vh; overflow-y: auto; background: linear-gradient(160deg, #0f3460, #16213e); border: 2px solid rgba(255,255,255,.18); border-radius: 18px; padding: 20px 16px; box-shadow: 0 12px 40px rgba(0,0,0,.5); }
+        .uilang-panel h2 { margin: 0 0 14px; font-size: 1.1rem; color: #f1c40f; text-align: center; letter-spacing: 2px; }
+        .uilang-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .uilang-item { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 12px; border: 2px solid rgba(255,255,255,.14); background: rgba(255,255,255,.06); color: #eee; font-size: .95rem; cursor: pointer; text-align: left; transition: border-color .2s, background .2s, transform .1s; }
+        .uilang-item:active { transform: scale(.95); }
+        .uilang-item.selected { border-color: #f1c40f; background: rgba(241,196,15,.12); }
+        .uilang-item .uilang-flag { font-size: 1.25rem; }
+        .uilang-item .uilang-name { font-weight: 700; letter-spacing: .5px; }
         .mode-card.mc-fill { --mc: #f1c40f; --mc-glow: rgba(241,196,15,.4); }
         .mode-card.mc-quest { --mc: #53d769; --mc-glow: rgba(83,215,105,.4); }
         @media (max-width: 480px) {
@@ -682,29 +697,29 @@
         <div class="loading-text-container"><div id="loadingText" class="loading-text"></div></div>
         <div class="loading-bar-container"><div class="loading-bar" id="loadingBar"></div></div>
         <div class="loading-percent" id="loadingPercent">0%</div>
-        <div class="audio-hint">🔊 点击开启音效</div>
+        <div class="audio-hint" data-i18n="tapSound">🔊 点击开启音效</div>
     </div>
     <div class="game-wrapper" id="gameWrapper">
         <button id="btnPauseIcon">⏸</button>
         <div class="main-container">
             <div class="game-zone">
                 <div class="top-bar">
-                    <div><span>得分</span> <div id="scoreValue" style="display:inline">0</div></div>
+                    <div><span data-i18n="score">得分</span> <div id="scoreValue" style="display:inline">0</div></div>
                     <div class="level-badge">Lv.<span id="levelValue">1</span></div>
                 </div>
                 <div class="canvas-wrap"><canvas id="gameCanvas" width="300" height="600"></canvas></div>
-                <div class="high-score-bar">最高分: <span id="highScoreValue">0</div>
+                <div class="high-score-bar"><span data-i18n="highScore">最高分</span>: <span id="highScoreValue">0</div>
             </div>
             <div class="sidebar">
-                <div class="panel panel-score"><h3>得分</h3><div id="scoreValueSide">0</div></div>
-                <div class="panel panel-hold"><h3>暂存 (C)</h3><canvas id="holdCanvas" width="120" height="90"></canvas></div>
-                <div class="panel panel-next"><h3 id="nextTitle">下一个</h3><canvas id="nextCanvas" width="120" height="90"></canvas></div>
+                <div class="panel panel-score"><h3 data-i18n="score">得分</h3><div id="scoreValueSide">0</div></div>
+                <div class="panel panel-hold"><h3 data-i18n="hold">暂存 (C)</h3><canvas id="holdCanvas" width="120" height="90"></canvas></div>
+                <div class="panel panel-next"><h3 id="nextTitle" data-i18n="next">下一个</h3><canvas id="nextCanvas" width="120" height="90"></canvas></div>
                 <div class="panel panel-target" id="targetPanel">
-                    <h3 id="targetTitle">🎯 目标单词</h3>
+                    <h3 id="targetTitle" data-i18n="targetTitle">🎯 目标单词</h3>
                     <div id="targetWordDisplay">cat</div>
                     <div id="targetProgress"></div>
                     <div id="targetWordMeaning">猫</div>
-                    <button id="btnLock" class="btn-action btn-secondary" style="margin-top: 8px; padding: 8px 0; font-size: 0.9rem;">🔒 锁定拼接</button>
+                    <button id="btnLock" class="btn-action btn-secondary" style="margin-top: 8px; padding: 8px 0; font-size: 0.9rem;" data-i18n="lockBtn">🔒 锁定拼接</button>
                 </div>
             </div>
         </div>
@@ -713,40 +728,40 @@
             <button class="btn-control" id="btnRotate">⟳</button>
             <button class="btn-control" id="btnRight">▶</button>
             <button class="btn-control" id="btnDown">▼</button>
-            <button class="btn-control btn-drop" id="btnDrop">直接落地</button>
+            <button class="btn-control btn-drop" id="btnDrop" data-i18n="drop">直接落地</button>
         </div>
     </div>
 
     <!-- 填词大作战模式视图 -->
     <div id="match3-view">
         <div class="m3-head">
-            <button class="m3-btn m3-btn-menu m3-head-back" onclick="m3ExitToMenu()">⬅ 返回</button>
-            <div class="m3-title">👹 知识抢夺 · 填词大作战</div>
+            <button class="m3-btn m3-btn-menu m3-head-back" onclick="m3ExitToMenu()" data-i18n="back">⬅ 返回</button>
+            <div class="m3-title" data-i18n="m3Title">👹 知识抢夺 · 填词大作战</div>
             <div class="m3-level-badge" id="m3-level-badge" style="display:none;">第 1 关</div>
             <button class="m3-btn m3-head-pause" id="m3-pause-btn" onclick="m3TogglePause()">⏸</button>
         </div>
         <div class="m3-top-bar">
             <div class="m3-top-stats">
-                <div class="m3-stat"><span class="m3-stat-label">得分</span> <span id="m3-score">0</span></div>
-                <div class="m3-stat"><span class="m3-stat-label">步数</span> <span id="m3-steps">0</span></div>
-                <div class="m3-stat"><span class="m3-stat-label">📚知识</span> <span id="m3-hits">12</span></div>
+                <div class="m3-stat"><span class="m3-stat-label" data-i18n="score">得分</span> <span id="m3-score">0</span></div>
+                <div class="m3-stat"><span class="m3-stat-label" data-i18n="m3Steps">步数</span> <span id="m3-steps">0</span></div>
+                <div class="m3-stat"><span class="m3-stat-label" data-i18n="m3Knowledge">📚知识</span> <span id="m3-hits">12</span></div>
             </div>
             <div class="m3-top-btns">
-                <button class="m3-btn m3-btn-refresh" id="m3-refresh-btn" title="刷新幕布（剩余3次）">🔄 刷新(<span id="m3-refresh-count">3</span>)</button>
-                <button class="m3-btn m3-btn-map" id="m3-map-btn" title="关卡地图">🗺️ 关卡</button>
+                <button class="m3-btn m3-btn-refresh" id="m3-refresh-btn">🔄 <span data-i18n="refresh">刷新</span>(<span id="m3-refresh-count">3</span>)</button>
+                <button class="m3-btn m3-btn-map" id="m3-map-btn" data-i18n="m3Map">🗺️ 关卡</button>
             </div>
         </div>
         <div class="m3-main">
             <div class="m3-left">
                 <div id="m3-mouth-bar">
-                    <span class="m3-pk-side pk-monster"><span id="m3-mouth">👹</span><span class="m3-pk-num" id="m3-pk-monster">988</span><span class="m3-pk-tag">吞噬</span></span>
+                    <span class="m3-pk-side pk-monster"><span id="m3-mouth">👹</span><span class="m3-pk-num" id="m3-pk-monster">988</span><span class="m3-pk-tag" data-i18n="m3Swallow">吞噬</span></span>
                     <div id="m3-pk-track"><div id="m3-pk-fill"></div><div id="m3-pk-vs">VS</div></div>
-                    <span class="m3-pk-side pk-hero"><span id="m3-pk-hero">🦸</span><span class="m3-pk-num" id="m3-pk-player">12</span><span class="m3-pk-tag">抢回</span></span>
+                    <span class="m3-pk-side pk-hero"><span id="m3-pk-hero">🦸</span><span class="m3-pk-num" id="m3-pk-player">12</span><span class="m3-pk-tag" data-i18n="m3Reclaim">抢回</span></span>
                 </div>
                 <div id="m3-eat-track"><div id="m3-eat-fill"></div></div>
                 <div id="m3-grid-container"></div>
                 <div id="m3-feeder-box">
-                    <div id="m3-feeder"><span class="m3-feeder-tip">⬅ 拖动字母块到空洞，或点块再点空洞</span></div>
+                    <div id="m3-feeder"><span class="m3-feeder-tip" data-i18n="m3FeederTip">⬅ 拖动字母块到空洞，或点块再点空洞</span></div>
                 </div>
                 <div id="m3-meaning-bar"></div>
             </div>
@@ -754,7 +769,7 @@
                 <div id="battle-area" style="display:none;"><canvas id="battleCanvas" width="300" height="190"></canvas></div>
                 <div id="m3-target-panel">
                     <div class="m3-target-head">
-                        <span>🎯 当前目标</span>
+                        <span data-i18n="m3Target">🎯 当前目标</span>
                         <span id="m3-target-progress"></span>
                     </div>
                     <div id="m3-current-target">
@@ -765,7 +780,7 @@
                     <div class="m3-target-letters" id="m3-target-letters"></div>
                 </div>
                 <div class="m3-learned-panel" id="m3-learned-panel">
-                    <span class="m3-lp-title">📚 已学: <span id="m3-learned-count">0</span> 词</span>
+                    <span class="m3-lp-title">📚 <span data-i18n="learned">已学</span>: <span id="m3-learned-count">0</span> <span data-i18n="wordsUnit">词</span></span>
                 </div>
                 <div id="battle-log-panel" style="display:none;"></div>
             </div>
@@ -774,16 +789,16 @@
 
     <!-- 单词闯关大冒险模式视图 -->
     <div id="quest-view">
-        <div class="q-title">🚀 单词闯关大冒险</div>
+        <div class="q-title" data-i18n="qTitle">🚀 单词闯关大冒险</div>
         <div class="q-top-bar">
             <div class="q-stat" id="q-stage-badge">第 1 关</div>
             <div class="q-stat">⭐ <span id="q-score">0</span></div>
             <div class="q-stat" id="q-combo-stat">🔥 <span id="q-combo">0</span></div>
             <div class="q-stat">❤️ <span id="q-hp">3</span></div>
-            <button class="q-btn" id="q-hint-btn">💡 提示(<span id="q-hint-count">3</span>)</button>
-            <button class="q-btn" id="q-pause-btn">⏸ 暂停</button>
-            <button class="q-btn" id="q-map-btn">🗺️ 关卡</button>
-            <button class="q-btn q-btn-red" id="q-exit-btn">返回菜单</button>
+            <button class="q-btn" id="q-hint-btn">💡 <span data-i18n="hint">提示</span>(<span id="q-hint-count">3</span>)</button>
+            <button class="q-btn" id="q-pause-btn" data-i18n="qPauseBtn">⏸ 暂停</button>
+            <button class="q-btn" id="q-map-btn" data-i18n="m3Map">🗺️ 关卡</button>
+            <button class="q-btn q-btn-red" id="q-exit-btn" data-i18n="qExit">返回菜单</button>
         </div>
         <div id="q-field">
             <div id="q-hero">🦸</div>
@@ -800,38 +815,38 @@
 
     <!-- 单词闯关：词库选择弹窗 -->
     <div id="questPackModal">
-        <h2>🚀 单词闯关模式</h2>
-        <p class="qpm-sub">闯关打怪学单词：看释义 · 拼单词 · 打怪兽 · 战 BOSS</p>
+        <h2 data-i18n="qPackTitle">🚀 单词闯关模式</h2>
+        <p class="qpm-sub" data-i18n="qPackSub">闯关打怪学单词：看释义 · 拼单词 · 打怪兽 · 战 BOSS</p>
         <div class="qpm-btns">
-            <button class="btn-action" id="btnQPackDaily">📗 日常单词</button>
-            <button class="btn-action" id="btnQPackCet4">📘 四级核心词</button>
-            <button class="btn-action" id="btnQPackCet6">📕 六级核心词</button>
-            <button class="btn-action btn-secondary" id="btnQPackCustom">✏️ 自定义关卡</button>
+            <button class="btn-action" id="btnQPackDaily" data-i18n="packDaily">📗 日常单词</button>
+            <button class="btn-action" id="btnQPackCet4" data-i18n="packCet4">📘 四级核心词</button>
+            <button class="btn-action" id="btnQPackCet6" data-i18n="packCet6">📕 六级核心词</button>
+            <button class="btn-action btn-secondary" id="btnQPackCustom" data-i18n="packCustom">✏️ 自定义关卡</button>
         </div>
-        <div class="qpm-tip">✅ 每词三轮闯关：学习轮(照着拼) → 练习轮(隐藏) → 掌握轮(隐藏)<br>✅ 日常/四级/六级词库：每 5 词一关，🗺️ 冒险地图逐关闯<br>✅ 长单词怪兽跑得更慢；拼不出会自动重新展示单词+减速<br>✅ 3次拼不出自动排列字母，拼出后再打乱直到掌握<br>✅ 答错自动进入"复习轮"，完成复习才算通关</div>
-        <div class="menu-container" style="margin-top:18px;"><button class="btn-action btn-secondary" id="btnQPackClose">返回</button></div>
+        <div class="qpm-tip" data-i18n-html="qPackTips">✅ 每词三轮闯关：学习轮(照着拼) → 练习轮(隐藏) → 掌握轮(隐藏)<br>✅ 日常/四级/六级词库：每 5 词一关，🗺️ 冒险地图逐关闯<br>✅ 长单词怪兽跑得更慢；拼不出会自动重新展示单词+减速<br>✅ 3次拼不出自动排列字母，拼出后再打乱直到掌握<br>✅ 答错自动进入"复习轮"，完成复习才算通关</div>
+        <div class="menu-container" style="margin-top:18px;"><button class="btn-action btn-secondary" id="btnQPackClose" data-i18n="back">返回</button></div>
     </div>
 
     <!-- 填词大作战：词库选择弹窗 -->
     <div id="m3PackModal">
-        <h2>✨ 填词战斗模式 · 知识抢夺</h2>
-        <p class="qpm-sub">怪物正在吞噬单词幕布！填入空洞，把知识抢回来</p>
+        <h2 data-i18n="m3PackTitle">✨ 填词战斗模式 · 知识抢夺</h2>
+        <p class="qpm-sub" data-i18n="m3PackSub">怪物正在吞噬单词幕布！填入空洞，把知识抢回来</p>
         <div class="qpm-btns">
-            <button class="btn-action" id="btnM3PackDaily">📗 日常单词</button>
-            <button class="btn-action" id="btnM3PackCet4">📘 四级核心词</button>
-            <button class="btn-action" id="btnM3PackCet6">📕 六级核心词</button>
-            <button class="btn-action btn-secondary" id="btnM3PackCustom">✏️ 自定义关卡</button>
+            <button class="btn-action" id="btnM3PackDaily" data-i18n="packDaily">📗 日常单词</button>
+            <button class="btn-action" id="btnM3PackCet4" data-i18n="packCet4">📘 四级核心词</button>
+            <button class="btn-action" id="btnM3PackCet6" data-i18n="packCet6">📕 六级核心词</button>
+            <button class="btn-action btn-secondary" id="btnM3PackCustom" data-i18n="packCustom">✏️ 自定义关卡</button>
         </div>
-        <div class="qpm-tip">👹 怪物从上方一行行吞噬幕布，上方 PK 进度条显示双方知识<br>✅ 日常/四级/六级：每 5 词一关，点顶栏 🗺️ 关卡选关<br>✅ 拼出目标词 → 抢回大量知识 + 幕布拉回；目标词被吞 3 次则失败<br>✅ 其他位置还挖了 eat / apple / fight 等奖励词空洞，拼成可砸向怪物抢回幕布<br>✅ 拼完所有目标单词 = 抢回全部 1000 知识，获得胜利</div>
-        <div class="menu-container" style="margin-top:18px;"><button class="btn-action btn-secondary" id="btnM3PackClose">返回</button></div>
+        <div class="qpm-tip" data-i18n-html="m3PackTips">👹 怪物从上方一行行吞噬幕布，上方 PK 进度条显示双方知识<br>✅ 日常/四级/六级：每 5 词一关，点顶栏 🗺️ 关卡选关<br>✅ 拼出目标词 → 抢回大量知识 + 幕布拉回；目标词被吞 3 次则失败<br>✅ 其他位置还挖了 eat / apple / fight 等奖励词空洞，拼成可砸向怪物抢回幕布<br>✅ 拼完所有目标单词 = 抢回全部 1000 知识，获得胜利</div>
+        <div class="menu-container" style="margin-top:18px;"><button class="btn-action btn-secondary" id="btnM3PackClose" data-i18n="back">返回</button></div>
     </div>
 
     <!-- 单词闯关：关卡地图弹窗 -->
     <div id="questMapModal">
-        <h2>🗺️ 冒险地图</h2>
+        <h2 data-i18n="qAdventureMap">🗺️ 冒险地图</h2>
         <div id="questMapList"></div>
         <div style="display:flex;gap:12px;margin-top:20px;">
-            <button class="btn-action btn-secondary" id="btnQMapClose">返回</button>
+            <button class="btn-action btn-secondary" id="btnQMapClose" data-i18n="back">返回</button>
         </div>
     </div>
 
@@ -841,65 +856,66 @@
 
     <!-- 优化：上传关卡弹窗 -->
     <div id="uploadLevelModal">
-        <h2>📦 上传关卡</h2>
+        <h2 data-i18n="uploadTitle">📦 上传关卡</h2>
         <div class="upload-zone" id="uploadZone">
             <div class="upload-plus" id="uploadPlus">＋</div>
-            <div class="upload-plus-text">上传你的单词关卡<br>图片命名为 <b>'dog 狗'</b> · 每个 zip / 文件夹作为一关</div>
+            <div class="upload-plus-text" data-i18n-html="uploadZone">上传你的单词关卡<br>图片命名为 <b>'dog 狗'</b> · 每个 zip / 文件夹作为一关</div>
         </div>
         <div class="upload-choice-btns">
-            <button class="btn-action" id="btnUploadZip">📦 上传 ZIP 包</button>
-            <button class="btn-action btn-secondary" id="btnUploadFolder">📂 上传文件夹</button>
-            <button class="btn-action btn-secondary" id="btnUploadTxt">📄 上传 TXT 关卡</button>
+            <button class="btn-action" id="btnUploadZip" data-i18n="uploadZip">📦 上传 ZIP 包</button>
+            <button class="btn-action btn-secondary" id="btnUploadFolder" data-i18n="uploadFolder">📂 上传文件夹</button>
+            <button class="btn-action btn-secondary" id="btnUploadTxt" data-i18n="uploadTxt">📄 上传 TXT 关卡</button>
         </div>
         <input type="file" id="uploadZipInput" accept=".zip,application/zip" style="display:none;">
         <input type="file" id="uploadFolderInput" webkitdirectory multiple style="display:none;">
         <input type="file" id="uploadTxtInput" accept=".txt,text/plain" multiple style="display:none;">
         <div class="upload-tips">
-            <p><b>1.</b> 上传内容为图片jpg、png、gif格式，图片命名方式为 <b>'dog 狗'</b> 方可成功</p>
-            <p><b>2.</b> 支持上传音频，同样以 <b>'dog 狗'</b> 命名则会在拼出dog后播放该音频</p>
-            <p><b>3.</b> 上传 TXT 可批量设定关卡：每行一个关卡，格式 <b>关卡名：dog,狗;cat,猫</b></p>
-            <p><b>4.</b> 请上传zip或者文件夹，可上传多个，每个作为一个关卡</p>
+            <p data-i18n-html="uploadTip1"><b>1.</b> 上传内容为图片jpg、png、gif格式，图片命名方式为 <b>'dog 狗'</b> 方可成功</p>
+            <p data-i18n-html="uploadTip2"><b>2.</b> 支持上传音频，同样以 <b>'dog 狗'</b> 命名则会在拼出dog后播放该音频</p>
+            <p data-i18n-html="uploadTip3"><b>3.</b> 上传 TXT 可批量设定关卡：每行一个关卡，格式 <b>关卡名：dog,狗;cat,猫</b></p>
+            <p data-i18n-html="uploadTip4"><b>4.</b> 请上传zip或者文件夹，可上传多个，每个作为一个关卡</p>
         </div>
         <div id="uploadedLevels"></div>
         <div class="upload-bottom-btns">
-            <button class="btn-action" id="btnStartUploadedGame">🎮 开始游戏</button>
-            <button class="btn-action btn-secondary" id="btnCloseUploadModal">返回</button>
+            <button class="btn-action" id="btnStartUploadedGame" data-i18n="uploadStart">🎮 开始游戏</button>
+            <button class="btn-action btn-secondary" id="btnCloseUploadModal" data-i18n="back">返回</button>
         </div>
     </div>
 
     <!-- 上传内容：游戏模式选择弹窗 -->
     <div id="uploadModeModal">
-        <h2>🎮 选择游戏模式</h2>
-        <p class="qpm-sub">用你上传的单词和关卡开始游戏（三种模式都支持上传内容）</p>
+        <h2 data-i18n="uploadModeTitle">🎮 选择游戏模式</h2>
+        <p class="qpm-sub" data-i18n="uploadModeSub">用你上传的单词和关卡开始游戏（三种模式都支持上传内容）</p>
         <div class="qpm-btns">
-            <button class="btn-action" id="btnUploadModeTetris">🧱 俄罗斯方块模式</button>
-            <button class="btn-action" id="btnUploadModeFill">✨ 填词大作战模式</button>
-            <button class="btn-action" id="btnUploadModeQuest">🚀 单词闯关大冒险模式</button>
-            <button class="btn-action btn-secondary" id="btnUploadModeClose">返回</button>
+            <button class="btn-action" id="btnUploadModeTetris" data-i18n="uploadModeTetris">🧱 俄罗斯方块模式</button>
+            <button class="btn-action" id="btnUploadModeFill" data-i18n="uploadModeFill">✨ 填词大作战模式</button>
+            <button class="btn-action" id="btnUploadModeQuest" data-i18n="uploadModeQuest">🚀 单词闯关大冒险模式</button>
+            <button class="btn-action btn-secondary" id="btnUploadModeClose" data-i18n="back">返回</button>
         </div>
     </div>
 
     <!-- 关卡选择弹窗 -->
     <div id="levelSelectModal">
-        <h2>🗺️ 选择关卡</h2>
+        <h2 data-i18n="levelSelectTitle">🗺️ 选择关卡</h2>
         <div id="levelSelectList"></div>
         <div style="display:flex;gap:12px;margin-top:20px;">
-            <button class="btn-action btn-secondary" id="btnCloseLevelSelect">返回</button>
+            <button class="btn-action btn-secondary" id="btnCloseLevelSelect" data-i18n="back">返回</button>
         </div>
     </div>
 
     <div id="overlay">
         <div class="tetris-pile" id="tetrisPile"></div>
         <div id="mainMenuScreen" class="menu-screen">
-            <div class="main-title">世界语言方块</div>
+            <button id="uiLangBtn" aria-label="Language / 语言">🌐</button>
+            <div class="main-title" data-i18n="title">世界语言方块</div>
             <div class="main-subtitle">World Language Blocks</div>
             <div class="menu-container">
-                <button class="btn-action btn-start-big" id="btnStartMain">▶ 开 始 游 戏</button>
+                <button class="btn-action btn-start-big" id="btnStartMain" data-i18n="startGame">▶ 开 始 游 戏</button>
             </div>
-            <div class="menu-footer">梦小段工作室出品</div>
+            <div class="menu-footer" data-i18n="footer">梦小段工作室出品</div>
         </div>
         <div id="langSelectScreen" class="menu-screen hidden">
-            <h1 class="overlay-h1">选择语言</h1>
+            <h1 class="overlay-h1" data-i18n="selectLang">选择语言</h1>
             <div class="lang-drum-wrap">
                 <button class="lang-arrow-v" id="langArrowUp">▲</button>
                 <div class="lang-drum" id="langDrum">
@@ -907,103 +923,103 @@
                         <div class="lang-card" data-lang="en" data-i="0">
                             <div class="lc-flag flag-uk"></div>
                             <div class="lc-name">English</div>
-                            <div class="lc-sub">英 语</div>
+                            <div class="lc-sub" data-i18n="lcSubEn">英 语</div>
                         </div>
                         <div class="lang-card" data-lang="ru" data-i="1">
                             <div class="lc-flag flag-ru"></div>
                             <div class="lc-name">Русский</div>
-                            <div class="lc-sub">俄 语</div>
+                            <div class="lc-sub" data-i18n="lcSubRu">俄 语</div>
                         </div>
                         <div class="lang-card" data-lang="fr" data-i="2">
                             <div class="lc-flag flag-fr"></div>
                             <div class="lc-name">Français</div>
-                            <div class="lc-sub">法 语</div>
+                            <div class="lc-sub" data-i18n="lcSubFr">法 语</div>
                         </div>
                         <div class="lang-card" data-lang="zh" data-i="3">
                             <div class="lc-flag flag-cn"><i class="cn-big">★</i><i class="cn-s1">★</i><i class="cn-s2">★</i><i class="cn-s3">★</i><i class="cn-s4">★</i></div>
                             <div class="lc-name">中文</div>
-                            <div class="lc-sub">汉 语</div>
+                            <div class="lc-sub" data-i18n="lcSubZh">汉 语</div>
                         </div>
                         <div class="lang-card" data-lang="other" data-i="4">
                             <div class="lc-flag flag-globe"></div>
-                            <div class="lc-name">其他语言</div>
-                            <div class="lc-sub">更 多</div>
+                            <div class="lc-name" data-i18n="lcNameOther">其他语言</div>
+                            <div class="lc-sub" data-i18n="lcSubOther">更 多</div>
                         </div>
                     </div>
                 </div>
                 <button class="lang-arrow-v" id="langArrowDown">▼</button>
                 <div class="lang-strip" id="langStrip">
-                    <span class="lh-label">当前语言</span>
+                    <span class="lh-label" data-i18n="currentLangLabel">当前语言</span>
                     <span class="lh-blocks" id="langStripBlocks"></span>
                     <span class="lh-name" id="langStripName"></span>
                 </div>
             </div>
             <div class="menu-container">
-                <button class="btn-action" id="btnLangNext">开始游戏</button>
-                <button class="btn-action btn-secondary" id="btnBackToMain">返回主界面</button>
+                <button class="btn-action" id="btnLangNext" data-i18n="start">开始游戏</button>
+                <button class="btn-action btn-secondary" id="btnBackToMain" data-i18n="backToMain">返回主界面</button>
             </div>
         </div>
         <div id="modeSelectScreen" class="menu-screen hidden">
-            <h1 class="overlay-h1">选择游戏模式</h1>
+            <h1 class="overlay-h1" data-i18n="modeSelect">选择游戏模式</h1>
             <div class="mode-tag" id="modeLangTag">🌐 当前语言：English · 英语</div>
             <div class="mode-grid">
                 <button class="mode-card mc-tetris" id="btnModeTetris">
                     <span class="mc-icon">🧱</span>
-                    <span class="mc-text"><span class="mc-name">俄罗斯方块模式</span><span class="mc-desc">经典落块 · 拼单词消行闯关</span></span>
+                    <span class="mc-text"><span class="mc-name" data-i18n="mcTetrisName">俄罗斯方块模式</span><span class="mc-desc" data-i18n="mcTetrisDesc">经典落块 · 拼单词消行闯关</span></span>
                 </button>
                 <button class="mode-card mc-fill" id="btnModeFill">
                     <span class="mc-icon">✨</span>
-                    <span class="mc-text"><span class="mc-name">填词战斗模式</span><span class="mc-desc">填补单词空洞 · 与怪物抢夺知识</span></span>
+                    <span class="mc-text"><span class="mc-name" data-i18n="mcFillName">填词战斗模式</span><span class="mc-desc" data-i18n="mcFillDesc">填补单词空洞 · 与怪物抢夺知识</span></span>
                 </button>
                 <button class="mode-card mc-quest" id="btnModeQuest">
                     <span class="mc-icon">🚀</span>
-                    <span class="mc-text"><span class="mc-name">单词闯关模式</span><span class="mc-desc">看释义拼单词 · 打怪闯关大冒险</span></span>
+                    <span class="mc-text"><span class="mc-name" data-i18n="mcQuestName">单词闯关模式</span><span class="mc-desc" data-i18n="mcQuestDesc">看释义拼单词 · 打怪闯关大冒险</span></span>
                 </button>
             </div>
-            <div class="menu-container" style="margin-top: 22px;"><button class="btn-action btn-secondary" id="btnBackToLangMode">返回语言选择</button></div>
+            <div class="menu-container" style="margin-top: 22px;"><button class="btn-action btn-secondary" id="btnBackToLangMode" data-i18n="backToLang">返回语言选择</button></div>
         </div>
         <div id="difficultySelectScreen" class="menu-screen hidden">
-            <h1 id="overlayTitle">🧱 选择关卡</h1>
+            <h1 id="overlayTitle" data-i18n="diffTitle">🧱 选择关卡</h1>
             <div class="menu-container" id="menuButtons">
-                <button class="btn-action" data-difficulty="2">2字母以内单词</button>
-                <button class="btn-action" data-difficulty="3">3字母以内单词</button>
-                <button class="btn-action" data-difficulty="4">4字母以内单词</button>
-                <button class="btn-action" data-difficulty="life">生活单词</button>
-                <button class="btn-action" data-difficulty="custom" id="btnCustom">自定义关卡</button>
+                <button class="btn-action" data-difficulty="2" data-i18n="diff2">2字母以内单词</button>
+                <button class="btn-action" data-difficulty="3" data-i18n="diff3">3字母以内单词</button>
+                <button class="btn-action" data-difficulty="4" data-i18n="diff4">4字母以内单词</button>
+                <button class="btn-action" data-difficulty="life" data-i18n="diffLife">生活单词</button>
+                <button class="btn-action" data-difficulty="custom" id="btnCustom" data-i18n="diffCustom">自定义关卡</button>
             </div>
-            <div class="menu-container" style="margin-top: 20px;"><button class="btn-action btn-secondary" id="btnBackToLang">返回模式选择</button></div>
+            <div class="menu-container" style="margin-top: 20px;"><button class="btn-action btn-secondary" id="btnBackToLang" data-i18n="backToMode">返回模式选择</button></div>
         </div>
         <div id="customSelectScreen" class="menu-screen hidden">
-            <h1 id="overlayTitle">自定义关卡</h1>
+            <h1 id="overlayTitle" data-i18n="customTitle">自定义关卡</h1>
             <textarea id="customWordInput" placeholder="dog,狗;we,我们;apple,苹果"></textarea>
-            <div class="custom-tip">请按格式输入：英文单词,中文释义;英文单词,中文释义<br>示例：dog,狗;we,我们</div>
+            <div class="custom-tip"><span data-i18n="customTip">请按格式输入：英文单词,中文释义;英文单词,中文释义</span><br><span data-i18n="customTipEx">示例：dog,狗;we,我们</span></div>
             <div class="menu-container">
-                <button class="btn-action" id="btnStartCustomOrder">按输入顺序开始游戏</button>
-                <button class="btn-action" id="btnStartCustomRandom">按随机顺序开始游戏</button>
-                <button class="btn-action" id="btnStartCustomFill" style="display:none; border: 2px solid #f1c40f;">✨ 开始填词战斗</button>
-                <button class="btn-action" id="btnStartCustomQuest" style="display:none; border: 2px solid #53d769;">🚀 开始单词闯关</button>
-                <button class="btn-action btn-secondary" id="btnUploadLevel" style="border: 2px solid #53d769;">📦 上传关卡</button>
+                <button class="btn-action" id="btnStartCustomOrder" data-i18n="customOrder">按输入顺序开始游戏</button>
+                <button class="btn-action" id="btnStartCustomRandom" data-i18n="customRandom">按随机顺序开始游戏</button>
+                <button class="btn-action" id="btnStartCustomFill" style="display:none; border: 2px solid #f1c40f;" data-i18n="customFill">✨ 开始填词战斗</button>
+                <button class="btn-action" id="btnStartCustomQuest" style="display:none; border: 2px solid #53d769;" data-i18n="customQuest">🚀 开始单词闯关</button>
+                <button class="btn-action btn-secondary" id="btnUploadLevel" style="border: 2px solid #53d769;" data-i18n="uploadLevel">📦 上传关卡</button>
             </div>
-            <div class="menu-container" style="margin-top: 20px;"><button class="btn-action btn-secondary" id="btnBackToDiffFromCustom">返回关卡选择</button></div>
+            <div class="menu-container" style="margin-top: 20px;"><button class="btn-action btn-secondary" id="btnBackToDiffFromCustom" data-i18n="backToDiff">返回关卡选择</button></div>
         </div>
         <div id="pauseScreen" class="menu-screen hidden">
-            <h1 id="overlayTitle">游戏暂停</h1>
+            <h1 id="overlayTitle" data-i18n="pauseTitle">游戏暂停</h1>
             <div class="menu-container">
-                <button class="btn-action" id="btnResume">继续游戏</button>
-                <button class="btn-action" id="btnRestartFromPause">重新开始</button>
-                <button class="btn-action btn-secondary" id="btnSelectLevelFromPause" style="display:none;">🗺️ 选择关卡</button>
-                <button class="btn-action btn-secondary" id="btnDiffFromPause">返回关卡选择</button>
-                <button class="btn-action btn-secondary" id="btnEndFromPause">结束游戏</button>
+                <button class="btn-action" id="btnResume" data-i18n="resume">继续游戏</button>
+                <button class="btn-action" id="btnRestartFromPause" data-i18n="restart">重新开始</button>
+                <button class="btn-action btn-secondary" id="btnSelectLevelFromPause" style="display:none;" data-i18n="selectLevel">🗺️ 选择关卡</button>
+                <button class="btn-action btn-secondary" id="btnDiffFromPause" data-i18n="backToDiffFromPause">返回关卡选择</button>
+                <button class="btn-action btn-secondary" id="btnEndFromPause" data-i18n="endGame">结束游戏</button>
             </div>
         </div>
         <div id="gameOverScreen" class="menu-screen hidden">
-            <h1 id="overlayTitle">游戏结束</h1>
-            <div class="new-record-badge hidden" id="newRecordBadge">🎉 新纪录！</div>
+            <h1 id="overlayTitle" data-i18n="gameOverTitle">游戏结束</h1>
+            <div class="new-record-badge hidden" id="newRecordBadge" data-i18n="newRecord">🎉 新纪录！</div>
             <div class="stats-grid" id="statsGrid"></div>
             <div class="menu-container">
-                <button class="btn-action" id="btnRestart">重新开始</button>
-                <button class="btn-action btn-secondary hidden" id="btnNextUploadLevel">➡️ 下一关</button>
-                <button class="btn-action btn-secondary" id="btnMenu">重新选择关卡</button>
+                <button class="btn-action" id="btnRestart" data-i18n="restart">重新开始</button>
+                <button class="btn-action btn-secondary hidden" id="btnNextUploadLevel" data-i18n="nextLevelBtn">➡️ 下一关</button>
+                <button class="btn-action btn-secondary" id="btnMenu" data-i18n="chooseLevel">重新选择关卡</button>
             </div>
         </div>
     </div>
@@ -1011,13 +1027,22 @@
         <div class="modal-content">
             <h3 id="customLoadText">正在录入目标词库...</h3>
             <div class="loading-bar-container"><div class="loading-bar" id="customLoadBar" style="width:0%"></div></div>
-            <button class="btn-action btn-secondary" id="btnStopCustomLoad" style="margin-top: 20px; width: auto; padding: 10px 30px;">停止录入</button>
+            <button class="btn-action btn-secondary" id="btnStopCustomLoad" style="margin-top: 20px; width: auto; padding: 10px 30px;" data-i18n="stopLoad">停止录入</button>
+        </div>
+    </div>
+
+    <!-- UI 界面语言切换弹窗（i18n，国旗选择） -->
+    <div id="uiLangModal" class="hidden">
+        <div class="uilang-panel">
+            <h2 data-i18n="uiLangTitle">选择界面语言</h2>
+            <div class="uilang-grid" id="uiLangGrid"></div>
         </div>
     </div>
 
     <script>
     (function() {
         'use strict';
+        const _t = (k, v) => (window.I18N ? window.I18N.t(k, v) : k);
         const COLS = 10, ROWS = 20, BLOCK_SIZE = 30;
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -1028,6 +1053,18 @@
         const DOM = {};
         ['scoreValue','scoreValueSide','levelValue','highScoreValue','targetWordDisplay','targetWordMeaning','targetProgress','nextTitle','targetTitle','btnDrop','btnPauseIcon','wordPopup','popupEmoji','popupWord','popupMeaning','popupScore','overlay','loadingScreen','loadingText','loadingBar','loadingPercent','gameWrapper','gameOverScreen','pauseScreen','langSelectScreen','difficultySelectScreen','customSelectScreen','customWordInput','customLoadingModal','customLoadText','customLoadBar','btnStopCustomLoad','newRecordBadge','statsGrid'].forEach(id => { DOM[id] = document.getElementById(id); });
 
+
+        // 生活单词（life）模式出词顺序：生存优先课程
+        const EN_LIFE_ORDER = ['me','you','he','she','it','we','they','us','them','my','your','his','her',
+            'need','want','have','use','get','eat','food','drink','water','milk','sleep','bed',
+            'what','who','where','when','why','how','teach','learn','help','give','please',
+            'eye','ear','mouth','nose','face','hand','foot','leg','arm','head',
+            'see','look','hear','listen','speak','talk','think','know','feel','idea',
+            'house','home','room','door','window','open','close','light','key','lock',
+            'table','chair','desk','box','bag','book','bowl','cup','plate','fork','spoon',
+            'this','that','here','there','question','thanks','smile','hello','sorry','goodbye',
+            'yes','no','not','good','bad','walk','run','go','come','stop','sit','stand',
+            'say','tell','ask','answer','read','write','draw','sing','play','love','time','name','friend','family','happy'];
         let state = 'ready';
         let grid, currentPiece, nextPiece, holdPiece, canHold;
         let score, displayScore, dropCounter, dropInterval = 1000, lastTime, animationId;
@@ -1085,7 +1122,23 @@
             'star': {mean: '星星', img: '⭐', color: null}, 'egg': {mean: '蛋', img: '🥚', color: null},
             'fight': {mean: '战斗', img: '🥊', color: null},
             'ball': {mean: '球', img: '⚽', color: null}, 'tree': {mean: '树', img: '🌳', color: null},
-            'discovery': {mean: '发现', img: '🔍', color: null}
+            'discovery': {mean: '发现', img: '🔍', color: null},
+        // ===== 生存单词扩充：你我他·吃喝睡·五官·家居·感恩（生活单词模式按 EN_LIFE_ORDER 顺序出词） =====
+        'you': {mean: '你', img: '👉', color: null}, 'she': {mean: '她', img: '👩', color: null},
+        'need': {mean: '需要', img: '❗', color: null}, 'food': {mean: '食物', img: '🍚', color: null},
+        'drink': {mean: '喝', img: '🥤', color: null}, 'sleep': {mean: '睡觉', img: '😴', color: null},
+        'what': {mean: '什么', img: '❓', color: null}, 'teach': {mean: '教', img: '👩‍🏫', color: null},
+        'learn': {mean: '学习', img: '📖', color: null}, 'help': {mean: '帮助', img: '🆘', color: null},
+        'eye': {mean: '眼睛', img: '👁️', color: null}, 'ear': {mean: '耳朵', img: '👂', color: null},
+        'mouth': {mean: '嘴', img: '👄', color: null}, 'nose': {mean: '鼻子', img: '👃', color: null},
+        'hand': {mean: '手', img: '✋', color: null}, 'idea': {mean: '主意', img: '💡', color: null},
+        'door': {mean: '门', img: '🚪', color: null}, 'bed': {mean: '床', img: '🛏️', color: null},
+        'chair': {mean: '椅子', img: '🪑', color: null}, 'table': {mean: '桌子', img: '🛋️', color: null},
+        'cup': {mean: '杯子', img: '☕', color: null}, 'bowl': {mean: '碗', img: '🥣', color: null},
+        'open': {mean: '打开', img: '🔓', color: null}, 'close': {mean: '关闭', img: '🔒', color: null},
+        'light': {mean: '灯;光', img: '💡', color: null}, 'thanks': {mean: '谢谢', img: '😊', color: null},
+        'smile': {mean: '微笑', img: '😄', color: null}, 'hello': {mean: '你好', img: '👋', color: null},
+        'walk': {mean: '走', img: '🚶', color: null}, 'talk': {mean: '说话', img: '💬', color: null}
         };
         const RU_WORDS = {
             'я': {mean: '我', img: 'ℹ️', color: '#ff4136', single: true},
@@ -1170,7 +1223,7 @@
             const loadingText = DOM.loadingText, loadingBar = DOM.loadingBar, loadingPercent = DOM.loadingPercent;
             let progress = 0;
             const pi = setInterval(() => { progress += 1; if (progress >= 100) { progress = 100; clearInterval(pi); loadingBar.style.width = '100%'; loadingPercent.innerText = '100%'; } else { loadingBar.style.width = progress + '%'; loadingPercent.innerText = Math.floor(progress) + '%'; } }, 30);
-            loadingText.innerText = '梦小段工作室出品'; loadingText.classList.add('show');
+            loadingText.innerText = _t('footer'); loadingText.classList.add('show');
             setTimeout(() => { if(DOM.loadingScreen) DOM.loadingScreen.style.opacity = '0'; setTimeout(() => { if(DOM.loadingScreen) DOM.loadingScreen.style.display = 'none'; if(DOM.gameWrapper) DOM.gameWrapper.style.display = 'flex'; if(DOM.overlay) DOM.overlay.style.display = 'flex'; try { generatePile(); } catch(e) {} if (audioCtx) startBgMusic(); }, 800); }, 3000);
         }
         function generatePile() { const pile = document.getElementById('tetrisPile'); if (!pile || pile.children.length > 0) return; const COLS = 11, ROWS = 10, CELL = 30; const heights = [3, 5, 4, 7, 10, 6, 9, 4, 6, 3, 4]; const wordCols = { 4: 'book', 6: 'moon', 8: 'star' }; const letters = 'abcdefghijklmnopqrstuvwxyz'; const rnd = (n) => Math.floor(Math.random() * n); for (let c = 0; c < COLS; c++) { const word = wordCols[c] || null; for (let r = 0; r < heights[c]; r++) { if (!word && r > 0 && r < heights[c] - 1 && Math.random() < 0.06) continue; const cell = document.createElement('div'); cell.className = 'pile-cell'; cell.style.left = (c * CELL) + 'px'; cell.style.bottom = (r * CELL) + 'px'; cell.style.background = COLORS[rnd(COLORS.length)]; const fromTop = heights[c] - 1 - r; cell.innerText = word ? (word[fromTop] || letters[rnd(26)]) : letters[rnd(26)]; pile.appendChild(cell); } } }
@@ -1297,10 +1350,10 @@
             } catch(e) {}
         }
 
-        function setupDifficulty(diff) { uploadedTetrisRun = null; currentDifficulty = diff; const baseDict = selectedLanguage === 'ru' ? RU_WORDS : EN_WORDS; ACTIVE_WORDS = {}; for(const w in baseDict) { if(baseDict[w].single) ACTIVE_WORDS[w] = baseDict[w]; } if (diff === 'life') { for (const w in baseDict) { if (!baseDict[w].single) ACTIVE_WORDS[w] = baseDict[w]; } } else if (diff !== 'custom') { const maxLen = parseInt(diff); for (const w in baseDict) { if (!baseDict[w].single && w.length <= maxLen) ACTIVE_WORDS[w] = baseDict[w]; } } customWordList = null; customWordIndex = 0; pickNewTargetWord(); }
+        function setupDifficulty(diff) { uploadedTetrisRun = null; currentDifficulty = diff; const baseDict = selectedLanguage === 'ru' ? RU_WORDS : EN_WORDS; ACTIVE_WORDS = {}; for(const w in baseDict) { if(baseDict[w].single) ACTIVE_WORDS[w] = baseDict[w]; } if (diff === 'life') { for (const w in baseDict) { if (!baseDict[w].single) ACTIVE_WORDS[w] = baseDict[w]; } } else if (diff !== 'custom') { const maxLen = parseInt(diff); for (const w in baseDict) { if (!baseDict[w].single && w.length <= maxLen) ACTIVE_WORDS[w] = baseDict[w]; } } if (diff === 'life') { const seq = (typeof EN_LIFE_ORDER !== 'undefined' && EN_LIFE_ORDER.length) ? EN_LIFE_ORDER : Object.keys(baseDict); customWordList = seq.filter(w => ACTIVE_WORDS[w] && !ACTIVE_WORDS[w].single); customWordIndex = 0; } else { customWordList = null; customWordIndex = 0; } pickNewTargetWord(); }
         function setupCustomDifficulty(customDict, isRandom) { uploadedTetrisRun = null; currentDifficulty = 'custom'; ACTIVE_WORDS = {}; const baseDict = selectedLanguage === 'ru' ? RU_WORDS : EN_WORDS; const singles = selectedLanguage === 'ru' ? ['я', 'а'] : ['i', 'a']; singles.forEach(s => { if (baseDict[s]) ACTIVE_WORDS[s] = baseDict[s]; }); Object.assign(ACTIVE_WORDS, customDict); if (!isRandom) { customWordList = Object.keys(customDict); customWordIndex = 0; } else { customWordList = null; } pickNewTargetWord(); }
         function parseCustomWords(input) { const dict = {}; const pairs = input.split(/;|；/); const baseDict = selectedLanguage === 'ru' ? RU_WORDS : EN_WORDS; const defaultColors = ['#00f2ff', '#ffe600', '#a100ff', '#00ff66', '#ff0000', '#ff8800', '#0088ff']; let colorIdx = 0; pairs.forEach(pair => { const parts = pair.split(/,|，/); if (parts.length >= 2) { const en = parts[0].trim().toLowerCase(); const zh = parts.slice(1).join(',').trim(); if (en && zh) { const existingWord = baseDict[en]; dict[en] = { mean: zh, img: existingWord ? existingWord.img : '📝', color: existingWord ? existingWord.color : defaultColors[colorIdx % defaultColors.length], single: en.length === 1 }; colorIdx++; } } }); return dict; }
-        function pickNewTargetWord() { isWordLocked = false; seqGenIndex = 0; updateLockUI(); if (currentDifficulty === 'custom' && customWordList) { if (customWordIndex >= customWordList.length) customWordIndex = 0; targetWord = customWordList[customWordIndex]; customWordIndex++; } else { const availableWords = Object.keys(ACTIVE_WORDS).filter(w => !ACTIVE_WORDS[w].single); if (availableWords.length === 0) targetWord = selectedLanguage === 'ru' ? 'кот' : 'cat'; else targetWord = availableWords[Math.floor(Math.random() * availableWords.length)]; } DOM.targetWordDisplay.innerText = targetWord; DOM.targetWordMeaning.innerText = ACTIVE_WORDS[targetWord] ? ACTIVE_WORDS[targetWord].mean : ''; targetLetterDelay = 0; updateTargetProgress(); }
+        function pickNewTargetWord() { isWordLocked = false; seqGenIndex = 0; updateLockUI(); if (customWordList) { if (customWordIndex >= customWordList.length) customWordIndex = 0; targetWord = customWordList[customWordIndex]; customWordIndex++; } else { const availableWords = Object.keys(ACTIVE_WORDS).filter(w => !ACTIVE_WORDS[w].single); if (availableWords.length === 0) targetWord = selectedLanguage === 'ru' ? 'кот' : 'cat'; else targetWord = availableWords[Math.floor(Math.random() * availableWords.length)]; } DOM.targetWordDisplay.innerText = targetWord; DOM.targetWordMeaning.innerText = ACTIVE_WORDS[targetWord] ? ACTIVE_WORDS[targetWord].mean : ''; targetLetterDelay = 0; updateTargetProgress(); }
         function updateTargetProgress() { let html = ''; for (let i = 0; i < targetWord.length; i++) { const letter = targetWord[i]; const found = isTargetLetterOnBoard(letter, i); html += '<div class="prog-letter' + (found ? ' found' : '') + '">' + letter + '</div>'; } DOM.targetProgress.innerHTML = html; }
         function isTargetLetterOnBoard(letter, index) { if (!grid) return false; const lower = letter.toLowerCase(); let count = 0; for (let r = 0; r < ROWS; r++) { for (let c = 0; c < COLS; c++) { if (grid[r][c] && !grid[r][c].clearing && grid[r][c].letter.toLowerCase() === lower) count++; } } let needed = 0; for (let j = 0; j <= index; j++) { if (targetWord[j] === letter) needed++; } return count >= needed; }
         function refillStream() { const allWords = Object.keys(ACTIVE_WORDS).filter(w => !ACTIVE_WORDS[w].single); const colorWords = allWords.filter(w => ACTIVE_WORDS[w].color !== null); const shortWords = allWords.filter(w => ACTIVE_WORDS[w].color === null); let s1 = [...colorWords].sort(() => Math.random() - 0.5).join(''); let s2 = [...shortWords].sort(() => Math.random() - 0.5).join(''); let s3 = [...shortWords].sort(() => Math.random() - 0.5).join(''); letterStream += (s1 + s2 + s3).split('').sort(() => Math.random() - 0.5).join(''); }
@@ -1331,16 +1384,16 @@
         function resolveGrid() { let bestMatch = findBestMatch(); if (!bestMatch) { statsCurrentCombo = 0; if (popupQueue.length > 0) { state = 'showing_popup'; showNextPopup(); } else { spawnNextPiece(); } return; } statsCurrentCombo++; if (statsCurrentCombo > statsMaxCombo) statsMaxCombo = statsCurrentCombo; let comboBonus = statsCurrentCombo > 1 ? (statsCurrentCombo - 1) * 50 : 0; if (bestMatch.type === 'single') { const [r, c] = bestMatch.cells[0].split(',').map(Number); let cellsToClear = new Set(); for (let dr = -1; dr <= 1; dr++) { for (let dc = -1; dc <= 1; dc++) { const nr = r + dr, nc = c + dc; if (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS && grid[nr][nc] && !grid[nr][nc].clearing) cellsToClear.add(nr + ',' + nc); } } cellsToClear.forEach(cellKey => { let [cr, cc] = cellKey.split(',').map(Number); grid[cr][cc].clearing = true; }); playSoundBomb(); let pts = cellsToClear.size * 150 + comboBonus; score += pts; popupQueue.push({ word: bestMatch.word, score: pts }); lastClearType = 'single'; updateScoreDisplay(); clearStartTime = performance.now(); state = 'flashing'; return; } if (bestMatch.type === 'target_h') { const r = parseInt(bestMatch.cells[0].split(',')[0]); bestMatch.cells.forEach(cell => { let [cr, cc] = cell.split(',').map(Number); if (grid[cr][cc]) grid[cr][cc].isWordFlash = true; }); playSoundTarget(); statsWordsFound++; let pts = bestMatch.word.length * 500 + comboBonus; score += pts; popupQueue.push({ word: bestMatch.word, score: pts, isTarget: true }); if (!isWordLocked) pickNewTargetWord(); lastClearType = 'target_h'; let targetCols = new Set(bestMatch.cells.map(cell => parseInt(cell.split(',')[1]))); lastClearData = { cells: bestMatch.cells, row: r, targetCols }; updateScoreDisplay(); clearStartTime = performance.now(); state = 'flashing_word_h'; return; } if (bestMatch.type === 'target_v') { const c = parseInt(bestMatch.cells[0].split(',')[1]); bestMatch.cells.forEach(cell => { let [cr, cc] = cell.split(',').map(Number); if (grid[cr][cc]) grid[cr][cc].isWordFlash = true; }); playSoundTarget(); statsWordsFound++; let pts = bestMatch.word.length * 500 + comboBonus; score += pts; popupQueue.push({ word: bestMatch.word, score: pts, isTarget: true }); if (!isWordLocked) pickNewTargetWord(); lastClearType = 'target_v'; let targetRows = new Set(bestMatch.cells.map(cell => parseInt(cell.split(',')[0]))); lastClearData = { cells: bestMatch.cells, col: c, direction: (c < COLS / 2) ? 'left' : 'right', targetRows }; updateScoreDisplay(); clearStartTime = performance.now(); state = 'flashing_word_v'; return; } bestMatch.cells.forEach(cell => { let [r, c] = cell.split(',').map(Number); if (grid[r][c]) grid[r][c].clearing = true; }); if (bestMatch.type === 'word') { playSoundClear(); statsWordsFound++; let pts = bestMatch.word.length * 200 + comboBonus; score += pts; popupQueue.push({ word: bestMatch.word, score: pts }); lastClearType = 'word'; } else if (bestMatch.type === 'line') { playSoundClear(); statsLinesCleared++; let pts = 1000 + comboBonus; score += pts; lastClearType = 'line'; } updateScoreDisplay(); clearStartTime = performance.now(); state = 'flashing'; }
         function finishResolution() { updateTargetProgress(); if (popupQueue.length > 0) { state = 'showing_popup'; showNextPopup(); } else { state = 'resolving'; resolveGrid(); } }
         function finishClearing() { let clearedCells = []; for (let r = 0; r < ROWS; r++) { for (let c = 0; c < COLS; c++) { if (grid[r][c] && grid[r][c].clearing) { clearedCells.push({r, c}); grid[r][c] = null; } } } gravityQueue = []; if (lastClearType === 'target_h') { let allCols = []; for (let c = 0; c < COLS; c++) allCols.push(c); gravityQueue.push({ type: 'normal', cols: allCols, mode: 'preserve', clearedCells }); gravityQueue.push({ type: 'normal', cols: Array.from(lastClearData.targetCols), mode: 'compact' }); } else if (lastClearType === 'target_v') { gravityQueue.push({ type: 'horizontal', rows: Array.from(lastClearData.targetRows), direction: lastClearData.direction }); } else { let allCols = new Set(clearedCells.map(cell => cell.c)); gravityQueue.push({ type: 'normal', cols: Array.from(allCols), mode: 'preserve', clearedCells }); } executeNextGravity(); }
-        function showNextPopup() { if (popupQueue.length === 0) { state = 'resolving'; resolveGrid(); return; } const item = popupQueue.shift(); const word = typeof item === 'string' ? item : item.word; const scoreGain = typeof item === 'string' ? 0 : (item.score || 0); const isTarget = typeof item === 'string' ? false : (item.isTarget || false); const wordInfo = ACTIVE_WORDS[word] || { mean: '未知单词', img: '📝' };
+        function showNextPopup() { if (popupQueue.length === 0) { state = 'resolving'; resolveGrid(); return; } const item = popupQueue.shift(); const word = typeof item === 'string' ? item : item.word; const scoreGain = typeof item === 'string' ? 0 : (item.score || 0); const isTarget = typeof item === 'string' ? false : (item.isTarget || false); const wordInfo = ACTIVE_WORDS[word] || { mean: _t('unknownWord'), img: '📝' };
         const imgUrl2 = wordInfo.img && typeof wordInfo.img === 'string' && /^(blob:|data:|https?:)/.test(wordInfo.img) ? wordInfo.img : null;
         DOM.popupEmoji.innerHTML = imgUrl2 ? '<img src="' + imgUrl2 + '">' : (wordInfo.img || '📝');
         if (wordInfo.audio) { try { new Audio(wordInfo.audio).play(); } catch (e) {} }
-        DOM.popupWord.innerText = word; DOM.popupMeaning.innerText = wordInfo.mean; DOM.popupScore.innerText = scoreGain > 0 ? ('+' + scoreGain + (statsCurrentCombo > 1 ? '  连击x' + statsCurrentCombo : '')) : ''; DOM.popupScore.classList.toggle('hidden', scoreGain <= 0); if (wordInfo.color) { DOM.wordPopup.style.backgroundColor = wordInfo.color; DOM.wordPopup.style.backgroundImage = 'linear-gradient(135deg, rgba(255,255,255,0.2), rgba(0,0,0,0.5))'; } else { DOM.wordPopup.style.backgroundColor = isTarget ? '#f1c40f' : '#0f3460'; DOM.wordPopup.style.backgroundImage = isTarget ? 'linear-gradient(135deg, #f1c40f, #e94560)' : 'linear-gradient(135deg, #e94560, #0f3460)'; } DOM.wordPopup.classList.remove('hidden'); setTimeout(() => DOM.wordPopup.classList.add('show'), 10); speakWord(word); const myGameId = currentGameId; setTimeout(() => { if (myGameId !== currentGameId) return; DOM.wordPopup.classList.remove('show'); setTimeout(() => { if (myGameId !== currentGameId) return; DOM.wordPopup.classList.add('hidden'); showNextPopup(); }, 250); }, 1500); }
+        DOM.popupWord.innerText = word; DOM.popupMeaning.innerText = wordInfo.mean; DOM.popupScore.innerText = scoreGain > 0 ? ('+' + scoreGain + (statsCurrentCombo > 1 ? '  ' + _t('combo', { n: statsCurrentCombo }) : '')) : ''; DOM.popupScore.classList.toggle('hidden', scoreGain <= 0); if (wordInfo.color) { DOM.wordPopup.style.backgroundColor = wordInfo.color; DOM.wordPopup.style.backgroundImage = 'linear-gradient(135deg, rgba(255,255,255,0.2), rgba(0,0,0,0.5))'; } else { DOM.wordPopup.style.backgroundColor = isTarget ? '#f1c40f' : '#0f3460'; DOM.wordPopup.style.backgroundImage = isTarget ? 'linear-gradient(135deg, #f1c40f, #e94560)' : 'linear-gradient(135deg, #e94560, #0f3460)'; } DOM.wordPopup.classList.remove('hidden'); setTimeout(() => DOM.wordPopup.classList.add('show'), 10); speakWord(word); const myGameId = currentGameId; setTimeout(() => { if (myGameId !== currentGameId) return; DOM.wordPopup.classList.remove('show'); setTimeout(() => { if (myGameId !== currentGameId) return; DOM.wordPopup.classList.add('hidden'); showNextPopup(); }, 250); }, 1500); }
         function spawnNextPiece() { currentPiece = nextPiece; nextPiece = createPiece(); drawNextPiece(); canHold = true; drawHoldPiece(); if (collision(currentPiece)) gameOver(); else state = 'falling'; }
         function updateScoreDisplay() { DOM.scoreValueSide.innerText = score; let level = Math.floor(score / 2000) + 1; DOM.levelValue.textContent = level; DOM.scoreValue.classList.remove('bump'); void DOM.scoreValue.offsetWidth; DOM.scoreValue.classList.add('bump'); setTimeout(() => DOM.scoreValue.classList.remove('bump'), 150); updateGameSpeed(); }
         function animateScore() { if (displayScore < score) { let diff = score - displayScore; displayScore += Math.max(1, Math.ceil(diff * 0.15)); if (displayScore > score) displayScore = score; DOM.scoreValue.innerText = displayScore; } }
         function updateGameSpeed() { let level = Math.floor(score / 2000); let cycleLevel = level % 10; const speeds = [1000, 850, 700, 600, 500, 400, 300, 250, 200, 150]; dropInterval = speeds[cycleLevel]; }
-        function gameOver() { state = 'gameover'; cancelAnimationFrame(animationId); playSoundGameOver(); startBgMusic(); let isNewRecord = saveHighScore(); let elapsed = Math.floor((Date.now() - gameStartTime) / 1000); let minutes = Math.floor(elapsed / 60); let seconds = elapsed % 60; let timeStr = minutes > 0 ? (minutes + '分' + seconds + '秒') : (seconds + '秒'); DOM.newRecordBadge.classList.toggle('hidden', !isNewRecord); DOM.statsGrid.innerHTML = '<div class="stat-item"><div class="stat-val' + (isNewRecord ? ' new-record' : '') + '">' + score + '</div><div class="stat-label">最终得分</div></div><div class="stat-item"><div class="stat-val">' + statsWordsFound + '</div><div class="stat-label">单词消除</div></div><div class="stat-item"><div class="stat-val">' + statsLinesCleared + '</div><div class="stat-label">行消除</div></div><div class="stat-item"><div class="stat-val">' + statsMaxCombo + '</div><div class="stat-label">最大连击</div></div><div class="stat-item"><div class="stat-val">Lv.' + (Math.floor(score / 2000) + 1) + '</div><div class="stat-label">达到等级</div></div><div class="stat-item"><div class="stat-val">' + timeStr + '</div><div class="stat-label">游戏时长</div></div>'; DOM.langSelectScreen.classList.add('hidden'); DOM.difficultySelectScreen.classList.add('hidden'); document.getElementById('mainMenuScreen').classList.add('hidden'); document.getElementById('modeSelectScreen').classList.add('hidden'); const nextBtnG = document.getElementById('btnNextUploadLevel'); if (nextBtnG) nextBtnG.classList.toggle('hidden', !(uploadedTetrisRun && uploadedTetrisRun.idx + 1 < m3Levels.length)); DOM.gameOverScreen.classList.remove('hidden'); DOM.overlay.style.display = 'flex'; }
+        function gameOver() { state = 'gameover'; cancelAnimationFrame(animationId); playSoundGameOver(); startBgMusic(); let isNewRecord = saveHighScore(); let elapsed = Math.floor((Date.now() - gameStartTime) / 1000); let minutes = Math.floor(elapsed / 60); let seconds = elapsed % 60; let timeStr = minutes + ':' + (seconds < 10 ? '0' : '') + seconds; DOM.newRecordBadge.classList.toggle('hidden', !isNewRecord); DOM.statsGrid.innerHTML = '<div class="stat-item"><div class="stat-val' + (isNewRecord ? ' new-record' : '') + '">' + score + '</div><div class="stat-label">' + _t('statScore') + '</div></div><div class="stat-item"><div class="stat-val">' + statsWordsFound + '</div><div class="stat-label">' + _t('statWords') + '</div></div><div class="stat-item"><div class="stat-val">' + statsLinesCleared + '</div><div class="stat-label">' + _t('statLines') + '</div></div><div class="stat-item"><div class="stat-val">' + statsMaxCombo + '</div><div class="stat-label">' + _t('statMaxCombo') + '</div></div><div class="stat-item"><div class="stat-val">Lv.' + (Math.floor(score / 2000) + 1) + '</div><div class="stat-label">' + _t('statLevel') + '</div></div><div class="stat-item"><div class="stat-val">' + timeStr + '</div><div class="stat-label">' + _t('statTime') + '</div></div>'; DOM.langSelectScreen.classList.add('hidden'); DOM.difficultySelectScreen.classList.add('hidden'); document.getElementById('mainMenuScreen').classList.add('hidden'); document.getElementById('modeSelectScreen').classList.add('hidden'); const nextBtnG = document.getElementById('btnNextUploadLevel'); if (nextBtnG) nextBtnG.classList.toggle('hidden', !(uploadedTetrisRun && uploadedTetrisRun.idx + 1 < m3Levels.length)); DOM.gameOverScreen.classList.remove('hidden'); DOM.overlay.style.display = 'flex'; }
         function pauseGame() { if (state !== 'falling' && state !== 'gravity') return; savedState = state; state = 'paused'; stopBgMusic(); DOM.overlay.style.display = 'flex'; DOM.pauseScreen.classList.remove('hidden'); DOM.langSelectScreen.classList.add('hidden'); DOM.difficultySelectScreen.classList.add('hidden'); DOM.gameOverScreen.classList.add('hidden'); DOM.customSelectScreen.classList.add('hidden'); document.getElementById('mainMenuScreen').classList.add('hidden'); document.getElementById('modeSelectScreen').classList.add('hidden'); }
         function resumeGame() { DOM.overlay.style.display = 'none'; DOM.pauseScreen.classList.add('hidden'); state = savedState || 'falling'; lastTime = 0; }
         const keysDown = new Set();
@@ -1352,17 +1405,17 @@
         bindButton('btnLeft', moveLeft); bindButton('btnRight', moveRight); bindButton('btnDown', drop); bindButton('btnRotate', () => rotate(currentPiece)); bindButton('btnDrop', hardDrop);
         DOM.btnPauseIcon.addEventListener('click', pauseGame);
         document.getElementById('btnLock').addEventListener('click', () => { if (state !== 'falling') return; isWordLocked = !isWordLocked; seqGenIndex = 0; playSoundLock(); updateLockUI(); });
-        function updateLockUI() { const btn = document.getElementById('btnLock'); const targetPanel = document.getElementById('targetPanel'); if (isWordLocked) { btn.innerText = '🔓 解锁拼接'; btn.style.background = 'linear-gradient(to bottom, #f39c12, #d35400)'; targetPanel.classList.add('locked'); } else { btn.innerText = '🔒 锁定拼接'; btn.style.background = ''; targetPanel.classList.remove('locked'); } }
+        function updateLockUI() { const btn = document.getElementById('btnLock'); const targetPanel = document.getElementById('targetPanel'); if (isWordLocked) { btn.innerText = _t('unlockBtn'); btn.style.background = 'linear-gradient(to bottom, #f39c12, #d35400)'; targetPanel.classList.add('locked'); } else { btn.innerText = _t('lockBtn'); btn.style.background = ''; targetPanel.classList.remove('locked'); } }
         // ==================== 界面层级导航：主界面 → 语言轮盘 → 模式选择 → 关卡选择 ====================
         const LANG_TTS = { en: 'en-US', ru: 'ru-RU', fr: 'fr-FR', zh: 'zh-CN', other: 'en-US' };
         const LANG_ORDER = ['en', 'ru', 'fr', 'zh', 'other'];
         const LANG_STEP = 360 / LANG_ORDER.length;
         const LANG_META = {
-            en: { name: 'English', sub: '英语', blocks: [['E','#00f2ff'],['n','#ffe600'],['g','#a100ff'],['l','#00ff66'],['i','#ff0000'],['s','#ff8800'],['h','#0088ff']] },
-            ru: { name: 'Русский', sub: '俄语', blocks: [['Р','#0088ff'],['о','#ff8800'],['с','#ff0000'],['с','#00ff66'],['и','#a100ff'],['я','#ffe600']] },
-            fr: { name: 'Français', sub: '法语', blocks: [['F','#00f2ff'],['r','#ffe600'],['a','#a100ff'],['n','#00ff66'],['ç','#ff0000'],['a','#ff8800'],['i','#0088ff'],['s','#00f2ff']] },
-            zh: { name: '中文', sub: '汉语', blocks: [['中','#ff0000'],['文','#ffe600']] },
-            other: { name: '其他语言', sub: '更多', blocks: [['更','#ff0000'],['多','#ffe600']], toast: '更多语言正在开发中，敬请期待' }
+            en: { name: 'English', subKey: 'lcSubEn', blocks: [['E','#00f2ff'],['n','#ffe600'],['g','#a100ff'],['l','#00ff66'],['i','#ff0000'],['s','#ff8800'],['h','#0088ff']] },
+            ru: { name: 'Русский', subKey: 'lcSubRu', blocks: [['Р','#0088ff'],['о','#ff8800'],['с','#ff0000'],['с','#00ff66'],['и','#a100ff'],['я','#ffe600']] },
+            fr: { name: 'Français', subKey: 'lcSubFr', blocks: [['F','#00f2ff'],['r','#ffe600'],['a','#a100ff'],['n','#00ff66'],['ç','#ff0000'],['a','#ff8800'],['i','#0088ff'],['s','#00f2ff']] },
+            zh: { name: '中文', subKey: 'lcSubZh', blocks: [['中','#ff0000'],['文','#ffe600']] },
+            other: { name: '其他语言', nameKey: 'lcNameOther', subKey: 'lcSubOther', blocks: [['更','#ff0000'],['多','#ffe600']], toastKey: 'alertOtherLang' }
         };
         let langRot = 0;
         function showMenuScreen(id) { document.querySelectorAll('#overlay .menu-screen').forEach(s => { if (s.id !== id) s.classList.add('hidden'); }); const el = document.getElementById(id); if (el) el.classList.remove('hidden'); if (id === 'langSelectScreen') layoutLangWheel(); }
@@ -1375,9 +1428,10 @@
             const stripBlocks = document.getElementById('langStripBlocks');
             const stripName = document.getElementById('langStripName');
             if (stripBlocks) stripBlocks.innerHTML = meta.blocks.map(b => '<span class="t-block" style="--c:' + b[1] + '">' + b[0] + '</span>').join('');
-            if (stripName) stripName.textContent = meta.sub + ' · ' + meta.name;
+            meta._sub = _t(meta.subKey || 'lcSubOther'); meta._name = meta.nameKey ? _t(meta.nameKey) : meta.name;
+            if (stripName) stripName.textContent = meta._sub + ' · ' + meta._name;
             const tag = document.getElementById('modeLangTag');
-            if (tag) tag.textContent = '🌐 当前语言：' + meta.name + ' · ' + meta.sub;
+            if (tag) tag.textContent = _t('currentLangTag', { name: meta._name || meta.name, sub: meta._sub || '' });
         }
         function layoutLangWheel() {
             const drum = document.getElementById('langDrum');
@@ -1414,7 +1468,7 @@
         document.getElementById('langDrum').addEventListener('touchstart', (e) => { langTouchY = e.touches[0].clientY; }, { passive: true });
         document.getElementById('langDrum').addEventListener('touchend', (e) => { const dy = langTouchY - e.changedTouches[0].clientY; if (Math.abs(dy) > 30) langScroll(dy > 0 ? 1 : -1); }, { passive: true });
         const LANG_DEV_PENDING = ['fr', 'zh', 'other'];
-        function langDevToast() { const meta = LANG_META[selectedLanguage]; showM3Toast('🚧 ' + (meta && meta.toast ? meta.toast : (meta ? meta.sub : '') + '模式正在开发中，请选择其他语言')); }
+        function langDevToast() { const meta = LANG_META[selectedLanguage]; showM3Toast('🚧 ' + (meta && meta.toastKey ? _t(meta.toastKey) : _t('alertModeDev'))); }
         document.querySelectorAll('.lang-card').forEach(card => { card.addEventListener('mouseenter', () => { if (audioCtx) playSoundHover(); }); card.addEventListener('click', () => { unlockAudio(); const i = parseInt(card.dataset.i); if (i === langSelIndex()) { playSoundSelect(); } else { playSoundMove(); setLangIndex(i); } if (LANG_DEV_PENDING.indexOf(LANG_ORDER[i]) >= 0) langDevToast(); }); });
         window.addEventListener('resize', layoutLangWheel);
         document.getElementById('btnStartMain').addEventListener('click', () => { unlockAudio(); playSoundClick(); showMenuScreen('langSelectScreen'); });
@@ -1445,13 +1499,13 @@
             else showMenuScreen('difficultySelectScreen');
         });
         layoutLangWheel();
-        function handleCustomStart(isRandom) { playSoundClick(); const input = DOM.customWordInput.value; const customDict = parseCustomWords(input); const modal = DOM.customLoadingModal; const loadText = DOM.customLoadText; const loadBar = DOM.customLoadBar; const stopBtn = DOM.btnStopCustomLoad; if (Object.keys(customDict).length === 0) { loadText.innerText = '格式错误，请检查输入！'; loadText.style.color = '#e94560'; loadBar.style.width = '100%'; modal.style.display = 'flex'; setTimeout(() => { modal.style.display = 'none'; loadText.innerText = '正在录入目标词库...'; loadText.style.color = 'white'; loadBar.style.width = '0%'; }, 2000); return; } DOM.customSelectScreen.classList.add('hidden'); modal.style.display = 'flex'; loadText.innerText = '正在录入目标词库...'; loadText.style.color = 'white'; loadBar.style.width = '0%'; let progress = 0; const loadInterval = setInterval(() => { progress += 5; loadBar.style.width = progress + '%'; if (progress >= 100) { clearInterval(loadInterval); loadText.innerText = '录入完成！正在进入游戏...'; setTimeout(() => { modal.style.display = 'none'; setupCustomDifficulty(customDict, isRandom); startGame(); }, 500); } }, 50); stopBtn.onclick = () => { playSoundClick(); clearInterval(loadInterval); modal.style.display = 'none'; loadBar.style.width = '0%'; DOM.customSelectScreen.classList.remove('hidden'); }; }
+        function handleCustomStart(isRandom) { playSoundClick(); const input = DOM.customWordInput.value; const customDict = parseCustomWords(input); const modal = DOM.customLoadingModal; const loadText = DOM.customLoadText; const loadBar = DOM.customLoadBar; const stopBtn = DOM.btnStopCustomLoad; if (Object.keys(customDict).length === 0) { loadText.innerText = _t('errFormat'); loadText.style.color = '#e94560'; loadBar.style.width = '100%'; modal.style.display = 'flex'; setTimeout(() => { modal.style.display = 'none'; loadText.innerText = _t('loadingBank'); loadText.style.color = 'white'; loadBar.style.width = '0%'; }, 2000); return; } DOM.customSelectScreen.classList.add('hidden'); modal.style.display = 'flex'; loadText.innerText = _t('loadingBank'); loadText.style.color = 'white'; loadBar.style.width = '0%'; let progress = 0; const loadInterval = setInterval(() => { progress += 5; loadBar.style.width = progress + '%'; if (progress >= 100) { clearInterval(loadInterval); loadText.innerText = _t('loadDone'); setTimeout(() => { modal.style.display = 'none'; setupCustomDifficulty(customDict, isRandom); startGame(); }, 500); } }, 50); stopBtn.onclick = () => { playSoundClick(); clearInterval(loadInterval); modal.style.display = 'none'; loadBar.style.width = '0%'; DOM.customSelectScreen.classList.remove('hidden'); }; }
         document.getElementById('btnStartCustomOrder').addEventListener('click', () => handleCustomStart(false));
         document.getElementById('btnStartCustomRandom').addEventListener('click', () => handleCustomStart(true));
         document.getElementById('btnStartCustomFill').addEventListener('click', () => {
             playSoundClick();
             const customDict = parseCustomWords(DOM.customWordInput.value);
-            if (Object.keys(customDict).length === 0) { alert('请先在输入框填写至少一个单词！'); return; }
+            if (Object.keys(customDict).length === 0) { alert(_t('errEmpty')); return; }
             m3LaunchFill(customDict);
         });
         document.getElementById('btnStartCustomQuest').addEventListener('click', () => { playSoundClick(); qStartQuest('custom'); });
@@ -1495,7 +1549,7 @@
                 this.houseSpan = this.houses.reduce((a, h) => a + h.w + 6, 0);
                 this.lastT = performance.now();
                 this.clearLog();
-                this.addLog('⚔️ <span class="log-hero">冒险开始</span>！主角踏上了单词战斗之旅...');
+                this.addLog(_t('qAdventureStart'));
                 cancelAnimationFrame(this.raf);
                 this.raf = requestAnimationFrame(this.loop.bind(this));
             },
@@ -1587,13 +1641,13 @@
                     all.forEach(en => this.killEnemy(en, true, word));
                     this.effects.push({ x: this.canvas.width / 2, y: this.heroY, t: 0.6, color: '#ffffff' });
                     this.breachT = 0.4;
-                    this.addLog('🌟 <span class="log-hero">主角</span>拼出目标词 <span class="log-word">' + word + '</span> <span class="log-mean">(' + mean + ')</span>，释放终极奥义！清除' + count + '个敌人！<span class="log-reward">+50 EXP</span>');
+                    this.addLog(_t('qSpellTarget', { w: '<span class="log-word">' + word + '</span> <span class="log-mean">(' + mean + ')</span>', n: count }));
                     this.exp += 50;
                     return;
                 }
                 if (icon) {
                     this.iconAttack(icon, word, mean);
-                    this.addLog('🎯 <span class="log-hero">主角</span>召唤 <span class="log-word">' + word + '</span> <span class="log-mean">(' + mean + ')</span>，发射' + word + '形态攻击！<span class="log-reward">+15 EXP</span>');
+                    this.addLog(_t('qSummon', { w: '<span class="log-word">' + word + '</span> <span class="log-mean">(' + mean + ')</span>', f: word }));
                     this.exp += 15;
                     return;
                 }
@@ -1604,24 +1658,24 @@
             },
             generateStory(word, mean) {
                 const w = word.toLowerCase();
-                const hero = '<span class="log-hero">主角</span>';
+                const hero = '<span class="log-hero">' + _t('hero') + '</span>';
                 const wHtml = '<span class="log-word">' + word + '</span>';
                 const mHtml = '<span class="log-mean">(' + mean + ')</span>';
                 const reward = '<span class="log-reward">+5 EXP</span>';
                 if (w === 'eat') return hero + '成功' + wHtml + ' ' + mHtml + ' 掉了一个敌人，' + reward;
-                if (w === 'run') return hero + wHtml + ' ' + mHtml + ' 冲刺，撞飞了一个敌人！' + reward;
-                if (w === 'hit') return hero + '成功' + wHtml + ' ' + mHtml + ' 打击掉了一个敌人！' + reward;
-                if (w === 'go') return hero + wHtml + ' ' + mHtml + ' 向前推进，击退敌人！' + reward;
-                if (w === 'love') return hero + '用' + wHtml + ' ' + mHtml + ' 感化了敌人，敌人撤退了！' + reward;
-                if (w === 'sun') return hero + '召唤' + wHtml + ' ' + mHtml + ' 的光芒，灼退了敌人！' + reward;
-                if (w === 'red' || w === 'blue' || w === 'green' || w === 'yellow') return hero + '释放' + wHtml + ' ' + mHtml + ' 色光波，震退敌人！' + reward;
-                if (w === 'time') return hero + '操控' + wHtml + ' ' + mHtml + '，让敌人减速后退！' + reward;
-                if (w === 'water') return hero + '释放' + wHtml + ' ' + mHtml + ' 流，冲走了敌人！' + reward;
-                if (w === 'book') return hero + '翻开' + wHtml + ' ' + mHtml + '，知识之力击退敌人！' + reward;
-                if (w === 'music') return hero + '奏响' + wHtml + ' ' + mHtml + '，音波震退敌人！' + reward;
-                if (w === 'box') return hero + '抛出' + wHtml + ' ' + mHtml + '，砸退了敌人！' + reward;
-                if (w === 'milk') return hero + '泼洒' + wHtml + ' ' + mHtml + '，滑倒了敌人！' + reward;
-                return hero + '拼出 <span class="log-word">' + word + '</span> <span class="log-mean">(' + mean + ')</span>，威慑敌人后退！' + reward;
+                if (w === 'run') return hero + ' ' + _t('atkDash', { w: wHtml + ' ' + mHtml }) + reward;
+                if (w === 'hit') return hero + ' ' + _t('atkHit', { w: wHtml + ' ' + mHtml }) + reward;
+                if (w === 'go') return hero + ' ' + _t('atkPush') + reward;
+                if (w === 'love') return hero + ' ' + _t('atkCalm', { w: wHtml + ' ' + mHtml }) + reward;
+                if (w === 'sun') return hero + ' ' + _t('atkSummon', { w: wHtml + ' ' + mHtml }) + reward;
+                if (w === 'red' || w === 'blue' || w === 'green' || w === 'yellow') return hero + ' ' + _t('atkWave', { w: wHtml + ' ' + mHtml }) + reward;
+                if (w === 'time') return hero + ' ' + _t('atkControl', { w: wHtml + ' ' + mHtml }) + reward;
+                if (w === 'water') return hero + ' ' + _t('atkFlow', { w: wHtml + ' ' + mHtml }) + reward;
+                if (w === 'book') return hero + ' ' + _t('atkOpen', { w: wHtml + ' ' + mHtml }) + reward;
+                if (w === 'music') return hero + ' ' + _t('atkSound', { w: wHtml + ' ' + mHtml }) + reward;
+                if (w === 'box') return hero + ' ' + _t('atkThrow', { w: wHtml + ' ' + mHtml }) + reward;
+                if (w === 'milk') return hero + ' ' + _t('atkSplash', { w: wHtml + ' ' + mHtml }) + reward;
+                return hero + ' ' + _t('atkIntimidate', { w: '<span class="log-word">' + word + '</span> <span class="log-mean">(' + mean + ')</span>' }) + reward;
             },
             iconAttack(icon, word, mean) {
                 if (!this.running || !this.canvas) return;
@@ -2034,7 +2088,7 @@
             playSoundTarget();
             speakWord(b.word);
             m3ThrowIconAtMonster(info.img, b.cells);
-            showM3Toast('💥 拼出 ' + b.word + '！' + (info.img || '⭐') + ' 砸向怪物，吐出幕布！');
+            showM3Toast(_t('m3BonusHit', { w: b.word }));
             // 奖励词格子消除并填回随机字母
             b.cells.forEach((cell, i) => {
                 m3Grid[cell.r][cell.c] = { letter: m3RandomLetter() };
@@ -2094,7 +2148,7 @@
             // 把目标词对应图标砸向怪物脑袋
             const info = m3WordMap[m3HoleWord] || { img: '📝' };
             m3ThrowIconAtMonster(info.img, m3CurtainCells);
-            showM3Toast('🌟 目标拼出！抢回 ' + reclaim + ' 知识，幕布拉回！');
+            showM3Toast(_t('m3TargetWin', { n: reclaim }));
         }
 
         // ===== 完成动画（快速反馈：朗读+学习卡片+消除，不再逐字母拖沓） =====
@@ -2226,7 +2280,7 @@
             m3TargetEatCount++;
             playSoundGameOver();
             if (m3TargetEatCount >= 3) {
-                showM3Toast('👹 怪物完成了吞噬！游戏失败…');
+                showM3Toast(_t('m3Lose'));
                 m3GameOver();
                 return;
             }
@@ -2239,7 +2293,7 @@
             renderMatch3Grid(true);
             m3CurtainCells.forEach(([r, c], i) => { setTimeout(() => { const el = m3CellElements[r] && m3CellElements[r][c]; if (el) el.classList.add('curtain-drop'); }, 60 + i * 30); });
             m3UpdatePKUI();
-            showM3Toast('🎯 目标单词被吞了！幕布自动拉回，重新拼一次！（还剩 ' + (3 - m3TargetEatCount) + ' 次机会）');
+            showM3Toast(_t('m3TargetBack', { n: 3 - m3TargetEatCount }));
             m3StartEater();
         }
         // 幕布整体上移：被吞噬的行从上方消失
@@ -2279,7 +2333,7 @@
         // 学习卡片展示
         function m3ShowLearnCard(word) {
             return new Promise(resolve => {
-                const info = m3WordMap[word] || { mean: '未知', img: '📝' };
+                const info = m3WordMap[word] || { mean: _t('unknownWord'), img: '📝' };
                 const imgUrl = info.img && typeof info.img === 'string' && /^(blob:|data:|https?:)/.test(info.img) ? info.img : null;
                 DOM.popupEmoji.innerHTML = imgUrl ? '<img src="' + imgUrl + '">' : (info.img || '📝');
                 DOM.popupWord.innerText = word;
@@ -2381,7 +2435,7 @@
             if (m3TappedBlock === block) {
                 m3TappedBlock = null;
                 m3ClearHints();
-                showM3Toast('已取消选择');
+                showM3Toast(_t('m3Deselect'));
                 return;
             }
             m3TappedBlock = block;
@@ -2423,7 +2477,7 @@
             if (badge) {
                 if (m3LevelMode && m3PlayLevels.length > 0) {
                     badge.style.display = 'block';
-                    badge.innerText = '第 ' + (m3CurrentLevel + 1) + ' 关';
+                    badge.innerText = _t('m3Level', { n: m3CurrentLevel + 1 });
                 } else {
                     badge.style.display = 'none';
                 }
@@ -2470,7 +2524,7 @@
                 }
             }
             if (cur) { if (wordEl) wordEl.innerText = cur.word; if (meanEl) meanEl.innerText = cur.mean || ''; }
-            else { if (wordEl) wordEl.innerText = '🎉'; if (meanEl) meanEl.innerText = '全部完成'; }
+            else { if (wordEl) wordEl.innerText = '🎉'; if (meanEl) meanEl.innerText = _t('allDone'); }
             const ipaEl = document.getElementById('m3-current-ipa');
             const phonInfo = (cur && typeof PHONETICS !== 'undefined') ? PHONETICS[String(cur.word).toLowerCase()] : null;
             const ipa = phonInfo && phonInfo.ipa ? phonInfo.ipa : '';
@@ -2483,7 +2537,7 @@
                 if (cur) {
                     const segs = m3SplitWord(cur.word.toLowerCase());
                     mb.innerHTML = '🎯 目标：<b>' + cur.word + '</b>　' + (cur.mean || '') + (ipa ? '　<span style="color:#7bed9f;">/' + ipa + '/</span>' : '') + '　<span style="color:#f1c40f;">[' + segs.join('·') + ']</span>';
-                } else mb.innerHTML = '🎉 全部完成！';
+                } else mb.innerHTML = _t('m3Win');
             }
             updateM3UI();
         }
@@ -2569,7 +2623,7 @@
         function m3RefreshCurtain() {
             if (m3Busy) return;
             if (m3RefreshCount <= 0) {
-                showM3Toast('刷新次数已用完！');
+                showM3Toast(_t('m3RefreshEmpty'));
                 return;
             }
             m3RefreshCount--;
@@ -2578,7 +2632,7 @@
             m3TappedBlock = null;
             if ('speechSynthesis' in window) { try { window.speechSynthesis.cancel(); } catch (e) {} }
             stopAllWordAudio();
-            showM3Toast('🔄 已刷新幕布！剩余刷新次数：' + m3RefreshCount);
+            showM3Toast(_t('m3RefreshDone', { n: m3RefreshCount }));
             m3RearrangeForNewTarget();
             updateM3RefreshUI();
             updateM3UI();
@@ -2590,7 +2644,7 @@
             if (btn) btn.disabled = m3RefreshCount <= 0;
         }
 
-        function m3SwapHoleLetters(a, b) { const ca = m3Grid[a.r][a.c], cb = m3Grid[b.r][b.c]; if (!ca || !cb) return; const tmp = ca.letter; ca.letter = cb.letter; cb.letter = tmp; const elA = m3CellElements[a.r] && m3CellElements[a.r][a.c]; const elB = m3CellElements[b.r] && m3CellElements[b.r][b.c]; if (elA) { elA.innerText = ca.letter; elA.style.background = m3ColorOf(ca.letter); elA.classList.add('swapping'); elA.classList.toggle('right', !!(ca.need && ca.letter && ca.letter.toLowerCase() === ca.need)); } if (elB) { elB.innerText = cb.letter; elB.style.background = m3ColorOf(cb.letter); elB.classList.add('swapping'); elB.classList.toggle('right', !!(cb.need && cb.letter && cb.letter.toLowerCase() === cb.need)); } playSoundClick(); m3HoleSwaps++; m3OnStep(); updateM3UI(); renderM3Targets(); if (m3CheckHolePath()) { m3ResolveHoleTarget(); return; } showM3Toast('洞内交换 ' + m3HoleSwaps + ' 次，可点击相邻字母继续调整'); setTimeout(() => { if (elA) elA.classList.remove('swapping'); if (elB) elB.classList.remove('swapping'); }, 320); }
+        function m3SwapHoleLetters(a, b) { const ca = m3Grid[a.r][a.c], cb = m3Grid[b.r][b.c]; if (!ca || !cb) return; const tmp = ca.letter; ca.letter = cb.letter; cb.letter = tmp; const elA = m3CellElements[a.r] && m3CellElements[a.r][a.c]; const elB = m3CellElements[b.r] && m3CellElements[b.r][b.c]; if (elA) { elA.innerText = ca.letter; elA.style.background = m3ColorOf(ca.letter); elA.classList.add('swapping'); elA.classList.toggle('right', !!(ca.need && ca.letter && ca.letter.toLowerCase() === ca.need)); } if (elB) { elB.innerText = cb.letter; elB.style.background = m3ColorOf(cb.letter); elB.classList.add('swapping'); elB.classList.toggle('right', !!(cb.need && cb.letter && cb.letter.toLowerCase() === cb.need)); } playSoundClick(); m3HoleSwaps++; m3OnStep(); updateM3UI(); renderM3Targets(); if (m3CheckHolePath()) { m3ResolveHoleTarget(); return; } showM3Toast(_t('m3SwapHint', { n: m3HoleSwaps })); setTimeout(() => { if (elA) elA.classList.remove('swapping'); if (elB) elB.classList.remove('swapping'); }, 320); }
         // 优化：洞内已填字母 与 相邻普通字母 互换（方便纠正错误、避免死局）
         function m3SwapHoleWithNormal(a, b) {
             const cellA = m3Grid[a.r] && m3Grid[a.r][a.c], cellB = m3Grid[b.r] && m3Grid[b.r][b.c];
@@ -2610,7 +2664,7 @@
             m3CheckBonusWords();
         }
         async function m3ResolveSwap(posA, posB) { m3Busy = true; try { let matches = m3FindWords([posA, posB]); let guard = 0; while (matches.length > 0 && guard < 8) { guard++; const info = await m3ClearMatches(matches); if (info.allDone) { m3FinishAfter(); return; } if (info.targetHit) { m3ChainCount++; if (m3AllTargetsDone()) { m3FinishAfter(); return; } await m3TargetEffect(info.hitWord); await m3DropAndRefill(true); m3RearrangeForNewTarget(); break; } await m3DropAndRefill(); break; } if (m3CheckHolePath()) { m3ResolveHoleTarget(); return; } m3FinishAfter(); } catch (err) { console.error('m3ResolveSwap error:', err); m3RestoreCells(); m3State = 'idle'; m3Busy = false; m3ResetIdle(); } }
-        function m3RearrangeForNewTarget() { m3EatenRows = 0; m3EatProgress = 0; m3TargetEatCount = 0; for (let r = 0; r < m3Rows; r++) { for (let c = 0; c < m3Cols; c++) { m3Grid[r][c] = { letter: m3RandomLetter() }; } } m3PlantHoles(); renderMatch3Grid(true); updateM3UI(); m3CurtainCells.forEach(([r, c], i) => { setTimeout(() => { const el = m3CellElements[r] && m3CellElements[r][c]; if (el) el.classList.add('curtain-drop'); }, 40 + i * 30); }); m3HoleShapes.forEach((hs, hi) => { hs.cells.forEach((cell, i) => { setTimeout(() => { const el = m3CellElements[cell.r] && m3CellElements[cell.r][cell.c]; if (el) el.classList.add('burst'); }, 150 + hi * 200 + i * 40); }); }); const t = m3HotTarget(); if (t) showM3Toast('🎯 新目标：' + t.word + '（' + t.mean + '）'); m3StartFeeder(); m3StartEater(); }
+        function m3RearrangeForNewTarget() { m3EatenRows = 0; m3EatProgress = 0; m3TargetEatCount = 0; for (let r = 0; r < m3Rows; r++) { for (let c = 0; c < m3Cols; c++) { m3Grid[r][c] = { letter: m3RandomLetter() }; } } m3PlantHoles(); renderMatch3Grid(true); updateM3UI(); m3CurtainCells.forEach(([r, c], i) => { setTimeout(() => { const el = m3CellElements[r] && m3CellElements[r][c]; if (el) el.classList.add('curtain-drop'); }, 40 + i * 30); }); m3HoleShapes.forEach((hs, hi) => { hs.cells.forEach((cell, i) => { setTimeout(() => { const el = m3CellElements[cell.r] && m3CellElements[cell.r][cell.c]; if (el) el.classList.add('burst'); }, 150 + hi * 200 + i * 40); }); }); const t = m3HotTarget(); if (t) showM3Toast(_t('m3NewTarget') + t.word + '（' + t.mean + '）'); m3StartFeeder(); m3StartEater(); }
         function m3FinishAfter() { m3ClearHints(); if (m3AllTargetsDone()) { m3Win(); return; } m3RestoreCells(); m3State = 'idle'; m3Busy = false; m3ResetIdle(); }
         function m3RestoreCells() { for (let r = 0; r < m3Rows; r++) for (let c = 0; c < m3Cols; c++) { const cell = m3Grid[r] && m3Grid[r][c]; if (cell) cell.clearing = false; const el = m3CellElements[r] && m3CellElements[r][c]; if (el) { el.classList.remove('clearing', 'crisscross', 'burst', 'rock', 'swapping', 'selected', 'letter-zoom'); el.style.opacity = '1'; el.style.transform = ''; el.style.transition = ''; const vr = r - m3EatenRows; if (vr < 0) { el.style.display = 'none'; } else { el.style.display = ''; const pos = m3CellPx(vr, c); el.style.left = pos.x + 'px'; el.style.top = pos.y + 'px'; } } } }
         function m3FindWords(onlyAt) { const found = []; const seen = new Set(); const curT = m3HotTarget(); const words = m3Locked ? (curT ? [curT.word] : []).filter(w => w.length >= 2) : Object.keys(m3WordMap).filter(w => w.length >= 2); const isIn = (cells) => { if (!onlyAt) return true; return cells.some(c => onlyAt.some(o => o.r === c.r && o.c === c.c)); }; const addMatch = (word, cells, dir) => { if (!isIn(cells)) return; const key = word + '|' + cells.map(c => c.r + ',' + c.c).join(';'); if (seen.has(key)) return; seen.add(key); found.push({ word, cells, dir: dir || 'H' }); }; for (let k = 0; k < words.length; k++) { const w = words[k]; if (w.length > m3Cols) { m3FindMultiRowWord(w, addMatch); continue; } for (let r = 0; r < m3Rows; r++) { for (let c = 0; c + w.length <= m3Cols; c++) { let ok = true; const cells = []; for (let i = 0; i < w.length; i++) { const cell = m3Grid[r][c + i]; if (!cell || cell.clearing || cell.rock || cell.hole || cell.fixed || cell.letter.toLowerCase() !== w[i]) { ok = false; break; } cells.push({ r, c: c + i }); } if (ok) addMatch(w, cells, 'H'); } } for (let c = 0; c < m3Cols; c++) { for (let r = 0; r + w.length <= m3Rows; r++) { let ok = true; const cells = []; for (let i = 0; i < w.length; i++) { const cell = m3Grid[r + i][c]; if (!cell || cell.clearing || cell.rock || cell.hole || cell.fixed || cell.letter.toLowerCase() !== w[i]) { ok = false; break; } cells.push({ r: r + i, c }); } if (ok) addMatch(w, cells, 'V'); } } } return found; }
@@ -2699,7 +2753,7 @@
         function m3QueuePopup(word, pts, isTarget) { if (m3PopupShownWords[word]) return; m3PopupShownWords[word] = true; m3PopupQueue.push({ word, pts, isTarget }); }
         function m3DrainPopupQueue() { if (m3PopupQueue.length === 0) return; const item = m3PopupQueue.shift(); showM3Popup(item.word, item.pts, item.isTarget, () => setTimeout(m3DrainPopupQueue, 220)); }
         function m3Speak(word) { const info = m3WordMap[word]; if (info && info.audio) { try { const a = new Audio(info.audio); a.play(); return; } catch (e) {} } speakWord(word); }
-        function showM3Popup(word, score, isTarget, onDone) { const info = m3WordMap[word] || { mean: '未知', img: '📝' }; const imgUrl = info.img && typeof info.img === 'string' && /^(blob:|data:|https?:)/.test(info.img) ? info.img : null; const ipaInfo = (typeof PHONETICS !== 'undefined') ? PHONETICS[String(word).toLowerCase()] : null; DOM.popupEmoji.innerHTML = imgUrl ? '<img src="' + imgUrl + '">' : (info.img || '📝'); DOM.popupWord.innerText = word; DOM.popupMeaning.innerText = info.mean + (ipaInfo && ipaInfo.ipa ? '　/' + ipaInfo.ipa + '/' : ''); DOM.popupScore.innerText = score > 0 ? ('+' + score + (isTarget ? ' 🎯' : '')) : ''; DOM.popupScore.classList.toggle('hidden', score <= 0); if (info.color) DOM.wordPopup.style.background = info.color; else DOM.wordPopup.style.background = isTarget ? 'linear-gradient(135deg,#f1c40f,#e94560)' : 'linear-gradient(135deg,#e94560,#0f3460)'; DOM.wordPopup.classList.remove('hidden'); setTimeout(() => DOM.wordPopup.classList.add('show'), 10); m3Speak(word); const dur = isTarget ? 3400 : Math.min(3400, 1200 + word.length * 160); setTimeout(() => { DOM.wordPopup.classList.remove('show'); setTimeout(() => { DOM.wordPopup.classList.add('hidden'); if (onDone) onDone(); }, 300); }, dur); }
+        function showM3Popup(word, score, isTarget, onDone) { const info = m3WordMap[word] || { mean: _t('unknownWord'), img: '📝' }; const imgUrl = info.img && typeof info.img === 'string' && /^(blob:|data:|https?:)/.test(info.img) ? info.img : null; const ipaInfo = (typeof PHONETICS !== 'undefined') ? PHONETICS[String(word).toLowerCase()] : null; DOM.popupEmoji.innerHTML = imgUrl ? '<img src="' + imgUrl + '">' : (info.img || '📝'); DOM.popupWord.innerText = word; DOM.popupMeaning.innerText = info.mean + (ipaInfo && ipaInfo.ipa ? '　/' + ipaInfo.ipa + '/' : ''); DOM.popupScore.innerText = score > 0 ? ('+' + score + (isTarget ? ' 🎯' : '')) : ''; DOM.popupScore.classList.toggle('hidden', score <= 0); if (info.color) DOM.wordPopup.style.background = info.color; else DOM.wordPopup.style.background = isTarget ? 'linear-gradient(135deg,#f1c40f,#e94560)' : 'linear-gradient(135deg,#e94560,#0f3460)'; DOM.wordPopup.classList.remove('hidden'); setTimeout(() => DOM.wordPopup.classList.add('show'), 10); m3Speak(word); const dur = isTarget ? 3400 : Math.min(3400, 1200 + word.length * 160); setTimeout(() => { DOM.wordPopup.classList.remove('show'); setTimeout(() => { DOM.wordPopup.classList.add('hidden'); if (onDone) onDone(); }, 300); }, dur); }
         function showM3Toast(text) { let toast = document.getElementById('m3-toast'); if (!toast) { toast = document.createElement('div'); toast.id = 'm3-toast'; toast.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(241,196,15,0.95);color:#000;font-weight:bold;font-size:1.2rem;padding:12px 24px;border-radius:10px;z-index:3500;box-shadow:0 0 20px rgba(241,196,15,0.6);transition:opacity .3s;pointer-events:none;white-space:nowrap;'; document.body.appendChild(toast); } toast.innerText = text; toast.style.opacity = '1'; clearTimeout(toast._t); toast._t = setTimeout(() => { toast.style.opacity = '0'; }, 1400); }
         function m3CalcStars(isWin) { if (isWin) { const total = Math.max(10, m3Targets.reduce((a, t) => a + t.word.length, 0)); if (m3Steps <= Math.round(total * 0.6)) return 3; if (m3Steps <= Math.round(total * 1.0)) return 2; return 1; } return m3Score >= 3000 ? 2 : m3Score >= 1000 ? 1 : 0; }
         function showM3Result(title, isWin) { 
@@ -2711,11 +2765,11 @@
                     const imgHtml = x.img && typeof x.img === 'string' && /^(blob:|data:|https?:)/.test(x.img) ? '<img src="' + x.img + '" style="width:52px;height:52px;object-fit:cover;border-radius:8px;background:#fff;" onerror="this.outerHTML=\'<div class=bc-img>📝</div>\';">' : '<div class="bc-img">' + (x.img || '📝') + '</div>'; 
                     return '<div class="m3-book-card">' + imgHtml + '<div class="bc-word">' + x.word + '</div><div class="bc-mean">' + (x.mean || '') + '</div></div>'; 
                 }).join(''); 
-                bookHtml = '<div class="m3-result-line" style="margin-top:12px;">📚 本次学到的单词（' + m3Learned.length + '）</div><div class="m3-result-book">' + cards + '</div>'; 
+                bookHtml = '<div class="m3-result-line" style="margin-top:12px;">' + _t('m3ResultLearned', { n: m3Learned.length }) + '</div><div class="m3-result-book">' + cards + '</div>'; 
             } 
-            const nextLevelBtn = (m3LevelMode && m3CurrentLevel < m3PlayLevels.length - 1 && isWin) ? '<button class="m3-btn m3-btn-menu" onclick="m3NextLevel()">➡️ 下一关</button>' : '';
-            const selectLevelBtn = m3LevelMode ? '<button class="m3-btn" style="background:#444;" onclick="m3ShowLevelSelect()">🗺️ 选择关卡</button>' : '';
-            m3ResultEl.innerHTML = '<div class="m3-result-title">' + title + '</div><div class="m3-stars"><div class="m3-star">★</div><div class="m3-star">★</div><div class="m3-star">★</div></div><div class="m3-result-line score">得分：' + m3Score + '</div><div class="m3-result-line">目标完成：' + m3DoneCount() + ' / ' + m3Targets.length + '</div><div class="m3-result-line">移动步数：' + m3Steps + '</div><div class="m3-result-line">📚 知识：' + m3KPlayer + ' / ' + m3KTotal + '</div>' + bookHtml + '<div class="m3-result-btns"><button class="m3-btn m3-btn-menu" onclick="m3Restart()">再来一局</button>' + nextLevelBtn + selectLevelBtn + '<button class="m3-btn" style="background:#444;" onclick="m3ExitToMenu()">返回菜单</button></div>'; 
+            const nextLevelBtn = (m3LevelMode && m3CurrentLevel < m3PlayLevels.length - 1 && isWin) ? '<button class="m3-btn m3-btn-menu" onclick="m3NextLevel()">' + _t('m3NextLevel') + '</button>' : '';
+            const selectLevelBtn = m3LevelMode ? '<button class="m3-btn" style="background:#444;" onclick="m3ShowLevelSelect()">' + _t('m3SelectLevel') + '</button>' : '';
+            m3ResultEl.innerHTML = '<div class="m3-result-title">' + title + '</div><div class="m3-stars"><div class="m3-star">★</div><div class="m3-star">★</div><div class="m3-star">★</div></div><div class="m3-result-line score">' + _t('m3RScore') + m3Score + '</div><div class="m3-result-line">' + _t('m3RTarget') + m3DoneCount() + ' / ' + m3Targets.length + '</div><div class="m3-result-line">' + _t('m3RSteps') + m3Steps + '</div><div class="m3-result-line">📚 知识：' + m3KPlayer + ' / ' + m3KTotal + '</div>' + bookHtml + '<div class="m3-result-btns"><button class="m3-btn m3-btn-menu" onclick="m3Restart()">再来一局</button>' + nextLevelBtn + selectLevelBtn + '<button class="m3-btn" style="background:#444;" onclick="m3ExitToMenu()">返回菜单</button></div>'; 
             m3ResultEl.style.display = 'flex'; 
             m3StarEls = m3ResultEl.querySelectorAll('.m3-star'); 
             for (let i = 0; i < stars; i++) { 
@@ -2735,20 +2789,20 @@
                 m3PausePanel = document.createElement('div'); 
                 m3PausePanel.id = 'm3-pause-panel'; 
                 m3PausePanel.style.cssText = 'position:fixed;inset:0;background:rgba(10,10,20,0.92);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:3600;gap:16px;padding:20px;box-sizing:border-box;backdrop-filter:blur(5px);'; 
-                m3PausePanel.innerHTML = '<div style="font-size:2.2rem;font-weight:900;background:linear-gradient(to right,#e94560,#f1c40f);-webkit-background-clip:text;background-clip:text;color:transparent;">⏸ 游戏暂停</div><div id="m3-pause-btns" style="display:flex;flex-direction:column;gap:12px;width:220px;"></div>'; 
+                m3PausePanel.innerHTML = '<div style="font-size:2.2rem;font-weight:900;background:linear-gradient(to right,#e94560,#f1c40f);-webkit-background-clip:text;background-clip:text;color:transparent;">' + _t('m3PauseTitle') + '</div><div id="m3-pause-btns" style="display:flex;flex-direction:column;gap:12px;width:220px;"></div>'; 
                 document.body.appendChild(m3PausePanel); 
             } 
             const btnsContainer = document.getElementById('m3-pause-btns');
             if (btnsContainer) {
-                const selectLevelBtn = m3LevelMode ? '<button class="btn-action" onclick="m3ShowLevelSelect()">🗺️ 选择关卡</button>' : '';
-                btnsContainer.innerHTML = '<button class="btn-action" onclick="m3TogglePause()">▶ 继续游戏</button><button class="btn-action" onclick="m3Restart()">🔄 重新开始</button>' + selectLevelBtn + '<button class="btn-action btn-secondary" onclick="m3ExitToMenu()">🏠 回到选择界面</button>';
+                const selectLevelBtn = m3LevelMode ? '<button class="btn-action" onclick="m3ShowLevelSelect()">' + _t('m3SelectLevel') + '</button>' : '';
+                btnsContainer.innerHTML = '<button class="btn-action" onclick="m3TogglePause()">' + _t('m3Resume') + '</button><button class="btn-action" onclick="m3Restart()">' + _t('m3Restart') + '</button>' + selectLevelBtn + '<button class="btn-action btn-secondary" onclick="m3ExitToMenu()">' + _t('m3BackSelect') + '</button>';
             }
             m3PausePanel.style.display = 'flex'; 
         }
         function hideM3PausePanel() { if (m3PausePanel) m3PausePanel.style.display = 'none'; }
         function m3ResetPause() { m3Paused = false; hideM3PausePanel(); }
         window.m3TogglePause = m3TogglePause;
-        function m3GameOver() { m3StopEater(); m3StopFeeder(); m3ResetPause(); const baG = document.getElementById('battle-area'); if (baG) baG.style.display = 'none'; m3State = 'gameover'; m3ClearHints(); showM3Result('👹 知识被吞噬了…', false); }
+        function m3GameOver() { m3StopEater(); m3StopFeeder(); m3ResetPause(); const baG = document.getElementById('battle-area'); if (baG) baG.style.display = 'none'; m3State = 'gameover'; m3ClearHints(); showM3Result(_t('m3FailTitle'), false); }
         function m3Win() { 
             m3StopEater(); m3StopFeeder(); m3ResetPause(); 
             m3EatenRows = 0; m3EatProgress = 0; m3KMonster = 0; m3KPlayer = m3KTotal; m3UpdatePKUI();
@@ -2768,7 +2822,7 @@
                     localStorage.setItem(key, JSON.stringify(p));
                 } catch (e) {}
             }
-            showM3Result('🎉 知识抢回来了！', true); 
+            showM3Result(_t('m3WinTitle'), true); 
         }
         window.m3NextLevel = function() {
             if (!m3LevelMode || m3CurrentLevel >= m3PlayLevels.length - 1) return;
@@ -2799,7 +2853,7 @@
                 const card = document.createElement('div');
                 card.className = 'level-select-card' + (lvl.completed ? ' completed' : '') + (locked ? ' locked' : '');
                 const typeLabel = lvl.type === 'ZIP' ? '📦 ZIP' : (lvl.type === '文件夹' ? '📁 文件夹' : (lvl.type === '词库' ? '📚 词库' : '📄 TXT'));
-                card.innerHTML = '<div class="lsc-num">第' + (idx + 1) + '关</div><div class="lsc-name">' + lvl.name + '</div><div class="lsc-type">' + typeLabel + '</div><div class="lsc-check">' + (locked ? '🔒' : (st > 0 ? '★'.repeat(st) + '☆'.repeat(3 - st) : (lvl.completed ? '✅' : '☆☆☆'))) + '</div>';
+                card.innerHTML = '<div class="lsc-num">' + _t('qStageLabel', { n: idx + 1 }) + '</div><div class="lsc-name">' + lvl.name + '</div><div class="lsc-type">' + typeLabel + '</div><div class="lsc-check">' + (locked ? '🔒' : (st > 0 ? '★'.repeat(st) + '☆'.repeat(3 - st) : (lvl.completed ? '✅' : '☆☆☆'))) + '</div>';
                 if (!locked) card.addEventListener('click', () => {
                     playSoundClick();
                     modal.style.display = 'none';
@@ -2842,7 +2896,7 @@
         document.getElementById('m3-refresh-btn').addEventListener('click', () => { playSoundClick(); m3RefreshCurtain(); });
         document.getElementById('m3-map-btn').addEventListener('click', () => {
             playSoundClick();
-            if (!(m3LevelMode && m3PlayLevels.length > 0)) { showM3Toast('当前模式下没有关卡地图'); return; }
+            if (!(m3LevelMode && m3PlayLevels.length > 0)) { showM3Toast(_t('m3NoMap')); return; }
             if (!m3Paused) m3TogglePause();
             m3ShowLevelSelect();
         });
@@ -2867,11 +2921,11 @@
             const bank = packKey === 'daily' ? window.DAILY_LEVELS : (packKey === 'cet4' ? window.CET4_LEVELS : window.CET6_LEVELS);
             const make = (items, name) => { const d = {}; items.forEach(w => { d[w[0]] = { mean: w[1] || '', img: '📝', audio: null, single: w[0].length === 1 }; }); return { name, type: '词库', dict: d }; };
             if (bank && bank.length > 0) {
-                return bank.map(lv => make(lv.words || [], lv.name || (QUEST_PACKS[packKey].name + '1')));
+                return bank.map(lv => make(lv.words || [], lv.name || (_t(QUEST_PACKS[packKey].nameKey || QUEST_PACKS[packKey].name) + '1')));
             }
             const out = [];
             const src = QUEST_PACKS[packKey].words.slice();
-            for (let i = 0; i < src.length; i += 5) out.push(make(src.slice(i, i + 5), QUEST_PACKS[packKey].name + (out.length + 1)));
+            for (let i = 0; i < src.length; i += 5) out.push(make(src.slice(i, i + 5), _t(QUEST_PACKS[packKey].nameKey || QUEST_PACKS[packKey].name) + (out.length + 1)));
             return out;
         }
         function m3LaunchFillPack(packKey) {
@@ -2948,7 +3002,7 @@
                 if (targetHoleShape) {
                     m3DoFillHole(dragging, targetHoleShape, letters);
                 } else {
-                    showM3Toast('❌ 形状不匹配或没有对应空洞！');
+                    showM3Toast(_t('m3ShapeMismatch'));
                 }
             });
         }
@@ -3000,7 +3054,7 @@
                     if (m3Busy || (m3State !== 'idle' && m3State !== 'selecting')) return;
                     const target = m3FindDropTarget(ev.clientX, ev.clientY, cells);
                     if (target) m3DoFillHole(block, target, letters);
-                    else showM3Toast('❌ 拖到形状相同的空洞上再松手！');
+                    else showM3Toast(_t('m3DropSameShape'));
                 };
                 document.addEventListener('pointermove', onMove, true);
                 document.addEventListener('pointerup', onUp, true);
@@ -3032,7 +3086,7 @@
             m3Steps++; updateM3UI(); renderM3Targets();
             if (m3CheckHolePath()) { m3ResolveHoleTarget(); return; }
             if (m3CheckBonusWords()) return;
-            showM3Toast('✅ 已填入！点击已填字母可与相邻字母交换调整');
+            showM3Toast(_t('m3Filled'));
         }
 
         // 点按选块后点击空洞填入
@@ -3048,7 +3102,7 @@
                 if (!hasUnfilled) continue;
                 if (hs.cells.some(cell => cell.r === r && cell.c === c)) { target = hs; break; }
             }
-            if (!target) { showM3Toast('请点击与块形状相同的空洞！'); return; }
+            if (!target) { showM3Toast(_t('m3TapSameShape')); return; }
             m3ClearHints();
             m3DoFillHole(block, target, letters);
         }
@@ -3098,7 +3152,7 @@
         });
         document.getElementById('uploadPlus').addEventListener('click', () => {
             playSoundClick();
-            showM3Toast('⬆️ 请在上方选择：📦 上传 ZIP 包 / 📂 上传文件夹 / 📄 上传 TXT');
+            showM3Toast(_t('m3UploadHint'));
         });
 
         document.getElementById('uploadZipInput').addEventListener('change', async (e) => { 
@@ -3179,8 +3233,8 @@
                 }
             }
             renderUploadedLevels();
-            if (added === 0) showM3Toast('❌ 未识别到关卡，请按格式：关卡名：dog,狗;cat,猫');
-            else showM3Toast('📄 已添加 ' + added + ' 个 TXT 关卡');
+            if (added === 0) showM3Toast(_t('m3NoLevelFound'));
+            else showM3Toast(_t('txtAdded', { n: added }));
             e.target.value = '';
         });
 
@@ -3192,7 +3246,7 @@
                 const item = document.createElement('div');
                 item.className = 'uploaded-level-item';
                 const wordCount = Object.keys(lvl.dict).length;
-                const typeChip = lvl.type === 'ZIP' ? '<span class="uli-type zip">📦 ZIP</span>' : (lvl.type === '文件夹' ? '<span class="uli-type folder">📁 文件夹</span>' : '<span class="uli-type txt">📄 TXT</span>');
+                const typeChip = lvl.type === 'ZIP' ? '<span class="uli-type zip">📦 ZIP</span>' : (lvl.type === '文件夹' ? '<span class="uli-type folder">📁 ' + _t('folderWord') + '</span>' : '<span class="uli-type txt">📄 TXT</span>');
                 item.innerHTML = `
                     <div class="uli-num">${idx + 1}</div>
                     <div class="uli-info">
@@ -3266,7 +3320,7 @@
                 }
                 return { name: lvl.name, words };
             });
-            if (runWords.length === 0) { alert('上传的关卡里没有可用单词！'); return; }
+            if (runWords.length === 0) { alert(_t('errNoWords')); return; }
             document.getElementById('uploadModeModal').style.display = 'none';
             document.getElementById('uploadLevelModal').style.display = 'none';
             document.getElementById('levelSelectModal').style.display = 'none';
@@ -3291,7 +3345,7 @@
         document.getElementById('btnStartUploadedGame').addEventListener('click', () => {
             playSoundClick();
             if (m3Levels.length === 0) {
-                alert('请先上传至少一个关卡！');
+                alert(_t('errNoLevels'));
                 return;
             }
             // 从哪个模式的自定义关卡进入上传，就直接以该模式开始，无需再选模式
@@ -3313,18 +3367,18 @@
         // 5) 渐进式脚手架：长词自动出现首字母提示、有限次"提示"按钮
         // 6) 经典街机循环：学→试→操作→成功→加分→下一关，三星评价+无限闯关=重玩价值
         const QUEST_PACKS = {
-            daily: { name: '日常单词', words: [
+            daily: { name: 'packNameDaily', words: [
                 ['hello','你好'],['water','水'],['apple','苹果'],['school','学校'],['friend','朋友'],['family','家庭'],['morning','早上'],['happy','快乐的'],['teacher','老师'],['student','学生'],
                 ['book','书'],['house','房子'],['music','音乐'],['animal','动物'],['weather','天气'],['color','颜色'],['number','数字'],['breakfast','早餐'],['dinner','晚餐'],['travel','旅行'],
                 ['hospital','医院'],['station','车站'],['garden','花园'],['market','市场'],['kitchen','厨房'],['library','图书馆'],['computer','电脑'],['telephone','电话'],['beautiful','美丽的'],['important','重要的']
             ]},
-            cet4: { name: '四级核心', words: [
+            cet4: { name: 'packNameCet4', words: [
                 ['ability','能力'],['abandon','放弃'],['absorb','吸收'],['academic','学术的'],['accompany','陪伴'],['achieve','实现'],['acquire','获得'],['adapt','适应'],['adjust','调整'],['admire','钦佩'],
                 ['advance','前进'],['advantage','优势'],['adventure','冒险'],['agency','代理机构'],['analyze','分析'],['announce','宣布'],['anxious','焦虑的'],['apologize','道歉'],['apply','申请'],['appreciate','感激'],
                 ['approach','接近'],['approve','批准'],['argue','争论'],['arrange','安排'],['assist','协助'],['assume','假设'],['attend','参加'],['attitude','态度'],['attract','吸引'],['avoid','避免'],
                 ['balance','平衡'],['benefit','利益'],['budget','预算'],['career','职业'],['challenge','挑战'],['character','性格'],['climate','气候'],['collapse','崩溃'],['combine','结合'],['comfort','安慰']
             ]},
-            cet6: { name: '六级核心', words: [
+            cet6: { name: 'packNameCet6', words: [
                 ['abundant','丰富的'],['accommodate','容纳'],['accumulate','积累'],['acknowledge','承认'],['advocate','提倡'],['aggressive','好斗的'],['alternative','替代的'],['ambiguous','模棱两可的'],['ambitious','有雄心的'],['anticipate','预期'],
                 ['apparent','明显的'],['arbitrary','任意的'],['artificial','人造的'],['assess','评估'],['authentic','真实的'],['authority','权威'],['automatic','自动的'],['boost','提升'],['boundary','边界'],['brilliant','杰出的'],
                 ['campaign','运动'],['capacity','容量'],['category','类别'],['cautious','谨慎的'],['chaos','混乱'],['coincide','一致'],['collaborate','合作'],['collide','碰撞'],['commence','开始'],['compatible','兼容的'],
@@ -3355,7 +3409,7 @@
                 const input = DOM.customWordInput.value;
                 const dict = parseCustomWords(input);
                 runWords = Object.keys(dict).filter(w => w.length >= 2).map(w => [w, dict[w].mean || '']);
-                if (runWords.length === 0) { alert('请先在输入框填写至少一个单词！'); return; }
+                if (runWords.length === 0) { alert(_t('errEmpty')); return; }
             } else {
                 // 默认词库：日常/四级/六级 → 每 5 词一关的分关卡模式
                 const bank = packKey === 'daily' ? window.DAILY_LEVELS : (packKey === 'cet4' ? window.CET4_LEVELS : window.CET6_LEVELS);
@@ -3367,7 +3421,7 @@
                     // 兜底：内置小词库按 5 词分关
                     const src = QUEST_PACKS[packKey].words.slice();
                     levels = [];
-                    for (let i = 0; i < src.length; i += 5) levels.push({ name: QUEST_PACKS[packKey].name + (levels.length + 1), words: src.slice(i, i + 5) });
+                    for (let i = 0; i < src.length; i += 5) levels.push({ name: _t(QUEST_PACKS[packKey].nameKey || QUEST_PACKS[packKey].name) + (levels.length + 1), words: src.slice(i, i + 5) });
                     runWords = src.slice();
                 }
             }
@@ -3406,7 +3460,7 @@
                 wordWrong: false, inReview: false, wordTimer: 0, hintShown: false,
                 wordRound: 1, hintUsedThisRound: false, stageWordCount: 0,
                 wordFailCount: 0, wordArranged: false,
-                meaningOptions: [], packName: packKey === 'custom' ? '自定义' : (packKey === 'upload' ? '上传关卡' : QUEST_PACKS[packKey].name)
+                meaningOptions: [], packName: packKey === 'custom' ? _t('packNameCustom') : (packKey === 'upload' ? _t('packNameUpload') : _t(QUEST_PACKS[packKey].nameKey || QUEST_PACKS[packKey].name))
             };
             q = quest;
         }
@@ -3416,7 +3470,7 @@
             if (q.levels && q.levels.length > 0) {
                 // 分关卡模式：每个关卡是固定的 5 词（或自定义词数）
                 const lvl = q.levels[(q.stage - 1) % q.levels.length];
-                q.levelName = lvl.name || (q.packName + ' 第' + q.stage + '关');
+                q.levelName = lvl.name || (q.packName + ' ' + _t('qStageLabel', { n: q.stage }));
                 q.words = (lvl.words || []).map(w => (Array.isArray(w) ? w.slice() : w));
             } else {
                 q.levelName = q.packName;
@@ -3444,9 +3498,9 @@
             q.state = 'banner';
             const badge = document.getElementById('q-stage-badge');
             const isBoss = q.boss;
-            badge.innerText = isBoss ? '🐲 BOSS 关 ' + q.stage : '第 ' + q.stage + ' 关';
+            badge.innerText = isBoss ? _t('qBossLabel', { n: q.stage }) : _t('qStage', { n: q.stage });
             badge.classList.toggle('boss', isBoss);
-            const text = isBoss ? '🐲 BOSS 来袭！连续拼词击败它！' : ('第 ' + q.stage + ' 关 · ' + (q.levelName || q.packName));
+            const text = isBoss ? _t('qBossCome') : _t('qStageOf', { n: q.stage, name: q.levelName || q.packName });
             const flash = document.getElementById('q-learn-flash');
             flash.innerHTML = text;
             flash.classList.add('show');
@@ -3486,17 +3540,17 @@
             const el = document.getElementById('q-enemy');
             el.classList.toggle('boss', q.boss);
             const mon = q.boss ? Q_BOSS_MONSTERS[(q.stage / Q_BOSS_EVERY) % Q_BOSS_MONSTERS.length | 0] : Q_MONSTERS[Math.floor(Math.random() * Q_MONSTERS.length)];
-            const roundLabel = q.inReview ? '📖 复习轮' : (q.wordRound === 1 ? '📖 学习轮' : q.wordRound === 2 ? '✏️ 练习轮' : '🎯 掌握轮');
+            const roundLabel = q.inReview ? _t('qRoundReview') : (q.wordRound === 1 ? _t('qRoundLearn') : q.wordRound === 2 ? _t('qRoundPractice') : _t('qRoundMaster'));
             // 上传关卡：用上传的 gif/jpg/png 图片作为怪物图标
             const isImg = q.enemy.img && typeof q.enemy.img === 'string' && /^(blob:|data:|https?:)/.test(q.enemy.img);
             let html = isImg ? '<img class="q-monster-img" src="' + q.enemy.img + '" alt="' + q.enemy.word + '">' : '<div class="q-monster">' + mon + '</div>';
             if (q.enemy.revealed) {
                 html += '<div class="q-enemy-word">' + q.enemy.word + '</div>';
-                html += '<div class="q-enemy-prompt">' + q.enemy.mean + '（照着拼写）</div>';
+                html += '<div class="q-enemy-prompt">' + q.enemy.mean + _t('qFollowSpell') + '</div>';
             } else {
                 html += '<div class="q-enemy-prompt">' + q.enemy.mean + '</div>';
             }
-            html += '<div class="q-enemy-prompt" style="font-size:0.8rem;color:#ffd700;">' + roundLabel + ' · ' + q.enemy.word.length + ' 个字母</div>';
+            html += '<div class="q-enemy-prompt" style="font-size:0.8rem;color:#ffd700;">' + roundLabel + ' · ' + _t('qLetters', { n: q.enemy.word.length }) + '</div>';
             if (q.boss) html += '<div class="q-enemy-hp"><div id="q-boss-hp-bar" style="width:100%"></div></div>';
             el.innerHTML = html;
             qUpdateEnemyPos();
@@ -3521,7 +3575,7 @@
                     if (cand[0] !== q.enemy.word && !pool.some(x => x[1] === cand[1])) pool.push(cand);
                 }
                 q.meaningOptions = shuffle([[q.enemy.word, q.enemy.mean]].concat(pool));
-                promptEl.innerHTML = '🤔 <b>' + q.enemy.word + '</b> 的意思是？';
+                promptEl.innerHTML = '🤔 ' + _t('qMeaningQ', { m: '<b>' + q.enemy.word + '</b>' });
                 q.meaningOptions.forEach((opt, i) => {
                     const b = document.createElement('div');
                     b.className = 'q-tile meaning';
@@ -3544,15 +3598,15 @@
                     tilesEl.appendChild(b);
                     q.tiles[i].el = b;
                 });
-                const arrangedTip = q.wordArranged ? '🔧 字母已按顺序排好，加油！　' : '';
+                const arrangedTip = q.wordArranged ? _t('qSorted') + '　' : '';
                 if (q.inReview) {
-                    promptEl.innerHTML = arrangedTip + '📖 复习：拼出 <b>' + q.enemy.mean + '</b> 对应的单词';
+                    promptEl.innerHTML = arrangedTip + _t('qReviewPrompt', { m: q.enemy.mean });
                 } else if (q.wordRound === 1) {
-                    promptEl.innerHTML = arrangedTip + '📖 照着上方单词，按顺序点选字母拼出来（学习轮）';
+                    promptEl.innerHTML = arrangedTip + _t('qLearnPrompt');
                 } else if (q.wordRound === 2) {
-                    promptEl.innerHTML = arrangedTip + '✏️ 练习：拼出 <b>' + q.enemy.mean + '</b> 对应的单词（不会可按 💡 提示）';
+                    promptEl.innerHTML = arrangedTip + _t('qPracticePrompt', { m: q.enemy.mean });
                 } else {
-                    promptEl.innerHTML = arrangedTip + '🎯 掌握：最后一次！拼出 <b>' + q.enemy.mean + '</b> 对应的单词！';
+                    promptEl.innerHTML = arrangedTip + _t('qMasterPrompt', { m: q.enemy.mean });
                 }
             }
             qRenderTop();
@@ -3604,7 +3658,7 @@
             cs.classList.toggle('on', q.combo >= 3);
             document.getElementById('q-combo').innerText = q.combo;
             const badge = document.getElementById('q-stage-badge');
-            badge.innerText = (q.boss ? '🐲 BOSS ' : '第 ') + q.stage + ' 关';
+            badge.innerText = q.boss ? _t('qBossLabel', { n: q.stage }) : _t('qStage', { n: q.stage });
             badge.classList.toggle('boss', q.boss);
         }
         function qPressTile(ch, el, idx) {
@@ -3641,7 +3695,7 @@
                 if (!q.inReview && q.wordRound === 2 && q.hintUsedThisRound && !q.enemy.revealed) {
                     q.enemy.revealed = true;
                     qRenderEnemy();
-                    showM3Toast('💡 再给你看一遍完整单词，照着拼！');
+                    showM3Toast(_t('qHintFull'));
                 }
                 setTimeout(() => el.classList.remove('wrong'), 360);
                 qRenderTop();
@@ -3700,7 +3754,7 @@
             flash.classList.add('show');
             playSoundClear();
             speakWord(word);
-            if (q.cleanStreak >= 3) { q.cleanStreak = 0; q.score += 100; showM3Toast('🔥 三连完美！+100'); }
+            if (q.cleanStreak >= 3) { q.cleanStreak = 0; q.score += 100; showM3Toast(_t('qCombo3')); }
             qRenderTop();
             setTimeout(() => {
                 flash.classList.remove('show');
@@ -3716,11 +3770,11 @@
             q.state = 'banner';
             const flash = document.getElementById('q-learn-flash');
             if (mode === 'retry') {
-                flash.innerHTML = '💡 别灰心！单词再展示一次，怪兽速度已降低' + (q.wordArranged ? '，字母也排好序了' : '');
+                flash.innerHTML = _t('qShowAgain') + (q.wordArranged ? _t('qSortedToo') : '');
             } else if (mode === 'shuffle') {
-                flash.innerHTML = '🎉 拼出来了！现在把字母打乱，再拼一次！';
-            } else if (q.wordRound === 2) flash.innerHTML = '✏️ 练习轮：这次单词隐藏，试着拼出来！';
-            else flash.innerHTML = '🎯 掌握轮：最后一次挑战，拼出来就掌握啦！';
+                flash.innerHTML = _t('qShuffleAgain');
+            } else if (q.wordRound === 2) flash.innerHTML = _t('qToPractice');
+            else flash.innerHTML = _t('qToMaster');
             flash.classList.add('show');
             playTone(660, 0.15, 'sine', 0.12);
             setTimeout(() => {
@@ -3776,7 +3830,7 @@
                 q.reviewQueue = [];
                 q.state = 'banner';
                 const flash = document.getElementById('q-learn-flash');
-                flash.innerHTML = '📖 复习时间！把刚才答错的单词再拼一遍';
+                flash.innerHTML = _t('qToReview');
                 flash.classList.add('show');
                 playTone(660, 0.2, 'sine', 0.12);
                 setTimeout(() => {
@@ -3807,10 +3861,10 @@
                 const hero = document.getElementById('q-hero');
                 hero.classList.remove('hit'); void hero.offsetWidth; hero.classList.add('hit');
                 playTone(90, 0.3, 'sawtooth', 0.18);
-                showM3Toast('💥 ' + word + '（' + q.enemy.mean + '）突破了防线！再试一次：单词重新展示，怪兽减速');
+                showM3Toast('💥 ' + word + '（' + q.enemy.mean + '）' + _t('qBreakWall'));
             } else {
                 playTone(150, 0.2, 'sawtooth', 0.12);
-                showM3Toast('🐢 怪兽减速！单词重新展示' + (q.wordArranged ? '，字母已排好顺序' : ''));
+                showM3Toast(_t('qSlowDown') + (q.wordArranged ? _t('qSortedToo') : ''));
             }
             qRenderTop();
             if (q.hp <= 0) { q.hp = 0; qRenderTop(); qShowStageResults(); return; }
@@ -3878,18 +3932,18 @@
             }
             q.stars = stars;
             const wasBoss = q.boss;
-            let title = win ? (wasBoss ? '🐲 BOSS 击败！' : '🎉 闯关成功！') : '😵 挑战失败';
-            if (win && q.inReview) title = '📖 复习完成！';
+            let title = win ? (wasBoss ? _t('qBossBeat') : _t('qWin')) : _t('qFail');
+            if (win && q.inReview) title = _t('qReviewDone');
             if (!qResultEl) {
                 qResultEl = document.createElement('div');
                 qResultEl.id = 'q-result';
                 document.body.appendChild(qResultEl);
             }
             const starHtml = [1, 2, 3].map(i => '<span' + (stars >= i ? ' class="lit"' : '') + '>★</span>').join('');
-            const learnedHtml = q.learned.length ? '<div class="q-result-line">📚 已学会：' + q.learned.slice(-12).map(x => '<span class="q-review-chip" style="background:rgba(83,215,105,0.2);border-color:#53d769;color:#a8f0b8;">' + x.word + ' ' + x.mean + '</span>').join(' ') + '</div>' : '';
-            const wrongHtml = q.wrongFinal.length ? '<div class="q-result-line">🔁 还需加强：</div><div class="q-review-box">' + q.wrongFinal.map(w => '<span class="q-review-chip">' + w + '</span>').join('') + '</div>' : '';
-            const nextBtn = win ? '<button class="q-btn" style="background:linear-gradient(to bottom,#53d769,#1e7d36);" onclick="qNextStage()">➡️ 下一关</button>' : '';
-            qResultEl.innerHTML = '<div class="q-result-title">' + title + '</div><div class="q-result-stars">' + starHtml + '</div><div class="q-result-line">关卡：' + (q.levelName || q.packName) + '</div><div class="q-result-line">得分：<b>' + q.score + '</b>　最大连击：<b>' + q.maxCombo + '</b></div><div class="q-result-line">单词：' + (q.stageWordCount || q.words.length) + ' 个　❤️ 剩余：' + q.hp + '</div>' + learnedHtml + wrongHtml + '<div class="q-result-btns">' + nextBtn + '<button class="q-btn" style="background:#444;" onclick="qReplayStage()">🔁 重玩本关</button><button class="q-btn" style="background:#444;" onclick="qOpenMap()">🗺️ 冒险地图</button><button class="q-btn q-btn-red" onclick="qExitToMenu()">🏠 返回菜单</button></div>';
+            const learnedHtml = q.learned.length ? '<div class="q-result-line">' + _t('qResultLearned') + q.learned.slice(-12).map(x => '<span class="q-review-chip" style="background:rgba(83,215,105,0.2);border-color:#53d769;color:#a8f0b8;">' + x.word + ' ' + x.mean + '</span>').join(' ') + '</div>' : '';
+            const wrongHtml = q.wrongFinal.length ? '<div class="q-result-line">' + _t('qResultReview') + '</div><div class="q-review-box">' + q.wrongFinal.map(w => '<span class="q-review-chip">' + w + '</span>').join('') + '</div>' : '';
+            const nextBtn = win ? '<button class="q-btn" style="background:linear-gradient(to bottom,#53d769,#1e7d36);" onclick="qNextStage()">' + _t('qNextStage') + '</button>' : '';
+            qResultEl.innerHTML = '<div class="q-result-title">' + title + '</div><div class="q-result-stars">' + starHtml + '</div><div class="q-result-line">' + _t('qRStage') + (q.levelName || q.packName) + '</div><div class="q-result-line">' + _t('qRScore') + '<b>' + q.score + '</b>　' + _t('qRCombo') + '<b>' + q.maxCombo + '</b></div><div class="q-result-line">' + _t('qRWords') + (q.stageWordCount || q.words.length) + ' ' + _t('qRWordsUnit') + '　' + _t('qRHearts') + q.hp + '</div>' + learnedHtml + wrongHtml + '<div class="q-result-btns">' + nextBtn + '<button class="q-btn" style="background:#444;" onclick="qReplayStage()">' + _t('qReplay') + '</button><button class="q-btn" style="background:#444;" onclick="qOpenMap()">' + _t('qAdventureMap') + '</button><button class="q-btn q-btn-red" onclick="qExitToMenu()">' + _t('qHome') + '</button></div>';
             qResultEl.style.display = 'flex';
         }
         function qNextStage() {
@@ -3919,7 +3973,7 @@
                     qPausePanel.style.cssText = 'position:fixed;inset:0;background:rgba(10,10,20,0.92);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:3600;gap:16px;padding:20px;box-sizing:border-box;backdrop-filter:blur(5px);';
                     document.body.appendChild(qPausePanel);
                 }
-                qPausePanel.innerHTML = '<div style="font-size:2rem;font-weight:900;background:linear-gradient(to right,#53d769,#f1c40f);-webkit-background-clip:text;background-clip:text;color:transparent;">⏸ 冒险暂停</div><div style="display:flex;flex-direction:column;gap:12px;width:220px;"><button class="btn-action" onclick="qTogglePause()">▶ 继续闯关</button><button class="btn-action" onclick="qTogglePause();qReplayStage()">🔁 重开本关</button><button class="btn-action btn-secondary" onclick="qTogglePause();qOpenMap()">🗺️ 冒险地图</button><button class="btn-action btn-secondary" onclick="qExitToMenu()">🏠 返回菜单</button></div>';
+                qPausePanel.innerHTML = '<div style="font-size:2rem;font-weight:900;background:linear-gradient(to right,#53d769,#f1c40f);-webkit-background-clip:text;background-clip:text;color:transparent;">' + _t('qPauseTitle') + '</div><div style="display:flex;flex-direction:column;gap:12px;width:220px;"><button class="btn-action" onclick="qTogglePause()">' + _t('qResumeQuest') + '</button><button class="btn-action" onclick="qTogglePause();qReplayStage()">' + _t('qRestartStage') + '</button><button class="btn-action btn-secondary" onclick="qTogglePause();qOpenMap()">' + _t('qAdventureMap') + '</button><button class="btn-action btn-secondary" onclick="qExitToMenu()">' + _t('qHome') + '</button></div>';
                 qPausePanel.style.display = 'flex';
             } else {
                 qPausePanel.style.display = 'none';
@@ -3943,13 +3997,13 @@
                 });
             } else {
                 const total = Math.max(10, saved.unlocked + 4);
-                for (let s = 1; s <= total; s++) entries.push({ num: s, name: q.packName + ' 第' + s + '关', locked: s > saved.unlocked, isBoss: s % Q_BOSS_EVERY === 0 });
+                for (let s = 1; s <= total; s++) entries.push({ num: s, name: q.packName + ' ' + _t('qStageLabel', { n: s }), locked: s > saved.unlocked, isBoss: s % Q_BOSS_EVERY === 0 });
             }
             entries.forEach(e => {
                 const card = document.createElement('div');
                 card.className = 'qmap-card' + (e.locked ? ' locked' : '') + (e.isBoss ? ' boss-card' : '');
                 const st = isUpload ? 0 : qProgressStars(e.num, q.packKey);
-                card.innerHTML = '<div class="qmc-num">第' + e.num + '关</div><div class="qmc-name">' + e.name + '</div>' + (e.isBoss ? '<div class="qmc-boss">🐲</div>' : '') + '<div class="qmc-stars">' + (e.locked ? '🔒' : (st > 0 ? '★'.repeat(st) + '☆'.repeat(3 - st) : '☆☆☆')) + '</div>';
+                card.innerHTML = '<div class="qmc-num">' + _t('qStageLabel', { n: e.num }) + '</div><div class="qmc-name">' + e.name + '</div>' + (e.isBoss ? '<div class="qmc-boss">🐲</div>' : '') + '<div class="qmc-stars">' + (e.locked ? '🔒' : (st > 0 ? '★'.repeat(st) + '☆'.repeat(3 - st) : '☆☆☆')) + '</div>';
                 if (!e.locked) card.addEventListener('click', () => {
                     playSoundClick();
                     modal.style.display = 'none';
@@ -4028,6 +4082,14 @@
                 if (state === 'match3' && m3Grid && m3Grid.length) { renderMatch3Grid(true); m3ApplyCurtainOffset(); }
             }, 300);
         });
+
+        // ==================== i18n：UI 多语言初始化 ====================
+        document.addEventListener('i18n:change', function () {
+            /* 切换语言后刷新动态文案（模式页顶部“当前语言”标签、加载屏等） */
+            try { langUpdateMeta(langSelIndex()); } catch (e) { }
+            try { const lt = document.getElementById('loadingText'); if (lt && lt.innerText) lt.innerText = _t('footer'); } catch (e) { }
+        });
+        if (window.I18N) window.I18N.init();
 
     })();
     </script>

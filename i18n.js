@@ -16,7 +16,7 @@
 
     var LANGS = [
         { code: 'zh-CN', flag: '🇨🇳', name: '简体中文' },
-        { code: 'zh-TW', flag: '🇹🇼', name: '繁體中文' },
+        { code: 'zh-TW', flag: 'TWS', name: '繁體中文' },
         { code: 'en', flag: '🇬🇧', name: 'English' },
         { code: 'ja', flag: '🇯🇵', name: '日本語' },
         { code: 'ko', flag: '🇰🇷', name: '한국어' },

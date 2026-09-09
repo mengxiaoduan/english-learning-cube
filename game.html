@@ -1011,17 +1011,17 @@
                             <div class="lc-name">English</div>
                             <div class="lc-sub" data-i18n="lcSubEn">英 语</div>
                         </div>
-                        <div class="lang-card" data-lang="ru" data-i="1">
+                        <div class="lang-card" data-lang="ru" data-i="2">
                             <div class="lc-flag flag-ru"></div>
                             <div class="lc-name">Русский</div>
                             <div class="lc-sub" data-i18n="lcSubRu">俄 语</div>
                         </div>
-                        <div class="lang-card" data-lang="fr" data-i="2">
+                        <div class="lang-card" data-lang="fr" data-i="3">
                             <div class="lc-flag flag-fr"></div>
                             <div class="lc-name">Français</div>
                             <div class="lc-sub" data-i18n="lcSubFr">法 语</div>
                         </div>
-                        <div class="lang-card" data-lang="zh" data-i="3">
+                        <div class="lang-card" data-lang="zh" data-i="1">
                             <div class="lc-flag flag-cn"><i class="cn-big">★</i><i class="cn-s1">★</i><i class="cn-s2">★</i><i class="cn-s3">★</i><i class="cn-s4">★</i></div>
                             <div class="lc-name">中文</div>
                             <div class="lc-sub" data-i18n="lcSubZh">汉 语</div>
@@ -1522,7 +1522,7 @@
         function updateLockUI() { const btn = document.getElementById('btnLock'); const targetPanel = document.getElementById('targetPanel'); if (isWordLocked) { btn.innerText = _t('unlockBtn'); btn.style.background = 'linear-gradient(to bottom, #f39c12, #d35400)'; targetPanel.classList.add('locked'); } else { btn.innerText = _t('lockBtn'); btn.style.background = ''; targetPanel.classList.remove('locked'); } }
         // ==================== 界面层级导航：主界面 → 语言轮盘 → 模式选择 → 关卡选择 ====================
         const LANG_TTS = { en: 'en-US', ru: 'ru-RU', fr: 'fr-FR', zh: 'zh-CN', other: 'en-US' };
-        const LANG_ORDER = ['en', 'ru', 'fr', 'zh', 'other'];
+        const LANG_ORDER = ['en', 'zh', 'ru', 'fr', 'other'];
         const LANG_STEP = 360 / LANG_ORDER.length;
         const LANG_META = {
             en: { name: 'English', subKey: 'lcSubEn', blocks: [['E','#00f2ff'],['n','#ffe600'],['g','#a100ff'],['l','#00ff66'],['i','#ff0000'],['s','#ff8800'],['h','#0088ff']] },
@@ -1588,7 +1588,7 @@
         let langTouchY = 0;
         document.getElementById('langDrum').addEventListener('touchstart', (e) => { langTouchY = e.touches[0].clientY; }, { passive: true });
         document.getElementById('langDrum').addEventListener('touchend', (e) => { const dy = langTouchY - e.changedTouches[0].clientY; if (Math.abs(dy) > 30) langScroll(dy > 0 ? 1 : -1); }, { passive: true });
-        const LANG_DEV_PENDING = ['fr', 'zh', 'other'];
+        const LANG_DEV_PENDING = ['fr', 'other'];
         function langDevToast() { const meta = LANG_META[selectedLanguage]; showM3Toast('🚧 ' + (meta && meta.toastKey ? _t(meta.toastKey) : _t('alertModeDev'))); }
         document.querySelectorAll('.lang-card').forEach(card => { card.addEventListener('mouseenter', () => { if (audioCtx) playSoundHover(); }); card.addEventListener('click', () => { unlockAudio(); const i = parseInt(card.dataset.i); if (i === langSelIndex()) { playSoundSelect(); } else { playSoundMove(); setLangIndex(i); } if (LANG_DEV_PENDING.indexOf(LANG_ORDER[i]) >= 0) langDevToast(); }); });
         window.addEventListener('resize', layoutLangWheel);

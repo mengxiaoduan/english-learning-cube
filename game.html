@@ -185,6 +185,7 @@
         .uilang-item .uilang-name { font-weight: 700; letter-spacing: .5px; }
         .mode-card.mc-fill { --mc: #f1c40f; --mc-glow: rgba(241,196,15,.4); }
         .mode-card.mc-quest { --mc: #53d769; --mc-glow: rgba(83,215,105,.4); }
+        .mode-card.mc-write { --mc: #1abc9c; --mc-glow: rgba(26,188,156,.45); }
         @media (max-width: 480px) {
             .tetris-pile { transform: translateX(-50%) scale(0.72); transform-origin: bottom center; }
             .lang-drum { width: 212px; height: 222px; }
@@ -659,6 +660,45 @@
             .m3-feeder-block .fb-cell { width: 13px; height: 13px; font-size: 9px; }
         }
         @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+        /* ===== 写字学中文模式 ===== */
+        #writing-view { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; height: 100dvh; z-index: 500; flex-direction: column; align-items: center; gap: 10px; background: var(--bg-color); overflow-y: auto; padding: 12px 10px 30px; box-sizing: border-box; }
+        #w-stage { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%; }
+        #w-info-row { text-align: center; }
+        #w-pinyin { font-size: 2rem; font-weight: 900; color: var(--target-glow); letter-spacing: 2px; }
+        #w-mean { font-size: 1.05rem; color: var(--text-color); opacity: .92; margin-top: 2px; }
+        #w-pad-wrap { position: relative; width: min(72vw, 44vh, 320px); height: min(72vw, 44vh, 320px); background: #fdfdf6; border-radius: 14px; border: 3px solid #e07a7a; box-shadow: 0 8px 24px rgba(0,0,0,.45), inset 0 0 30px rgba(224,122,122,.12); touch-action: none; overflow: hidden; flex: 0 0 auto; }
+        #w-pad-wrap::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; border-top: 1.5px dashed rgba(224,122,122,.55); z-index: 1; }
+        #w-pad-wrap::after { content: ''; position: absolute; top: 0; bottom: 0; left: 50%; border-left: 1.5px dashed rgba(224,122,122,.55); z-index: 1; }
+        #w-pad-wrap .w-dg { position: absolute; left: 50%; top: 50%; width: 142%; border-top: 1px dashed rgba(224,122,122,.28); z-index: 1; }
+        #w-pad-wrap .w-dg1 { transform: translate(-50%,-50%) rotate(45deg); }
+        #w-pad-wrap .w-dg2 { transform: translate(-50%,-50%) rotate(-45deg); }
+        #w-pad { position: absolute; inset: 0; z-index: 2; }
+        #w-msg { min-height: 24px; color: var(--text-color); font-size: .95rem; opacity: .88; text-align: center; }
+        #w-slots { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+        .w-slot { width: 52px; height: 52px; border-radius: 10px; border: 2px dashed rgba(255,255,255,.25); display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: 900; color: var(--text-color); background: rgba(15,52,96,.5); transition: all .3s; }
+        .w-slot.filled { border-style: solid; border-color: var(--target-glow); box-shadow: 0 0 14px rgba(241,196,15,.45); animation: wpop .45s ease; }
+        @keyframes wpop { 0% { transform: scale(.4); } 70% { transform: scale(1.25); } 100% { transform: scale(1); } }
+        .w-fly { position: fixed; z-index: 600; font-size: 56px; font-weight: 900; color: #333; pointer-events: none; transition: all .7s cubic-bezier(.45,-0.15,.6,1); }
+        @keyframes wshake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-7px); } 75% { transform: translateX(7px); } }
+        .w-shake { animation: wshake .3s; }
+        #w-result { display: none; flex-direction: column; align-items: center; gap: 12px; text-align: center; padding: 16px; }
+        #w-result .w-result-title { font-size: 1.6rem; font-weight: 900; color: var(--target-glow); }
+        #w-result .w-result-stars { font-size: 1.6rem; letter-spacing: 6px; color: #f1c40f; }
+        #w-result .w-learned { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+        #w-result .w-learned .w-lc { width: 56px; height: 56px; border-radius: 10px; background: rgba(83,215,105,.15); border: 1px solid rgba(83,215,105,.5); display: flex; flex-direction: column; align-items: center; justify-content: center; color: #eee; }
+        #w-result .w-lc b { font-size: 26px; }
+        #w-result .w-lc i { font-style: normal; font-size: .68rem; opacity: .8; }
+        #w-btns { display: flex; flex-direction: column; gap: 10px; width: min(86vw, 300px); }
+        #writingPackModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1100; background: rgba(0,0,0,.72); align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; }
+        #writingPackModal .wp-panel { width: min(92vw, 480px); max-height: 84vh; overflow-y: auto; background: linear-gradient(160deg, #0f3460, #16213e); border: 2px solid rgba(255,255,255,.18); border-radius: 18px; padding: 22px 18px; box-shadow: 0 12px 40px rgba(0,0,0,.5); text-align: center; }
+        #writingPackModal h2 { margin: 0 0 8px; color: var(--target-glow); }
+        #writingMapList { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 0; }
+        .w-map-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px 12px; border-radius: 12px; border: 2px solid rgba(255,255,255,.14); background: rgba(255,255,255,.06); color: #eee; cursor: pointer; text-align: left; transition: border-color .2s, transform .1s; }
+        .w-map-item:active { transform: scale(.96); }
+        .w-map-item.locked { opacity: .45; cursor: not-allowed; }
+        .w-map-item .w-mi-name { font-weight: 700; font-size: .95rem; }
+        .w-map-item .w-mi-stars { color: #f1c40f; font-size: .85rem; white-space: nowrap; }
+        @media (max-width: 700px) and (orientation: portrait) { #w-pinyin { font-size: 1.6rem; } .w-slot { width: 44px; height: 44px; font-size: 26px; } }
         /* ===== 手机竖屏：俄罗斯方块模式一屏完整展示（不滚动） ===== */
         @media (max-width: 700px) and (orientation: portrait) {
             .game-wrapper { padding: 6px; gap: 6px; }
@@ -691,6 +731,10 @@
     <script src="wordbank_cet4.js"></script>
     <script src="wordbank_cet6.js"></script>
     <script src="wordbank_phon.js"></script>
+    <script src="wordbank_zh.js"></script>
+    <script src="meanings.js"></script>
+    <script src="hanzi-writer.min.js"></script>
+    <script src="hanzi_data.js"></script>
 </head>
 <body>
     <div id="loadingScreen">
@@ -903,6 +947,48 @@
         </div>
     </div>
 
+    <!-- 写字学中文模式视图 -->
+    <div id="writing-view">
+        <div class="q-title" data-i18n="mcWriteName">✍️ 写字学中文</div>
+        <div class="q-top-bar">
+            <div class="q-stat" id="w-stage-badge">第 1 关</div>
+            <div class="q-stat">⭐ <span id="w-score">0</span></div>
+            <button class="q-btn" id="w-audio-btn">🔊</button>
+            <button class="q-btn" id="w-demo-btn">✨</button>
+            <button class="q-btn" id="w-clear-btn">🧹</button>
+            <button class="q-btn" id="w-map-btn" data-i18n="m3Map">🗺️ 关卡</button>
+            <button class="q-btn q-btn-red" id="w-exit-btn" data-i18n="qExit">返回菜单</button>
+        </div>
+        <div id="w-stage">
+            <div id="w-info-row">
+                <div id="w-pinyin">nǐ</div>
+                <div id="w-mean">you</div>
+            </div>
+            <div id="w-pad-wrap">
+                <i class="w-dg w-dg1"></i><i class="w-dg w-dg2"></i>
+                <div id="w-pad"></div>
+            </div>
+            <div id="w-msg">在这里一笔一笔写</div>
+            <div id="w-slots"></div>
+            <div id="w-result">
+                <div class="w-result-title">🎉</div>
+                <div class="w-result-stars">★★★</div>
+                <div class="w-learned"></div>
+            </div>
+            <div id="w-btns"></div>
+        </div>
+    </div>
+
+    <!-- 写字模式：关卡选择弹窗 -->
+    <div id="writingPackModal">
+        <div class="wp-panel">
+            <h2 data-i18n="mcWriteName">✍️ 写字学中文</h2>
+            <p class="qpm-sub" data-i18n="wWriteHere">在这里一笔一笔写</p>
+            <div id="writingMapList"></div>
+            <button class="btn-action btn-secondary" id="btnWMapClose" data-i18n="back">返回</button>
+        </div>
+    </div>
+
     <div id="overlay">
         <div class="tetris-pile" id="tetrisPile"></div>
         <div id="mainMenuScreen" class="menu-screen">
@@ -975,6 +1061,10 @@
                     <span class="mc-icon">🚀</span>
                     <span class="mc-text"><span class="mc-name" data-i18n="mcQuestName">单词闯关模式</span><span class="mc-desc" data-i18n="mcQuestDesc">看释义拼单词 · 打怪闯关大冒险</span></span>
                 </button>
+                <button class="mode-card mc-write" id="btnModeWrite" style="display:none;">
+                    <span class="mc-icon">✍️</span>
+                    <span class="mc-text"><span class="mc-name" data-i18n="mcWriteName">✍️ 写字学中文</span><span class="mc-desc" data-i18n="mcWriteDesc">田字格练笔画 · 听音写字集字闯关</span></span>
+                </button>
             </div>
             <div class="menu-container" style="margin-top: 22px;"><button class="btn-action btn-secondary" id="btnBackToLangMode" data-i18n="backToLang">返回语言选择</button></div>
         </div>
@@ -1043,6 +1133,29 @@
     (function() {
         'use strict';
         const _t = (k, v) => (window.I18N ? window.I18N.t(k, v) : k);
+        /* 释义本地化：界面语言 → 英语注释 → 词库原释义 */
+        const _lmRaw = (word, fallback) => {
+            try {
+                const M = window.WORD_MEANINGS || {};
+                const L = (window.I18N && I18N.lang) || 'zh-CN';
+                let v = M[L] && M[L][word];
+                if (v == null && window.ZH_DISPLAY && window.ZH_DISPLAY[word]) v = M[L] && M[L][window.ZH_DISPLAY[word]];
+                if (v == null) v = M.en && M.en[word];
+                if (v == null && window.ZH_DISPLAY && window.ZH_DISPLAY[word]) v = M.en && M.en[window.ZH_DISPLAY[word]];
+                if (v != null) return v;
+            } catch (e) {}
+            return fallback || '';
+        };
+        /* 中文词释义附拼音：nǐ · you */
+        const _lm = (word, fallback) => {
+            const v = _lmRaw(word, fallback);
+            try {
+                if (v && window.ZH_PINYIN && window.ZH_PINYIN[word]) return window.ZH_PINYIN[word] + ' · ' + v;
+            } catch (e) {}
+            return v;
+        };
+        /* 中文词显示：无声调拼音 → 汉字 */
+        const _dw = (word) => ((window.ZH_DISPLAY && window.ZH_DISPLAY[word]) ? window.ZH_DISPLAY[word] : word);
         const COLS = 10, ROWS = 20, BLOCK_SIZE = 30;
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -1256,7 +1369,8 @@
             try {
                 if (window.speechSynthesis.paused) window.speechSynthesis.resume();
                 window.speechSynthesis.cancel();
-                const u = new SpeechSynthesisUtterance(String(word).toLowerCase());
+                const speakText = (selectedLanguage === 'zh' && window.ZH_DISPLAY) ? (ZH_DISPLAY[word] || word) : String(word).toLowerCase();
+                const u = new SpeechSynthesisUtterance(speakText);
                 u.lang = LANG_TTS[selectedLanguage] || 'en-US';
                 u.rate = 0.9; u.volume = 1;
                 if (synthVoices.length > 0) {
@@ -1350,10 +1464,10 @@
             } catch(e) {}
         }
 
-        function setupDifficulty(diff) { uploadedTetrisRun = null; currentDifficulty = diff; const baseDict = selectedLanguage === 'ru' ? RU_WORDS : EN_WORDS; ACTIVE_WORDS = {}; for(const w in baseDict) { if(baseDict[w].single) ACTIVE_WORDS[w] = baseDict[w]; } if (diff === 'life') { for (const w in baseDict) { if (!baseDict[w].single) ACTIVE_WORDS[w] = baseDict[w]; } } else if (diff !== 'custom') { const maxLen = parseInt(diff); for (const w in baseDict) { if (!baseDict[w].single && w.length <= maxLen) ACTIVE_WORDS[w] = baseDict[w]; } } if (diff === 'life') { const seq = (typeof EN_LIFE_ORDER !== 'undefined' && EN_LIFE_ORDER.length) ? EN_LIFE_ORDER : Object.keys(baseDict); customWordList = seq.filter(w => ACTIVE_WORDS[w] && !ACTIVE_WORDS[w].single); customWordIndex = 0; } else { customWordList = null; customWordIndex = 0; } pickNewTargetWord(); }
-        function setupCustomDifficulty(customDict, isRandom) { uploadedTetrisRun = null; currentDifficulty = 'custom'; ACTIVE_WORDS = {}; const baseDict = selectedLanguage === 'ru' ? RU_WORDS : EN_WORDS; const singles = selectedLanguage === 'ru' ? ['я', 'а'] : ['i', 'a']; singles.forEach(s => { if (baseDict[s]) ACTIVE_WORDS[s] = baseDict[s]; }); Object.assign(ACTIVE_WORDS, customDict); if (!isRandom) { customWordList = Object.keys(customDict); customWordIndex = 0; } else { customWordList = null; } pickNewTargetWord(); }
+        function setupDifficulty(diff) { uploadedTetrisRun = null; currentDifficulty = diff; const baseDict = selectedLanguage === 'ru' ? RU_WORDS : ((selectedLanguage === 'zh' && window.ZH_WORDS) ? window.ZH_WORDS : EN_WORDS); ACTIVE_WORDS = {}; for(const w in baseDict) { if(baseDict[w].single) ACTIVE_WORDS[w] = baseDict[w]; } if (diff === 'life') { for (const w in baseDict) { if (!baseDict[w].single) ACTIVE_WORDS[w] = baseDict[w]; } } else if (diff !== 'custom') { const maxLen = parseInt(diff); for (const w in baseDict) { if (!baseDict[w].single && w.length <= maxLen) ACTIVE_WORDS[w] = baseDict[w]; } } if (diff === 'life') { const seq = (selectedLanguage === 'zh' && window.ZH_WORDS) ? Object.keys(window.ZH_WORDS) : ((typeof EN_LIFE_ORDER !== 'undefined' && EN_LIFE_ORDER.length) ? EN_LIFE_ORDER : Object.keys(baseDict)); customWordList = seq.filter(w => ACTIVE_WORDS[w] && !ACTIVE_WORDS[w].single); customWordIndex = 0; } else { customWordList = null; customWordIndex = 0; } pickNewTargetWord(); }
+        function setupCustomDifficulty(customDict, isRandom) { uploadedTetrisRun = null; currentDifficulty = 'custom'; ACTIVE_WORDS = {}; const baseDict = selectedLanguage === 'ru' ? RU_WORDS : ((selectedLanguage === 'zh' && window.ZH_WORDS) ? window.ZH_WORDS : EN_WORDS); const singles = selectedLanguage === 'zh' ? [] : (selectedLanguage === 'ru' ? ['я', 'а'] : ['i', 'a']); singles.forEach(s => { if (baseDict[s]) ACTIVE_WORDS[s] = baseDict[s]; }); Object.assign(ACTIVE_WORDS, customDict); if (!isRandom) { customWordList = Object.keys(customDict); customWordIndex = 0; } else { customWordList = null; } pickNewTargetWord(); }
         function parseCustomWords(input) { const dict = {}; const pairs = input.split(/;|；/); const baseDict = selectedLanguage === 'ru' ? RU_WORDS : EN_WORDS; const defaultColors = ['#00f2ff', '#ffe600', '#a100ff', '#00ff66', '#ff0000', '#ff8800', '#0088ff']; let colorIdx = 0; pairs.forEach(pair => { const parts = pair.split(/,|，/); if (parts.length >= 2) { const en = parts[0].trim().toLowerCase(); const zh = parts.slice(1).join(',').trim(); if (en && zh) { const existingWord = baseDict[en]; dict[en] = { mean: zh, img: existingWord ? existingWord.img : '📝', color: existingWord ? existingWord.color : defaultColors[colorIdx % defaultColors.length], single: en.length === 1 }; colorIdx++; } } }); return dict; }
-        function pickNewTargetWord() { isWordLocked = false; seqGenIndex = 0; updateLockUI(); if (customWordList) { if (customWordIndex >= customWordList.length) customWordIndex = 0; targetWord = customWordList[customWordIndex]; customWordIndex++; } else { const availableWords = Object.keys(ACTIVE_WORDS).filter(w => !ACTIVE_WORDS[w].single); if (availableWords.length === 0) targetWord = selectedLanguage === 'ru' ? 'кот' : 'cat'; else targetWord = availableWords[Math.floor(Math.random() * availableWords.length)]; } DOM.targetWordDisplay.innerText = targetWord; DOM.targetWordMeaning.innerText = ACTIVE_WORDS[targetWord] ? ACTIVE_WORDS[targetWord].mean : ''; targetLetterDelay = 0; updateTargetProgress(); }
+        function pickNewTargetWord() { isWordLocked = false; seqGenIndex = 0; updateLockUI(); if (customWordList) { if (customWordIndex >= customWordList.length) customWordIndex = 0; targetWord = customWordList[customWordIndex]; customWordIndex++; } else { const availableWords = Object.keys(ACTIVE_WORDS).filter(w => !ACTIVE_WORDS[w].single); if (availableWords.length === 0) targetWord = selectedLanguage === 'ru' ? 'кот' : 'cat'; else targetWord = availableWords[Math.floor(Math.random() * availableWords.length)]; } DOM.targetWordDisplay.innerText = _dw(targetWord); DOM.targetWordMeaning.innerText = _lm(targetWord, ACTIVE_WORDS[targetWord] ? ACTIVE_WORDS[targetWord].mean : ''); targetLetterDelay = 0; updateTargetProgress(); }
         function updateTargetProgress() { let html = ''; for (let i = 0; i < targetWord.length; i++) { const letter = targetWord[i]; const found = isTargetLetterOnBoard(letter, i); html += '<div class="prog-letter' + (found ? ' found' : '') + '">' + letter + '</div>'; } DOM.targetProgress.innerHTML = html; }
         function isTargetLetterOnBoard(letter, index) { if (!grid) return false; const lower = letter.toLowerCase(); let count = 0; for (let r = 0; r < ROWS; r++) { for (let c = 0; c < COLS; c++) { if (grid[r][c] && !grid[r][c].clearing && grid[r][c].letter.toLowerCase() === lower) count++; } } let needed = 0; for (let j = 0; j <= index; j++) { if (targetWord[j] === letter) needed++; } return count >= needed; }
         function refillStream() { const allWords = Object.keys(ACTIVE_WORDS).filter(w => !ACTIVE_WORDS[w].single); const colorWords = allWords.filter(w => ACTIVE_WORDS[w].color !== null); const shortWords = allWords.filter(w => ACTIVE_WORDS[w].color === null); let s1 = [...colorWords].sort(() => Math.random() - 0.5).join(''); let s2 = [...shortWords].sort(() => Math.random() - 0.5).join(''); let s3 = [...shortWords].sort(() => Math.random() - 0.5).join(''); letterStream += (s1 + s2 + s3).split('').sort(() => Math.random() - 0.5).join(''); }
@@ -1388,7 +1502,7 @@
         const imgUrl2 = wordInfo.img && typeof wordInfo.img === 'string' && /^(blob:|data:|https?:)/.test(wordInfo.img) ? wordInfo.img : null;
         DOM.popupEmoji.innerHTML = imgUrl2 ? '<img src="' + imgUrl2 + '">' : (wordInfo.img || '📝');
         if (wordInfo.audio) { try { new Audio(wordInfo.audio).play(); } catch (e) {} }
-        DOM.popupWord.innerText = word; DOM.popupMeaning.innerText = wordInfo.mean; DOM.popupScore.innerText = scoreGain > 0 ? ('+' + scoreGain + (statsCurrentCombo > 1 ? '  ' + _t('combo', { n: statsCurrentCombo }) : '')) : ''; DOM.popupScore.classList.toggle('hidden', scoreGain <= 0); if (wordInfo.color) { DOM.wordPopup.style.backgroundColor = wordInfo.color; DOM.wordPopup.style.backgroundImage = 'linear-gradient(135deg, rgba(255,255,255,0.2), rgba(0,0,0,0.5))'; } else { DOM.wordPopup.style.backgroundColor = isTarget ? '#f1c40f' : '#0f3460'; DOM.wordPopup.style.backgroundImage = isTarget ? 'linear-gradient(135deg, #f1c40f, #e94560)' : 'linear-gradient(135deg, #e94560, #0f3460)'; } DOM.wordPopup.classList.remove('hidden'); setTimeout(() => DOM.wordPopup.classList.add('show'), 10); speakWord(word); const myGameId = currentGameId; setTimeout(() => { if (myGameId !== currentGameId) return; DOM.wordPopup.classList.remove('show'); setTimeout(() => { if (myGameId !== currentGameId) return; DOM.wordPopup.classList.add('hidden'); showNextPopup(); }, 250); }, 1500); }
+        DOM.popupWord.innerText = _dw(word); DOM.popupMeaning.innerText = _lm(word, wordInfo.mean); DOM.popupScore.innerText = scoreGain > 0 ? ('+' + scoreGain + (statsCurrentCombo > 1 ? '  ' + _t('combo', { n: statsCurrentCombo }) : '')) : ''; DOM.popupScore.classList.toggle('hidden', scoreGain <= 0); if (wordInfo.color) { DOM.wordPopup.style.backgroundColor = wordInfo.color; DOM.wordPopup.style.backgroundImage = 'linear-gradient(135deg, rgba(255,255,255,0.2), rgba(0,0,0,0.5))'; } else { DOM.wordPopup.style.backgroundColor = isTarget ? '#f1c40f' : '#0f3460'; DOM.wordPopup.style.backgroundImage = isTarget ? 'linear-gradient(135deg, #f1c40f, #e94560)' : 'linear-gradient(135deg, #e94560, #0f3460)'; } DOM.wordPopup.classList.remove('hidden'); setTimeout(() => DOM.wordPopup.classList.add('show'), 10); speakWord(word); const myGameId = currentGameId; setTimeout(() => { if (myGameId !== currentGameId) return; DOM.wordPopup.classList.remove('show'); setTimeout(() => { if (myGameId !== currentGameId) return; DOM.wordPopup.classList.add('hidden'); showNextPopup(); }, 250); }, 1500); }
         function spawnNextPiece() { currentPiece = nextPiece; nextPiece = createPiece(); drawNextPiece(); canHold = true; drawHoldPiece(); if (collision(currentPiece)) gameOver(); else state = 'falling'; }
         function updateScoreDisplay() { DOM.scoreValueSide.innerText = score; let level = Math.floor(score / 2000) + 1; DOM.levelValue.textContent = level; DOM.scoreValue.classList.remove('bump'); void DOM.scoreValue.offsetWidth; DOM.scoreValue.classList.add('bump'); setTimeout(() => DOM.scoreValue.classList.remove('bump'), 150); updateGameSpeed(); }
         function animateScore() { if (displayScore < score) { let diff = score - displayScore; displayScore += Math.max(1, Math.ceil(diff * 0.15)); if (displayScore > score) displayScore = score; DOM.scoreValue.innerText = displayScore; } }
@@ -1432,6 +1546,13 @@
             if (stripName) stripName.textContent = meta._sub + ' · ' + meta._name;
             const tag = document.getElementById('modeLangTag');
             if (tag) tag.textContent = _t('currentLangTag', { name: meta._name || meta.name, sub: meta._sub || '' });
+            const isZh = selectedLanguage === 'zh';
+            const wbtn = document.getElementById('btnModeWrite');
+            if (wbtn) wbtn.style.display = isZh ? '' : 'none';
+            ['btnQPackDaily', 'btnM3PackDaily'].forEach(id => {
+                const b = document.getElementById(id);
+                if (b) { const k = isZh ? 'packZhDaily' : 'packDaily'; b.setAttribute('data-i18n', k); b.textContent = _t(k); }
+            });
         }
         function layoutLangWheel() {
             const drum = document.getElementById('langDrum');
@@ -2523,7 +2644,7 @@
                     }
                 }
             }
-            if (cur) { if (wordEl) wordEl.innerText = cur.word; if (meanEl) meanEl.innerText = cur.mean || ''; }
+            if (cur) { if (wordEl) wordEl.innerText = _dw(cur.word); if (meanEl) meanEl.innerText = _lm(cur.word, cur.mean || ''); }
             else { if (wordEl) wordEl.innerText = '🎉'; if (meanEl) meanEl.innerText = _t('allDone'); }
             const ipaEl = document.getElementById('m3-current-ipa');
             const phonInfo = (cur && typeof PHONETICS !== 'undefined') ? PHONETICS[String(cur.word).toLowerCase()] : null;
@@ -2536,7 +2657,7 @@
             if (mb) {
                 if (cur) {
                     const segs = m3SplitWord(cur.word.toLowerCase());
-                    mb.innerHTML = '🎯 目标：<b>' + cur.word + '</b>　' + (cur.mean || '') + (ipa ? '　<span style="color:#7bed9f;">/' + ipa + '/</span>' : '') + '　<span style="color:#f1c40f;">[' + segs.join('·') + ']</span>';
+                    mb.innerHTML = '🎯 <b>' + _dw(cur.word) + '</b>　' + _lm(cur.word, cur.mean || '') + (ipa ? '　<span style="color:#7bed9f;">/' + ipa + '/</span>' : '') + '　<span style="color:#f1c40f;">[' + segs.join('·') + ']</span>';
                 } else mb.innerHTML = _t('m3Win');
             }
             updateM3UI();
@@ -2763,7 +2884,7 @@
             if (m3Learned.length > 0) { 
                 const cards = m3Learned.map(x => { 
                     const imgHtml = x.img && typeof x.img === 'string' && /^(blob:|data:|https?:)/.test(x.img) ? '<img src="' + x.img + '" style="width:52px;height:52px;object-fit:cover;border-radius:8px;background:#fff;" onerror="this.outerHTML=\'<div class=bc-img>📝</div>\';">' : '<div class="bc-img">' + (x.img || '📝') + '</div>'; 
-                    return '<div class="m3-book-card">' + imgHtml + '<div class="bc-word">' + x.word + '</div><div class="bc-mean">' + (x.mean || '') + '</div></div>'; 
+                    return '<div class="m3-book-card">' + imgHtml + '<div class="bc-word">' + _dw(x.word) + '</div><div class="bc-mean">' + _lm(x.word, x.mean || '') + '</div></div>'; 
                 }).join(''); 
                 bookHtml = '<div class="m3-result-line" style="margin-top:12px;">' + _t('m3ResultLearned', { n: m3Learned.length }) + '</div><div class="m3-result-book">' + cards + '</div>'; 
             } 
@@ -2918,7 +3039,7 @@
         }
         // 默认词库 → 关卡列表（每 5 词一关，带关卡名）
         function m3BankLevels(packKey) {
-            const bank = packKey === 'daily' ? window.DAILY_LEVELS : (packKey === 'cet4' ? window.CET4_LEVELS : window.CET6_LEVELS);
+            const bank = (selectedLanguage === 'zh' && packKey === 'daily' && window.ZH_PACK_LEVELS) ? window.ZH_PACK_LEVELS : (packKey === 'daily' ? window.DAILY_LEVELS : (packKey === 'cet4' ? window.CET4_LEVELS : window.CET6_LEVELS));
             const make = (items, name) => { const d = {}; items.forEach(w => { d[w[0]] = { mean: w[1] || '', img: '📝', audio: null, single: w[0].length === 1 }; }); return { name, type: '词库', dict: d }; };
             if (bank && bank.length > 0) {
                 return bank.map(lv => make(lv.words || [], lv.name || (_t(QUEST_PACKS[packKey].nameKey || QUEST_PACKS[packKey].name) + '1')));
@@ -3412,7 +3533,7 @@
                 if (runWords.length === 0) { alert(_t('errEmpty')); return; }
             } else {
                 // 默认词库：日常/四级/六级 → 每 5 词一关的分关卡模式
-                const bank = packKey === 'daily' ? window.DAILY_LEVELS : (packKey === 'cet4' ? window.CET4_LEVELS : window.CET6_LEVELS);
+                const bank = (selectedLanguage === 'zh' && packKey === 'daily' && window.ZH_PACK_LEVELS) ? window.ZH_PACK_LEVELS : (packKey === 'daily' ? window.DAILY_LEVELS : (packKey === 'cet4' ? window.CET4_LEVELS : window.CET6_LEVELS));
                 if (bank && bank.length > 0) {
                     levels = bank;
                     const seen = {};
@@ -3545,10 +3666,10 @@
             const isImg = q.enemy.img && typeof q.enemy.img === 'string' && /^(blob:|data:|https?:)/.test(q.enemy.img);
             let html = isImg ? '<img class="q-monster-img" src="' + q.enemy.img + '" alt="' + q.enemy.word + '">' : '<div class="q-monster">' + mon + '</div>';
             if (q.enemy.revealed) {
-                html += '<div class="q-enemy-word">' + q.enemy.word + '</div>';
-                html += '<div class="q-enemy-prompt">' + q.enemy.mean + _t('qFollowSpell') + '</div>';
+                html += '<div class="q-enemy-word">' + _dw(q.enemy.word) + '</div>';
+                html += '<div class="q-enemy-prompt">' + _lm(q.enemy.word, q.enemy.mean) + _t('qFollowSpell') + '</div>';
             } else {
-                html += '<div class="q-enemy-prompt">' + q.enemy.mean + '</div>';
+                html += '<div class="q-enemy-prompt">' + _lm(q.enemy.word, q.enemy.mean) + '</div>';
             }
             html += '<div class="q-enemy-prompt" style="font-size:0.8rem;color:#ffd700;">' + roundLabel + ' · ' + _t('qLetters', { n: q.enemy.word.length }) + '</div>';
             if (q.boss) html += '<div class="q-enemy-hp"><div id="q-boss-hp-bar" style="width:100%"></div></div>';
@@ -3575,12 +3696,12 @@
                     if (cand[0] !== q.enemy.word && !pool.some(x => x[1] === cand[1])) pool.push(cand);
                 }
                 q.meaningOptions = shuffle([[q.enemy.word, q.enemy.mean]].concat(pool));
-                promptEl.innerHTML = '🤔 ' + _t('qMeaningQ', { m: '<b>' + q.enemy.word + '</b>' });
+                promptEl.innerHTML = '🤔 ' + _t('qMeaningQ', { m: '<b>' + _dw(q.enemy.word) + '</b>' });
                 q.meaningOptions.forEach((opt, i) => {
                     const b = document.createElement('div');
                     b.className = 'q-tile meaning';
                     b.dataset.midx = i;
-                    b.innerText = opt[1];
+                    b.innerText = _lm(opt[0], opt[1]);
                     b.addEventListener('click', () => qPressMeaning(i, b));
                     tilesEl.appendChild(b);
                 });
@@ -3600,13 +3721,13 @@
                 });
                 const arrangedTip = q.wordArranged ? _t('qSorted') + '　' : '';
                 if (q.inReview) {
-                    promptEl.innerHTML = arrangedTip + _t('qReviewPrompt', { m: q.enemy.mean });
+                    promptEl.innerHTML = arrangedTip + _t('qReviewPrompt', { m: _lm(q.enemy.word, q.enemy.mean) });
                 } else if (q.wordRound === 1) {
                     promptEl.innerHTML = arrangedTip + _t('qLearnPrompt');
                 } else if (q.wordRound === 2) {
-                    promptEl.innerHTML = arrangedTip + _t('qPracticePrompt', { m: q.enemy.mean });
+                    promptEl.innerHTML = arrangedTip + _t('qPracticePrompt', { m: _lm(q.enemy.word, q.enemy.mean) });
                 } else {
-                    promptEl.innerHTML = arrangedTip + _t('qMasterPrompt', { m: q.enemy.mean });
+                    promptEl.innerHTML = arrangedTip + _t('qMasterPrompt', { m: _lm(q.enemy.word, q.enemy.mean) });
                 }
             }
             qRenderTop();
@@ -3940,7 +4061,7 @@
                 document.body.appendChild(qResultEl);
             }
             const starHtml = [1, 2, 3].map(i => '<span' + (stars >= i ? ' class="lit"' : '') + '>★</span>').join('');
-            const learnedHtml = q.learned.length ? '<div class="q-result-line">' + _t('qResultLearned') + q.learned.slice(-12).map(x => '<span class="q-review-chip" style="background:rgba(83,215,105,0.2);border-color:#53d769;color:#a8f0b8;">' + x.word + ' ' + x.mean + '</span>').join(' ') + '</div>' : '';
+            const learnedHtml = q.learned.length ? '<div class="q-result-line">' + _t('qResultLearned') + q.learned.slice(-12).map(x => '<span class="q-review-chip" style="background:rgba(83,215,105,0.2);border-color:#53d769;color:#a8f0b8;">' + _dw(x.word) + ' ' + _lm(x.word, x.mean) + '</span>').join(' ') + '</div>' : '';
             const wrongHtml = q.wrongFinal.length ? '<div class="q-result-line">' + _t('qResultReview') + '</div><div class="q-review-box">' + q.wrongFinal.map(w => '<span class="q-review-chip">' + w + '</span>').join('') + '</div>' : '';
             const nextBtn = win ? '<button class="q-btn" style="background:linear-gradient(to bottom,#53d769,#1e7d36);" onclick="qNextStage()">' + _t('qNextStage') + '</button>' : '';
             qResultEl.innerHTML = '<div class="q-result-title">' + title + '</div><div class="q-result-stars">' + starHtml + '</div><div class="q-result-line">' + _t('qRStage') + (q.levelName || q.packName) + '</div><div class="q-result-line">' + _t('qRScore') + '<b>' + q.score + '</b>　' + _t('qRCombo') + '<b>' + q.maxCombo + '</b></div><div class="q-result-line">' + _t('qRWords') + (q.stageWordCount || q.words.length) + ' ' + _t('qRWordsUnit') + '　' + _t('qRHearts') + q.hp + '</div>' + learnedHtml + wrongHtml + '<div class="q-result-btns">' + nextBtn + '<button class="q-btn" style="background:#444;" onclick="qReplayStage()">' + _t('qReplay') + '</button><button class="q-btn" style="background:#444;" onclick="qOpenMap()">' + _t('qAdventureMap') + '</button><button class="q-btn q-btn-red" onclick="qExitToMenu()">' + _t('qHome') + '</button></div>';
@@ -4083,11 +4204,204 @@
             }, 300);
         });
 
+        // ==================== 写字学中文模式 ====================
+        let wActive = false, wLevel = 0, wCharIdx = 0, wMistakes = 0, wScore = 0, wWriter = null, wCur = null;
+        const W_PER_LEVEL = 5;
+        function wStorageKey() { return 'tetris_writing_zh'; }
+        function wLoadProgress() { try { const p = JSON.parse(localStorage.getItem(wStorageKey())); if (p && p.unlocked) return p; } catch (e) {} return { unlocked: 1, stars: {} }; }
+        function wSaveProgress(stage, stars) { try { const p = wLoadProgress(); if (stars > 0) { p.stars[stage] = Math.max(p.stars[stage] || 0, stars); p.unlocked = Math.max(p.unlocked, stage + 1); } localStorage.setItem(wStorageKey(), JSON.stringify(p)); } catch (e) {} }
+        function wSpeak(text) {
+            if (!('speechSynthesis' in window) || !text) return;
+            try {
+                if (window.speechSynthesis.paused) window.speechSynthesis.resume();
+                window.speechSynthesis.cancel();
+                const u = new SpeechSynthesisUtterance(text);
+                u.lang = 'zh-CN'; u.rate = 0.7; u.volume = 1;
+                window.speechSynthesis.speak(u);
+            } catch (e) {}
+        }
+        function wSetMsg(text) { const m = document.getElementById('w-msg'); if (m) m.textContent = text || ''; }
+        function wBuildMap() {
+            const list = document.getElementById('writingMapList');
+            if (!list) return;
+            const prog = wLoadProgress();
+            list.innerHTML = '';
+            (window.ZH_WRITING_LEVELS || []).forEach((lv, i) => {
+                const locked = i + 1 > prog.unlocked;
+                const st = prog.stars[i + 1] || 0;
+                const b = document.createElement('button');
+                b.type = 'button';
+                b.className = 'w-map-item' + (locked ? ' locked' : '');
+                b.innerHTML = '<span class="w-mi-name">' + (i + 1) + '. ' + lv.name + '</span><span class="w-mi-stars">' + (locked ? '🔒' : (st > 0 ? '★'.repeat(st) + '☆'.repeat(3 - st) : '☆☆☆')) + '</span>';
+                if (!locked) b.addEventListener('click', () => { playSoundClick(); wStartLevel(i); });
+                list.appendChild(b);
+            });
+        }
+        function wOpenPack() { playSoundClick(); wBuildMap(); const m = document.getElementById('writingPackModal'); if (m) m.style.display = 'flex'; }
+        function wClosePack() { const m = document.getElementById('writingPackModal'); if (m) m.style.display = 'none'; }
+        function wShowView(show) {
+            const v = document.getElementById('writing-view');
+            if (v) v.style.display = show ? 'flex' : 'none';
+            if (show) {
+                if (DOM.overlay) DOM.overlay.style.display = 'none';
+                if (DOM.gameWrapper) DOM.gameWrapper.style.display = 'none';
+                if (DOM.btnPauseIcon) DOM.btnPauseIcon.style.display = 'none';
+                document.getElementById('quest-view').style.display = 'none';
+                document.getElementById('match3-view').style.display = 'none';
+                stopBgMusic();
+            } else {
+                wClosePack();
+                if (DOM.overlay) DOM.overlay.style.display = 'flex';
+                showMenuScreen('modeSelectScreen');
+            }
+        }
+        function wStartLevel(idx) {
+            if (!window.ZH_WRITING_LEVELS || !window.ZH_WRITING_LEVELS[idx]) return;
+            if (typeof HanziWriter === 'undefined') { alert('Hanzi Writer 未加载'); return; }
+            wClosePack();
+            wShowView(true);
+            wLevel = idx; wCharIdx = 0; wMistakes = 0; wScore = 0; wActive = true;
+            const res = document.getElementById('w-result'); if (res) res.style.display = 'none';
+            const btns = document.getElementById('w-btns'); if (btns) btns.innerHTML = '';
+            const scoreEl = document.getElementById('w-score'); if (scoreEl) scoreEl.innerText = '0';
+            wBuildSlots();
+            wLoadChar();
+        }
+        function wBuildSlots() {
+            const slots = document.getElementById('w-slots');
+            if (!slots) return;
+            slots.innerHTML = '';
+            for (let i = 0; i < W_PER_LEVEL; i++) {
+                const d = document.createElement('div');
+                d.className = 'w-slot';
+                d.id = 'w-slot-' + i;
+                slots.appendChild(d);
+            }
+        }
+        function wLoadChar() {
+            const lvl = window.ZH_WRITING_LEVELS[wLevel];
+            wCur = lvl.chars[wCharIdx];
+            const ch = wCur[0], py = wCur[1];
+            const badge = document.getElementById('w-stage-badge');
+            if (badge) badge.textContent = _t('qStage', { n: wLevel + 1 }) + ' · ' + lvl.name + ' (' + (wCharIdx + 1) + '/' + W_PER_LEVEL + ')';
+            const pyEl = document.getElementById('w-pinyin'); if (pyEl) pyEl.textContent = py;
+            const meanEl = document.getElementById('w-mean'); if (meanEl) meanEl.textContent = _lmRaw(ch, '');
+            wSetMsg(_t('wWriteHere'));
+            for (let i = wCharIdx; i < W_PER_LEVEL; i++) { const s = document.getElementById('w-slot-' + i); if (s) { s.className = 'w-slot'; s.textContent = ''; } }
+            const pad = document.getElementById('w-pad');
+            if (!pad) return;
+            pad.innerHTML = '';
+            const size = Math.floor(pad.clientWidth || 280);
+            wWriter = HanziWriter.create(pad, ch, {
+                width: size, height: size, padding: Math.round(size * 0.09),
+                showOutline: true, showCharacter: false,
+                strokeColor: '#2d3436', outlineColor: '#dfe6e9',
+                drawingColor: '#e17055', drawingWidth: Math.max(10, Math.round(size / 22)),
+                leniency: 1.15, showHintAfterMisses: 2,
+                charDataLoader: (c, onComplete) => { if (window.HANZI_DATA && window.HANZI_DATA[c]) { onComplete(window.HANZI_DATA[c]); return window.HANZI_DATA[c]; } return null; }
+            });
+            wWriter.quiz({
+                onMistake: () => {
+                    wMistakes++;
+                    wSetMsg(_t('wMiss'));
+                    const wrap = document.getElementById('w-pad-wrap');
+                    if (wrap) { wrap.classList.remove('w-shake'); void wrap.offsetWidth; wrap.classList.add('w-shake'); }
+                    playTone(150, 0.15, 'sawtooth', 0.1);
+                },
+                onCorrectStroke: (d) => {
+                    const total = (window.HANZI_DATA && window.HANZI_DATA[wCur[0]] && window.HANZI_DATA[wCur[0]].medians) ? window.HANZI_DATA[wCur[0]].medians.length : 8;
+                    const num = (d && typeof d.strokeNum === 'number') ? d.strokeNum + 1 : 0;
+                    wSetMsg(_t('wStroke', { n: num, t: total }));
+                    playTone(880, 0.05, 'sine', 0.06);
+                },
+                onComplete: () => wCharDone()
+            });
+            setTimeout(() => wSpeak(ch), 350);
+        }
+        function wCharDone() {
+            if (!wActive || !wCur) return;
+            const ch = wCur[0];
+            const gained = Math.max(40, 100 - wMistakes * 5);
+            wScore += gained;
+            const scoreEl = document.getElementById('w-score'); if (scoreEl) scoreEl.innerText = String(wScore);
+            wSetMsg(_t('wCharDone') + ' +' + gained);
+            playSoundTarget();
+            wSpeak(ch);
+            const slot = document.getElementById('w-slot-' + wCharIdx);
+            if (slot) { slot.textContent = ch; slot.className = 'w-slot filled'; }
+            wFlyChar(ch);
+            wCharIdx++;
+            if (wCharIdx >= W_PER_LEVEL) setTimeout(wLevelDone, 1000);
+            else setTimeout(wLoadChar, 1100);
+        }
+        function wFlyChar(ch) {
+            try {
+                const pad = document.getElementById('w-pad-wrap');
+                const slot = document.getElementById('w-slot-' + Math.max(0, wCharIdx));
+                if (!pad || !slot) return;
+                const pr = pad.getBoundingClientRect(), sr = slot.getBoundingClientRect();
+                const fly = document.createElement('div');
+                fly.className = 'w-fly'; fly.textContent = ch;
+                fly.style.left = (pr.left + pr.width / 2 - 28) + 'px';
+                fly.style.top = (pr.top + pr.height / 2 - 34) + 'px';
+                document.body.appendChild(fly);
+                requestAnimationFrame(() => requestAnimationFrame(() => {
+                    fly.style.left = (sr.left + sr.width / 2 - 14) + 'px';
+                    fly.style.top = (sr.top + sr.height / 2 - 34) + 'px';
+                    fly.style.transform = 'scale(.5)'; fly.style.opacity = '.35';
+                }));
+                setTimeout(() => fly.remove(), 780);
+            } catch (e) {}
+        }
+        function wLevelDone() {
+            wActive = false;
+            const stars = wMistakes <= 2 ? 3 : (wMistakes <= 6 ? 2 : 1);
+            wSaveProgress(wLevel + 1, stars);
+            const lvl = window.ZH_WRITING_LEVELS[wLevel];
+            const res = document.getElementById('w-result');
+            if (res) {
+                res.style.display = 'flex';
+                res.querySelector('.w-result-title').textContent = _t('qWin');
+                res.querySelector('.w-result-stars').textContent = '★'.repeat(stars) + '☆'.repeat(3 - stars);
+                res.querySelector('.w-learned').innerHTML = lvl.chars.map(c => '<div class="w-lc"><b>' + c[0] + '</b><i>' + c[1] + '</i></div>').join('');
+            }
+            const btns = document.getElementById('w-btns');
+            if (btns) {
+                const hasNext = wLevel + 1 < window.ZH_WRITING_LEVELS.length;
+                btns.innerHTML = (hasNext ? '<button class="btn-action" id="w-btn-next">' + _t('qNextStage') + '</button>' : '<div style="color:#f1c40f;font-weight:bold;">' + _t('m3Win') + '</div>')
+                    + '<button class="btn-action btn-secondary" id="w-btn-replay">' + _t('qReplay') + '</button>'
+                    + '<button class="btn-action btn-secondary" id="w-btn-map">' + _t('qAdventureMap') + '</button>'
+                    + '<button class="btn-action btn-secondary" id="w-btn-home">' + _t('qHome') + '</button>';
+                const bn = document.getElementById('w-btn-next'); if (bn) bn.addEventListener('click', () => { playSoundClick(); wStartLevel(wLevel + 1); });
+                const br = document.getElementById('w-btn-replay'); if (br) br.addEventListener('click', () => { playSoundClick(); wStartLevel(wLevel); });
+                const bm = document.getElementById('w-btn-map'); if (bm) bm.addEventListener('click', () => { playSoundClick(); wOpenPack(); });
+                const bh = document.getElementById('w-btn-home'); if (bh) bh.addEventListener('click', () => { playSoundClick(); wExit(); });
+            }
+            startBgMusic();
+        }
+        function wExit() {
+            wActive = false;
+            wShowView(false);
+            document.getElementById('mainMenuScreen').classList.add('hidden');
+            startBgMusic();
+        }
+        document.getElementById('btnModeWrite').addEventListener('click', () => { playSoundClick(); wOpenPack(); });
+        document.getElementById('btnWMapClose').addEventListener('click', () => { playSoundClick(); wClosePack(); });
+        document.getElementById('w-audio-btn').addEventListener('click', () => { playSoundClick(); if (wCur) wSpeak(wCur[0]); });
+        document.getElementById('w-demo-btn').addEventListener('click', () => { playSoundClick(); if (wWriter && wCur) { try { if (wCur[0]) { wWriter.hideCharacter(); wWriter.showOutline(false); } wWriter.animateCharacter({ onComplete: () => { try { wWriter.showOutline(true); } catch (e) {} } }); } catch (e) {} } });
+        document.getElementById('w-clear-btn').addEventListener('click', () => { playSoundClick(); if (wActive) { const cur = wCharIdx; wCharIdx = cur; wLoadChar(); } });
+        document.getElementById('w-map-btn').addEventListener('click', () => { playSoundClick(); wOpenPack(); });
+        document.getElementById('w-exit-btn').addEventListener('click', () => { playSoundClick(); wExit(); });
+        window.wExitToMenu = wExit;
+
+        // ==================== i18n：UI 多语言初始化 ====================
         // ==================== i18n：UI 多语言初始化 ====================
         document.addEventListener('i18n:change', function () {
             /* 切换语言后刷新动态文案（模式页顶部“当前语言”标签、加载屏等） */
             try { langUpdateMeta(langSelIndex()); } catch (e) { }
             try { const lt = document.getElementById('loadingText'); if (lt && lt.innerText) lt.innerText = _t('footer'); } catch (e) { }
+            try { const tm = document.getElementById('targetWordMeaning'); if (tm && typeof ACTIVE_WORDS !== 'undefined' && ACTIVE_WORDS[targetWord]) tm.innerText = _lm(targetWord, ACTIVE_WORDS[targetWord].mean); } catch (e) { }
+            try { if (typeof state !== 'undefined' && state === 'match3') renderM3Targets(); } catch (e) { }
         });
         if (window.I18N) window.I18N.init();
 

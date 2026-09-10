@@ -1146,7 +1146,15 @@
             try {
                 const M = window.WORD_MEANINGS || {};
                 const L = (window.I18N && I18N.lang) || 'zh-CN';
-                if (L.indexOf('zh') === 0) return fallback || '';
+                if (L.indexOf('zh') === 0) {
+                    const dzh = M['zh-CN'] && M['zh-CN'][word];
+                    if (dzh) return dzh;
+                    if (window.ZH_DISPLAY && window.ZH_DISPLAY[word]) {
+                        const dzh2 = M['zh-CN'] && M['zh-CN'][window.ZH_DISPLAY[word]];
+                        if (dzh2) return dzh2;
+                    }
+                    return fallback || '';
+                }
                 let v = M[L] && M[L][word];
                 if (v == null && window.ZH_DISPLAY && window.ZH_DISPLAY[word]) v = M[L] && M[L][window.ZH_DISPLAY[word]];
                 if (v == null) v = M.en && M.en[word];
@@ -2175,20 +2183,13 @@
         }
 
         function m3CheckHolePath() {
-            if (!m3HoleWord) return false;
-            const W = m3HoleWord;
+            if (!m3HoleWord || !m3HolePath.length) return false;
             for (let i = 0; i < m3HolePath.length; i++) {
                 const cell = m3Grid[m3HolePath[i].r] && m3Grid[m3HolePath[i].r][m3HolePath[i].c];
-                if (!cell || !cell.letter) return false;
+                if (!cell || !cell.filled || !cell.letter) return false;
+                if (cell.need !== null && cell.need !== undefined && String(cell.letter).toLowerCase() !== String(cell.need).toLowerCase()) return false;
             }
-            const allCells = m3CurtainCells;
-            let fullWord = '';
-            for (const [r, c] of allCells) {
-                const cell = m3Grid[r][c];
-                if (cell && cell.letter) fullWord += cell.letter.toLowerCase();
-                else return false;
-            }
-            return fullWord === W;
+            return true;
         }
 
         // ===== 奖励单词空洞：eat/apple/fight 等基础词，拼成后把图标砸向怪物 =====
@@ -2732,7 +2733,7 @@
                     if (cellData) cellData.clearing = false;
                     if (cellData && cellData.hole) {
                         cell.classList.add('hole');
-                        cell.style.background = 'rgba(15,52,96,0.4)'; cell.innerText = '';
+                        cell.style.background = 'rgba(15,52,96,0.4)'; cell.innerText = (cellData.need !== null && cellData.need !== undefined) ? cellData.need : ''; cell.style.color = 'rgba(255,255,255,.28)'; cell.style.fontWeight = '900';
                         cell.style.fontSize = Math.max(8, Math.floor(cellW * 0.5)) + 'px';
                         if (cellData.need === null || cellData.need === undefined) cell.classList.add('deco');
                         if (cellData.need !== null && cellData.need !== undefined && !cellData.filled) { cell.classList.add('ready'); cell.dataset.need = cellData.need; }
@@ -2909,7 +2910,7 @@
             }); 
         }
         function m3SpawnBurst(r, c, level) { const el = m3CellElements[r] && m3CellElements[r][c]; if (!el) return; const rect = el.getBoundingClientRect(); const cx = rect.left + rect.width / 2, cy = rect.top + rect.height / 2; const count = [6, 16, 30][level] || 6; const spread = [22, 45, 80][level] || 22; for (let i = 0; i < count; i++) { const angle = Math.random() * Math.PI * 2; const dist = spread * (0.5 + Math.random()); const sp = document.createElement('div'); sp.className = 'm3-spark'; sp.style.background = M3_COLORS[Math.floor(Math.random() * M3_COLORS.length)]; sp.style.width = sp.style.height = (level === 2 ? 14 : 10) + 'px'; sp.style.left = cx + 'px'; sp.style.top = cy + 'px'; document.body.appendChild(sp); requestAnimationFrame(() => { sp.style.left = (cx + Math.cos(angle) * dist) + 'px'; sp.style.top = (cy + Math.sin(angle) * dist) + 'px'; sp.style.opacity = '0'; sp.style.transform = 'scale(0.2)'; }); setTimeout(() => sp.remove(), 700); } }
-        function m3DropAndRefill(sands) { return new Promise(resolve => { const newCells = []; const fixedHoles = (typeof m3Holes !== 'undefined' ? m3Holes : []).filter(h => !h.filled).map(h => ({ r: h.r, c: h.c, need: h.need, holeId: h.holeId })); const holeSet2 = new Set(); if (typeof m3Holes !== 'undefined') m3Holes.forEach(h => holeSet2.add(h.r + ',' + h.c)); if (typeof m3CurtainCells !== 'undefined') m3CurtainCells.forEach(([r, c]) => holeSet2.add(r + ',' + c)); for (let c = 0; c < m3Cols; c++) { let writeR = m3Rows - 1; for (let r = m3Rows - 1; r >= 0; r--) { const cell = m3Grid[r][c]; if (cell && !cell.clearing && !holeSet2.has(r + ',' + c)) { if (writeR !== r) { m3Grid[writeR][c] = cell; m3Grid[r][c] = null; } writeR--; } } for (let r = writeR; r >= 0; r--) { if (holeSet2.has(r + ',' + c)) continue; m3Grid[r][c] = { letter: m3RandomLetter() }; newCells.push({ r, c }); } } for (let r = 0; r < m3Rows; r++) { for (let c = 0; c < m3Cols; c++) { const el = m3CellElements[r] && m3CellElements[r][c]; if (!el) continue; el.classList.remove('clearing', 'burst', 'rock', 'crisscross', 'hole', 'ready', 'letter-zoom'); const pos = m3CellPx(r, c); const cell = m3Grid[r][c]; const isHole = !!(cell && cell.hole && !cell.filled); if (isHole) { el.classList.add('hole'); if (cell.need === null || cell.need === undefined) el.classList.add('deco'); else el.classList.add('ready'); el.innerText = ''; el.style.background = 'rgba(15,52,96,0.4)'; } else if (cell && cell.hole && cell.filled) { el.classList.add('hole', 'filled'); if (cell.need === null || cell.need === undefined) el.classList.add('deco'); el.innerText = cell.letter; el.style.background = m3ColorOf(cell.letter); if (cell.need && cell.letter && cell.letter.toLowerCase() === cell.need) el.classList.add('right'); } else { el.innerText = cell && cell.rock ? '🪨' : (cell && cell.letter ? cell.letter : ''); el.style.background = (cell && cell.rock) ? 'transparent' : (cell && cell.letter ? m3ColorOf(cell.letter) : 'transparent'); if (cell && cell.rock) el.classList.add('rock'); if (cell && cell.fixed) el.classList.add('curtain'); } el.style.left = pos.x + 'px'; if (sands && newCells.some(n => n.r === r && n.c === c)) { el.style.transition = 'none'; el.style.top = (pos.y - m3Rows * m3CellSize) + 'px'; } else { el.style.transition = ''; el.style.top = pos.y + 'px'; if (newCells.some(n => n.r === r && n.c === c)) el.classList.add('burst'); } } } fixedHoles.forEach(fh => { m3Grid[fh.r][fh.c] = { hole: true, need: fh.need, filled: false }; const el = m3CellElements[fh.r] && m3CellElements[fh.r][fh.c]; if (el) { el.classList.remove('burst'); el.classList.add('hole'); if (fh.need !== null) el.classList.add('ready'); el.innerText = ''; el.style.background = 'rgba(15,52,96,0.4)'; } }); if (sands) { newCells.forEach((n, i) => { setTimeout(() => { const el = m3CellElements[n.r] && m3CellElements[n.r][n.c]; if (!el) return; el.style.transition = 'top 0.42s cubic-bezier(0.34,1.2,0.64,1)'; el.style.top = m3CellPx(n.r, n.c).y + 'px'; }, 40 + i * 18); }); setTimeout(resolve, 850); } else { setTimeout(resolve, 340); } }); }
+        function m3DropAndRefill(sands) { return new Promise(resolve => { const newCells = []; const fixedHoles = (typeof m3Holes !== 'undefined' ? m3Holes : []).filter(h => !h.filled).map(h => ({ r: h.r, c: h.c, need: h.need, holeId: h.holeId })); const holeSet2 = new Set(); if (typeof m3Holes !== 'undefined') m3Holes.forEach(h => holeSet2.add(h.r + ',' + h.c)); if (typeof m3CurtainCells !== 'undefined') m3CurtainCells.forEach(([r, c]) => holeSet2.add(r + ',' + c)); for (let c = 0; c < m3Cols; c++) { let writeR = m3Rows - 1; for (let r = m3Rows - 1; r >= 0; r--) { const cell = m3Grid[r][c]; if (cell && !cell.clearing && !holeSet2.has(r + ',' + c)) { if (writeR !== r) { m3Grid[writeR][c] = cell; m3Grid[r][c] = null; } writeR--; } } for (let r = writeR; r >= 0; r--) { if (holeSet2.has(r + ',' + c)) continue; m3Grid[r][c] = { letter: m3RandomLetter() }; newCells.push({ r, c }); } } for (let r = 0; r < m3Rows; r++) { for (let c = 0; c < m3Cols; c++) { const el = m3CellElements[r] && m3CellElements[r][c]; if (!el) continue; el.classList.remove('clearing', 'burst', 'rock', 'crisscross', 'hole', 'ready', 'letter-zoom'); const pos = m3CellPx(r, c); const cell = m3Grid[r][c]; const isHole = !!(cell && cell.hole && !cell.filled); if (isHole) { el.classList.add('hole'); if (cell.need === null || cell.need === undefined) el.classList.add('deco'); else el.classList.add('ready'); el.innerText = (cell.need !== null && cell.need !== undefined) ? cell.need : ''; el.style.color = 'rgba(255,255,255,.28)'; el.style.fontWeight = '900'; el.style.background = 'rgba(15,52,96,0.4)'; } else if (cell && cell.hole && cell.filled) { el.classList.add('hole', 'filled'); if (cell.need === null || cell.need === undefined) el.classList.add('deco'); el.innerText = cell.letter; el.style.background = m3ColorOf(cell.letter); if (cell.need && cell.letter && cell.letter.toLowerCase() === cell.need) el.classList.add('right'); } else { el.innerText = cell && cell.rock ? '🪨' : (cell && cell.letter ? cell.letter : ''); el.style.background = (cell && cell.rock) ? 'transparent' : (cell && cell.letter ? m3ColorOf(cell.letter) : 'transparent'); if (cell && cell.rock) el.classList.add('rock'); if (cell && cell.fixed) el.classList.add('curtain'); } el.style.left = pos.x + 'px'; if (sands && newCells.some(n => n.r === r && n.c === c)) { el.style.transition = 'none'; el.style.top = (pos.y - m3Rows * m3CellSize) + 'px'; } else { el.style.transition = ''; el.style.top = pos.y + 'px'; if (newCells.some(n => n.r === r && n.c === c)) el.classList.add('burst'); } } } fixedHoles.forEach(fh => { m3Grid[fh.r][fh.c] = { hole: true, need: fh.need, filled: false }; const el = m3CellElements[fh.r] && m3CellElements[fh.r][fh.c]; if (el) { el.classList.remove('burst'); el.classList.add('hole'); if (fh.need !== null) el.classList.add('ready'); el.innerText = ''; el.style.background = 'rgba(15,52,96,0.4)'; } }); if (sands) { newCells.forEach((n, i) => { setTimeout(() => { const el = m3CellElements[n.r] && m3CellElements[n.r][n.c]; if (!el) return; el.style.transition = 'top 0.42s cubic-bezier(0.34,1.2,0.64,1)'; el.style.top = m3CellPx(n.r, n.c).y + 'px'; }, 40 + i * 18); }); setTimeout(resolve, 850); } else { setTimeout(resolve, 340); } }); }
         function m3TargetEffect(word) { return new Promise(resolve => { const avail = []; for (let r = 0; r < m3Rows; r++) for (let c = 0; c < m3Cols; c++) { if (m3Grid[r][c] && !m3Grid[r][c].clearing && !m3Grid[r][c].rock) avail.push({ r, c }); } const letters = []; for (let i = 0; i < word.length; i++) { letters.push(word[i].toLowerCase()); letters.push(word[i].toLowerCase()); } shuffle(letters); shuffle(avail); const targets = avail.slice(0, Math.min(letters.length, avail.length)); const gridRect = m3Container.getBoundingClientRect(); const srcX = gridRect.left + gridRect.width / 2; const srcY = gridRect.top + gridRect.height / 2; targets.forEach((t, i) => { const el = m3CellElements[t.r] && m3CellElements[t.r][t.c]; if (!el) return; const er = el.getBoundingClientRect(); const toX = er.left + er.width / 2 - 13; const toY = er.top + er.height / 2 - 13; const letter = letters[i]; const p = document.createElement('div'); p.className = 'm3-particle'; p.innerText = letter; p.style.background = m3ColorOf(letter); p.style.left = (srcX - 13) + 'px'; p.style.top = (srcY - 13) + 'px'; p.style.opacity = '0'; document.body.appendChild(p); requestAnimationFrame(() => { p.style.opacity = '1'; setTimeout(() => { p.style.left = toX + 'px'; p.style.top = toY + 'px'; p.style.opacity = '0.9'; }, 30); }); setTimeout(() => { p.remove(); }, 620); setTimeout(() => { const cell = m3Grid[t.r][t.c]; if (!cell) return; cell.letter = letter; cell.clearing = true; const el2 = m3CellElements[t.r] && m3CellElements[t.r][t.c]; if (el2) { el2.innerText = letter; el2.style.background = m3ColorOf(letter); el2.classList.add('crisscross'); } [[-1,0],[1,0],[0,-1],[0,1]].forEach(([dr,dc]) => { const rr = t.r + dr, cc = t.c + dc; if (rr >= 0 && rr < m3Rows && cc >= 0 && cc < m3Cols && m3Grid[rr][cc] && !m3Grid[rr][cc].rock && !m3Grid[rr][cc].clearing) { const elX = m3CellElements[rr] && m3CellElements[rr][cc]; if (elX) { elX.classList.remove('burst'); void elX.offsetWidth; elX.classList.add('burst'); } } }); }, 300); }); if (targets.length > 0) { playSoundTarget(); targets.forEach(t => m3SpawnBurst(t.r, t.c, 2)); showM3Toast('✨ ' + word + ' 散发能量！'); } setTimeout(resolve, 950); }); }
         function updateM3UI() { const scoreEl = document.getElementById('m3-score'); const stepsEl = document.getElementById('m3-steps'); const progEl = document.getElementById('m3-target-progress'); if (scoreEl) scoreEl.innerText = m3Score; if (stepsEl) stepsEl.innerText = m3Steps; if (progEl) progEl.innerText = m3DoneCount() + ' / ' + m3Targets.length; }
         function m3OnHeroDead() { if (state !== 'match3') return; m3GameOver(); }
@@ -3244,21 +3245,32 @@
             if (m3Busy || (m3State !== 'idle' && m3State !== 'selecting')) return;
             if (block) { block.classList.add('used'); block.draggable = false; block.classList.remove('dragging', 'tapped'); }
             if (m3TappedBlock === block) m3TappedBlock = null;
-            let _bad = false;
+            const _needSlots = [];
             hs.cells.forEach((cell, i) => {
                 const hole0 = m3Holes.find(h => h.r === cell.r && h.c === cell.c && !h.filled);
                 if (!hole0) return;
-                if (cell.need !== null && cell.need !== undefined) {
-                    const ch0 = String(letters[i] === undefined || letters[i] === null ? '' : letters[i]).toLowerCase();
-                    if (ch0 !== String(cell.need).toLowerCase()) _bad = true;
-                }
+                if (cell.need !== null && cell.need !== undefined) _needSlots.push({ i, need: String(cell.need).toLowerCase() });
             });
-            if (_bad) { showM3Toast(_t('m3Mismatch')); playTone(150, 0.15, 'sawtooth', 0.12); return; }
+            if (_needSlots.length) {
+                /* 多重集合匹配：块的字母与洞需求字母一致即接纳（顺序无关，自动落位） */
+                const needSorted = _needSlots.map(x => x.need).sort().join('');
+                const blockSorted = _needSlots.map(x => String(letters[x.i] === undefined || letters[x.i] === null ? '' : letters[x.i]).toLowerCase()).sort().join('');
+                if (needSorted !== blockSorted) { showM3Toast(_t('m3Mismatch')); playTone(150, 0.15, 'sawtooth', 0.12); return; }
+                const used = new Set();
+                _needSlots.forEach(slot => {
+                    for (let j = 0; j < letters.length; j++) {
+                        if (used.has(j)) continue;
+                        const ch = String(letters[j] === undefined || letters[j] === null ? '' : letters[j]).toLowerCase();
+                        if (ch === slot.need) { slot.place = letters[j]; used.add(j); break; }
+                    }
+                });
+            }
             hs.cells.forEach((cell, i) => {
                 const hole = m3Holes.find(h => h.r === cell.r && h.c === cell.c && !h.filled);
                 if (!hole) return;
                 hole.filled = true;
-                const ch = letters[i] || m3RandomLetter();
+                const slotInfo = _needSlots.find(x => x.i === i);
+                const ch = (slotInfo && slotInfo.place !== undefined) ? slotInfo.place : (letters[i] || m3RandomLetter());
                 m3Grid[cell.r][cell.c] = { letter: ch, hole: true, need: hole.need, filled: true };
                 const el = m3CellElements[cell.r] && m3CellElements[cell.r][cell.c];
                 if (el) {
@@ -4317,8 +4329,9 @@
             } catch (e) { if (cb) setTimeout(cb, 200); }
         }
         function wSpeakPair(wordHan, meanText) {
-            /* 先读学习者语言的释义，再读中文 */
-            wSpeakLocalized(meanText, () => wSpeak(wordHan));
+            /* 先读目标语言词语，再读学习者语言的释义 */
+            speakWord(wordHan);
+            setTimeout(() => wSpeakLocalized(meanText), Math.max(1000, String(wordHan).length * 220));
         }
         function wSetMsg(text) { const m = document.getElementById('w-msg'); if (m) m.textContent = text || ''; }
         function wBuildMap() {

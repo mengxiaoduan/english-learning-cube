@@ -1,13 +1,12 @@
 /* ============================================================
- * 世界语言方块 · 通用玩法扩展包 v1
+ * 世界语言方块 · 通用玩法扩展包 v2
  * ------------------------------------------------------------
  * 基于 window.ELC 扩展 API 开发，演示新玩法接入方式：
- *   ELC.registerMode({ id, icon, name, desc, start })
- * 内置玩法：
- *   1. 🎧 听力挑战 —— 播放学习语言发音，选出对应词语（练耳朵）
- *   2. 🃏 记忆配对 —— 词语与释义翻牌配对（练记忆）
- * 两者均支持 DIY：玩家可粘贴自定义词表（每行 word,mean）游玩。
- * 未来玩法照此结构接入即可。
+ *   ELC.registerMode({ id, icon, nameKey, descKey, start })
+ * 内置玩法（均分关卡 + 进度保存 + 学习卡 + DIY 自定义词包）：
+ *   1. 🎧 听力挑战 —— 每关 10 词：听发音选词语（练耳朵）
+ *   2. 🃏 记忆配对 —— 每关 6 对（12 张卡）：词语与释义翻牌配对
+ * 未来玩法照此结构接入即可；玩家可用自定义词表（word,mean）DIY。
  * ============================================================ */
 (function () {
     'use strict';
@@ -19,13 +18,11 @@
         + '.ex-stat { color: #eee; font-size: .95rem; background: rgba(15,52,96,.6); border-radius: 10px; padding: 5px 12px; }'
         + '.ex-btn { background: rgba(15,52,96,.8); color: #eee; border: 1px solid rgba(255,255,255,.18); border-radius: 10px; padding: 7px 14px; cursor: pointer; font-size: .95rem; }'
         + '.ex-btn:active { transform: scale(.95); }'
-        + '.ex-red { background: #e94560; border-color: #e94560; color: #fff; }'
         + '.lis-speaker { width: 130px; height: 130px; border-radius: 50%; border: 3px solid #f1c40f; background: radial-gradient(circle at 35% 30%, #2a3f6e, #16213e); color: #f1c40f; font-size: 3.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 26px rgba(241,196,15,.35); margin: 6px 0; }'
         + '.lis-speaker:active { transform: scale(.94); }'
         + '.lis-tip { color: rgba(255,255,255,.65); font-size: .9rem; }'
         + '.lis-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; max-width: 640px; }'
         + '.lis-opt { background: linear-gradient(160deg,#0f3460,#16213e); border: 2px solid rgba(255,255,255,.18); border-radius: 14px; color: #eee; padding: 18px 10px; font-size: 1.25rem; font-weight: 700; cursor: pointer; min-height: 64px; }'
-        + '.lis-opt small { display: block; font-size: .8rem; opacity: .7; margin-top: 4px; font-weight: 400; }'
         + '.lis-opt.ok { border-color: #53d769; background: rgba(83,215,105,.18); }'
         + '.lis-opt.bad { border-color: #e94560; background: rgba(233,69,96,.18); animation: exshake .3s; }'
         + '@keyframes exshake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-7px); } 75% { transform: translateX(7px); } }'
@@ -34,6 +31,16 @@
         + '.ex-panel h2 { margin: 0; color: #f1c40f; font-size: 1.3rem; }'
         + '.ex-panel .big { font-size: 2rem; font-weight: 900; color: #eee; }'
         + '.ex-col { display: flex; flex-direction: column; gap: 10px; }'
+        + '.ex-learn { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%); z-index: 540; background: linear-gradient(160deg,#f1c40f,#e94560); color: #fff; border-radius: 16px; padding: 12px 26px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,.5); animation: expop .35s ease; }'
+        + '.ex-learn .w { font-size: 1.5rem; font-weight: 900; }'
+        + '.ex-learn .m { font-size: .95rem; opacity: .95; margin-top: 2px; }'
+        + '@keyframes expop { 0% { transform: translateX(-50%) scale(.6); opacity: 0; } 100% { transform: translateX(-50%) scale(1); opacity: 1; } }'
+        + '.ex-map { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 0; width: min(92vw, 480px); }'
+        + '.ex-map-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px; border-radius: 12px; border: 2px solid rgba(255,255,255,.14); background: rgba(255,255,255,.06); color: #eee; cursor: pointer; text-align: left; }'
+        + '.ex-map-item.locked { opacity: .45; cursor: not-allowed; }'
+        + '.ex-map-item:active { transform: scale(.96); }'
+        + '.ex-map-item .n { font-weight: 700; font-size: .95rem; }'
+        + '.ex-map-item .s { color: #f1c40f; font-size: .85rem; white-space: nowrap; }'
         + '.mem-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; width: 100%; max-width: 640px; }'
         + '.mem-card { aspect-ratio: 3/3.4; perspective: 600px; cursor: pointer; background: none; border: none; padding: 0; }'
         + '.mem-inner { position: relative; width: 100%; height: 100%; transition: transform .35s; transform-style: preserve-3d; }'
@@ -76,6 +83,46 @@
         }
         return ELC.words();
     }
+
+    /* ---------- 关卡体系：词池 → 每 K 词一关 ---------- */
+    var LIS_PER = 10, MEM_WORDS_PER = 6, MAX_LEVELS = 20;
+    function buildLevels(pool, per) {
+        var lv = [];
+        for (var i = 0; i < pool.length && lv.length < MAX_LEVELS; i += per) {
+            lv.push(pool.slice(i, i + per));
+        }
+        return lv;
+    }
+    function loadProg(key) {
+        try { var p = JSON.parse(localStorage.getItem(key)); if (p && p.unlocked) return p; } catch (e) {}
+        return { unlocked: 1, stars: {} };
+    }
+    function saveProg(key, p) { try { localStorage.setItem(key, JSON.stringify(p)); } catch (e) {} }
+    function starStr(n) { return n > 0 ? '★★★'.slice(0, n) + '☆☆☆'.slice(0, 3 - n) : '☆☆☆'; }
+
+    function buildMap(host, levels, prog, onPick) {
+        host.innerHTML = '';
+        levels.forEach(function (lv, i) {
+            var locked = i + 1 > prog.unlocked;
+            var st = prog.stars[i + 1] || 0;
+            var b = document.createElement('button');
+            b.className = 'ex-map-item' + (locked ? ' locked' : '');
+            b.innerHTML = '<span class="n">' + ELC.t('qStage', { n: i + 1 }) + ' · ' + lv[0].display + '…</span><span class="s">' + (locked ? '🔒' : starStr(st)) + '</span>';
+            if (!locked) b.addEventListener('click', function () { ELC.click(); onPick(i); });
+            host.appendChild(b);
+        });
+    }
+    function openMap(title, levels, prog, onPick) {
+        var html = '<div class="ex-panel" style="margin:auto;">'
+            + '<h2>' + title + ' · ' + ELC.t('m3Map') + '</h2>'
+            + '<div class="ex-map" id="ex-map-list"></div>'
+            + '<button class="btn-action btn-secondary" id="ex-map-back">' + ELC.t('back') + '</button>'
+            + '</div>';
+        ELC.openExtraView('<div style="display:flex;flex-direction:column;min-height:100%;justify-content:center;align-items:center;width:100%;">' + html + '</div>');
+        buildMap(document.getElementById('ex-map-list'), levels, prog, onPick);
+        document.getElementById('ex-map-back').addEventListener('click', function () { ELC.click(); ELC.closeExtraView(); });
+    }
+
     function openPackPicker(onPick) {
         var custom = ELC.customPack();
         var html = '<div class="ex-panel" style="margin:auto;">'
@@ -112,33 +159,54 @@
         });
     }
 
-    /* ---------- 通用：打乱 / 去重取样 ---------- */
+    /* ---------- 通用 ---------- */
     function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
     function sampleOthers(pool, not, n) {
         var others = pool.filter(function (x) { return x.word !== not.word; });
         shuffle(others);
         return others.slice(0, n);
     }
-
-    /* ============================================================
-     * 模式 1：🎧 听力挑战
-     * ============================================================ */
-    function startListen() {
-        openPackPicker(function (useCustom) { beginListen(useCustom); });
+    var learnTimer = null;
+    function showLearnCard(word) {
+        var old = document.getElementById('ex-learn-card');
+        if (old) old.remove();
+        if (learnTimer) { clearTimeout(learnTimer); learnTimer = null; }
+        var pinyin = (window.ZH_PINYIN && window.ZH_PINYIN[word.word]) || '';
+        var el = document.createElement('div');
+        el.id = 'ex-learn-card';
+        el.className = 'ex-learn';
+        el.innerHTML = '<div class="w">' + word.display + '</div><div class="m">' + (pinyin ? pinyin + ' · ' : '') + word.mean + '</div>';
+        document.body.appendChild(el);
+        learnTimer = setTimeout(function () { el.remove(); learnTimer = null; }, 2000);
     }
 
-    function beginListen(useCustom) {
+    /* ============================================================
+     * 模式 1：🎧 听力挑战（每关 10 词，3 心，进度保存）
+     * ============================================================ */
+    var LIS_PER = 10;
+    function startListen() { openPackPicker(function (useCustom) { beginListenMap(useCustom); }); }
+
+    function beginListenMap(useCustom) {
         var pool = pickPool(useCustom);
         if (pool.length < 4) { ELC.toast(ELC.t('errNoWords')); ELC.closeExtraView(); return; }
-        var state = { score: 0, streak: 0, best: 0, hearts: 3, qn: 0, cur: null, lock: false };
+        var levels = buildLevels(pool, LIS_PER);
+        var prog = loadProg('elc_listen_prog_' + ELC.learningLang + (useCustom ? '_c' : ''));
+        openMap(ELC.t('mcListenName'), levels, prog, function (idx) {
+            playListenLevel(levels, idx, prog, useCustom);
+        });
+    }
+
+    function playListenLevel(levels, idx, prog, useCustom) {
+        var words = levels[idx];
+        var state = { score: 0, streak: 0, best: 0, hearts: 3, asked: 0, order: shuffle(words.slice()), cur: null, lock: false };
         var highKey = 'elc_listen_high_' + ELC.learningLang;
         var high = parseInt(localStorage.getItem(highKey) || '0', 10);
 
         ELC.openExtraView(
             '<div class="ex-top">'
             + '<button class="ex-btn" id="lis-exit">✕ ' + ELC.t('qExit') + '</button>'
-            + '<div class="ex-title">🎧 ' + ELC.t('mcListenName') + '</div>'
-            + '<div class="ex-stat">⭐ <span id="lis-score">0</span>　❤️ <span id="lis-hearts">3</span>　🔥 <span id="lis-streak">0</span></div>'
+            + '<div class="ex-title">' + ELC.t('mcListenName') + '</div>'
+            + '<div class="ex-stat">⭐ <span id="lis-score">0</span>　❤️ <span id="lis-hearts">3</span>　🔥 <span id="lis-streak">0</span>　' + ELC.t('qStage', { n: idx + 1 }) + '</div>'
             + '</div>'
             + '<div class="lis-mean" id="lis-mean"></div>'
             + '<button class="lis-speaker" id="lis-play">🔊</button>'
@@ -158,57 +226,55 @@
             document.getElementById('lis-hearts').textContent = state.hearts;
             document.getElementById('lis-streak').textContent = state.streak;
         }
-        function speakCurrent(first) {
-            ELC.tts(state.cur.tts);
-        }
         function question() {
-            if (state.hearts <= 0) { end(); return; }
-            state.qn++;
-            state.cur = pool[Math.floor(Math.random() * pool.length)];
-            var nOpts = state.streak >= 6 ? 5 : 4;
-            var opts = sampleOthers(pool, state.cur, nOpts - 1).concat([state.cur]);
-            shuffle(opts);
+            if (state.hearts <= 0 || state.asked >= words.length) { end(); return; }
+            state.cur = state.order[state.asked];
+            state.asked++;
             state.lock = false;
+            var nOpts = state.streak >= 6 ? 5 : 4;
+            var others = sampleOthers(words, state.cur, Math.min(nOpts - 1, Math.max(0, words.length - 1)));
+            if (others.length < nOpts - 1) others = others.concat(sampleOthers(pool, state.cur, nOpts - 1 - others.length));
+            var opts = shuffle(others.slice(0, nOpts - 1).concat([state.cur]));
             var grid = document.getElementById('lis-grid');
             grid.innerHTML = '';
             opts.forEach(function (o) {
                 var b = document.createElement('button');
                 b.className = 'lis-opt';
-                b.innerHTML = o.display + (o.mean ? '<small></small>' : '');
+                b.textContent = o.display;
                 b.addEventListener('click', function () { answer(o, b); });
                 grid.appendChild(b);
             });
             document.getElementById('lis-mean').textContent = '';
-            setTimeout(speakCurrent, 250);
+            setTimeout(function () { ELC.tts(state.cur.tts); }, 250);
         }
         function answer(o, btn) {
             if (state.lock) return;
             state.lock = true;
             var ok = o.word === state.cur.word;
-            var opts = document.querySelectorAll('#lis-grid .lis-opt');
             if (ok) {
                 btn.classList.add('ok');
                 state.streak++;
-                if (state.streak > state.best) state.best = state.streak;
                 state.score += 50 + Math.min(state.streak, 10) * 10;
                 ELC.tone(880, 0.08, 'sine', 0.1);
                 document.getElementById('lis-mean').textContent = state.cur.display + ' · ' + state.cur.mean;
+                showLearnCard(state.cur);
             } else {
                 btn.classList.add('bad');
                 state.hearts--; state.streak = 0;
                 ELC.tone(160, 0.2, 'sawtooth', 0.12);
-                opts.forEach(function (el, i) {
-                    /* 高亮正确项 */
+                document.querySelectorAll('#lis-grid .lis-opt').forEach(function (el) {
+                    if (el.textContent === state.cur.display) el.classList.add('ok');
                 });
-                var grid = document.getElementById('lis-grid');
-                var kids = grid.querySelectorAll('.lis-opt');
-                kids.forEach(function (el) { if (el.textContent.indexOf(state.cur.display) === 0) el.classList.add('ok'); });
                 document.getElementById('lis-mean').textContent = state.cur.display + ' · ' + state.cur.mean;
+                showLearnCard(state.cur);
             }
             updateHUD();
-            setTimeout(function () { question(); }, ok ? 1000 : 1600);
+            setTimeout(function () { question(); }, ok ? 1400 : 2000);
         }
         function end() {
+            var pass = state.hearts > 0;
+            var stars = !pass ? 0 : (state.hearts >= 3 ? 3 : (state.hearts === 2 ? 2 : 1));
+            if (pass) { prog.stars[idx + 1] = Math.max(prog.stars[idx + 1] || 0, stars); prog.unlocked = Math.max(prog.unlocked, Math.min(idx + 2, levels.length)); saveProg('elc_listen_prog_' + ELC.learningLang + (useCustom ? '_c' : ''), prog); }
             var isHigh = state.score > high;
             if (isHigh) { localStorage.setItem(highKey, String(state.score)); high = state.score; }
             document.getElementById('lis-grid').style.display = 'none';
@@ -216,61 +282,71 @@
             document.getElementById('lis-tip').style.display = 'none';
             document.getElementById('lis-mean').style.display = 'none';
             document.getElementById('lis-end').style.display = 'flex';
-            document.getElementById('lis-end-title').textContent = isHigh ? ELC.t('newRecord') : ELC.t('qFail');
+            document.getElementById('lis-end-title').textContent = pass ? ELC.t('qWin') : ELC.t('qFail');
             document.getElementById('lis-end-score').textContent = String(state.score);
             document.getElementById('lis-end-best').textContent = ELC.t('highScore') + ': ' + high + ' · 🔥 ' + state.best;
         }
-        document.getElementById('lis-play').addEventListener('click', function () { speakCurrent(); });
+        document.getElementById('lis-play').addEventListener('click', function () { if (state.cur) ELC.tts(state.cur.tts); });
         document.getElementById('lis-exit').addEventListener('click', function () { ELC.click(); ELC.closeExtraView(); });
-        document.getElementById('lis-again').addEventListener('click', function () { ELC.click(); ELC.closeExtraView(); setTimeout(function () { beginListen(useCustom); }, 60); });
+        document.getElementById('lis-again').addEventListener('click', function () { ELC.click(); ELC.closeExtraView(); setTimeout(function () { beginListenMap(useCustom); }, 60); });
         document.getElementById('lis-home').addEventListener('click', function () { ELC.click(); ELC.closeExtraView(); });
         updateHUD();
         question();
     }
 
     /* ============================================================
-     * 模式 2：🃏 记忆配对
+     * 模式 2：🃏 记忆配对（每关 6 对 12 卡，进度保存，配对学习卡）
      * ============================================================ */
-    function startMemory() {
-        openPackPicker(function (useCustom) { beginMemory(useCustom); });
-    }
+    function startMemory() { openPackPicker(function (useCustom) { beginMemoryMap(useCustom); }); }
 
-    function beginMemory(useCustom) {
+    function beginMemoryMap(useCustom) {
         var pool = pickPool(useCustom);
         if (pool.length < 4) { ELC.toast(ELC.t('errNoWords')); ELC.closeExtraView(); return; }
+        var levels = buildLevels(pool, MEM_WORDS_PER);
+        var prog = loadProg('elc_mem_prog_' + ELC.learningLang + (useCustom ? '_c' : ''));
+        openMap(ELC.t('mcMemName'), levels, prog, function (idx) {
+            playMemoryLevel(levels, idx, prog, useCustom);
+        });
+    }
+
+    function playMemoryLevel(levels, idx, prog, useCustom) {
+        var words = levels[idx];
+        var state = { round: idx + 1, moves: 0, score: 0, first: null, lock: false, matched: 0, total: words.length };
         var bestKey = 'elc_mem_best_' + ELC.learningLang;
-        var state = { round: 1, moves: 0, score: 0, first: null, lock: false, matched: 0, total: 0 };
         var bestRound = parseInt(localStorage.getItem(bestKey) || '1', 10);
 
         ELC.openExtraView(
             '<div class="ex-top">'
             + '<button class="ex-btn" id="mem-exit">✕ ' + ELC.t('qExit') + '</button>'
-            + '<div class="ex-title">🃏 ' + ELC.t('mcMemName') + '</div>'
-            + '<div class="ex-stat">' + ELC.t('qStage') + ' <span id="mem-round">1</span>　' + ELC.t('m3Steps') + ' <span id="mem-moves">0</span>　⭐ <span id="mem-score">0</span></div>'
+            + '<div class="ex-title">' + ELC.t('mcMemName') + '</div>'
+            + '<div class="ex-stat" id="mem-stat"></div>'
             + '</div>'
             + '<div class="mem-grid" id="mem-grid"></div>'
-            + '<div style="color:rgba(255,255,255,.6);font-size:.85rem;" id="mem-best">' + ELC.t('highScore') + ': ' + bestRound + '</div>');
+            + '<div style="color:rgba(255,255,255,.6);font-size:.85rem;" id="mem-best">' + ELC.t('highScore') + ': ' + bestRound + '</div>'
+            + '<div id="mem-end" style="display:none;" class="ex-panel">'
+            + '<h2 id="mem-end-title"></h2>'
+            + '<div id="mem-end-stars" style="color:#f1c40f;font-size:1.6rem;letter-spacing:6px;"></div>'
+            + '<div class="big" id="mem-end-score"></div>'
+            + '<div class="ex-col">'
+            + '<button class="btn-action" id="mem-next">' + ELC.t('qNextStage') + '</button>'
+            + '<button class="btn-action btn-secondary" id="mem-replay">' + ELC.t('qReplay') + '</button>'
+            + '<button class="btn-action btn-secondary" id="mem-map">' + ELC.t('m3Map') + '</button>'
+            + '</div></div>');
 
-        function pairsFor(r) { return Math.min(4 + Math.floor((r - 1) / 2), 8); }
         function updateHUD() {
-            document.getElementById('mem-round').textContent = state.round;
-            document.getElementById('mem-moves').textContent = state.moves;
-            document.getElementById('mem-score').textContent = state.score;
+            document.getElementById('mem-stat').innerHTML = ELC.t('qStage', { n: state.round }) + '　' + ELC.t('m3Steps') + ' ' + state.moves + '　⭐ ' + state.score;
         }
-        function buildRound() {
-            var pairs = pairsFor(state.round);
-            var picks = shuffle(pool.slice()).slice(0, pairs);
+        function buildGrid() {
             var cards = [];
-            picks.forEach(function (w, i) {
-                cards.push({ pair: i, type: 'word', text: w.display });
+            words.forEach(function (w, i) {
+                cards.push({ pair: i, type: 'word', text: w.display, word: w });
                 cards.push({ pair: i, type: 'mean', text: w.mean, word: w });
             });
             shuffle(cards);
-            state.total = pairs; state.matched = 0; state.first = null; state.lock = false;
+            state.matched = 0; state.total = words.length; state.first = null; state.lock = false;
             var grid = document.getElementById('mem-grid');
-            grid.style.gridTemplateColumns = pairs >= 7 ? 'repeat(4, 1fr)' : 'repeat(4, 1fr)';
             grid.innerHTML = '';
-            cards.forEach(function (c, idx) {
+            cards.forEach(function (c) {
                 var b = document.createElement('button');
                 b.className = 'mem-card';
                 b.dataset.pair = c.pair;
@@ -290,22 +366,15 @@
             state.moves++;
             updateHUD();
             if (a.card.pair === card.pair && a.card.type !== card.type) {
-                /* 配对成功 */
                 a.btn.classList.add('done'); btn.classList.add('done');
                 state.matched++;
                 state.score += 100;
                 ELC.tone(660, 0.1, 'sine', 0.1);
-                /* 巩固：读出词语 */
-                ELC.tts(card.word ? card.word.tts : (a.card.word ? a.card.word.tts : ''));
+                /* 学习卡：展示词语与释义并朗读 */
+                showLearnCard(card.word);
+                ELC.tts(card.word.tts);
                 updateHUD();
-                if (state.matched >= state.total) {
-                    state.round++;
-                    if (state.round > bestRound) { bestRound = state.round; localStorage.setItem(bestKey, String(bestRound)); document.getElementById('mem-best').textContent = ELC.t('highScore') + ': ' + bestRound; }
-                    state.score += 200;
-                    updateHUD();
-                    ELC.toast(ELC.t('qWin'));
-                    setTimeout(buildRound, 900);
-                }
+                if (state.matched >= state.total) setTimeout(levelDone, 900);
             } else {
                 state.lock = true;
                 setTimeout(function () {
@@ -315,8 +384,33 @@
                 }, 850);
             }
         }
+        function levelDone() {
+            var stars = state.moves <= 9 ? 3 : (state.moves <= 16 ? 2 : 1);
+            prog.stars[idx + 1] = Math.max(prog.stars[idx + 1] || 0, stars);
+            prog.unlocked = Math.max(prog.unlocked, Math.min(idx + 2, levels.length));
+            saveProg('elc_mem_prog_' + ELC.learningLang + (useCustom ? '_c' : ''), prog);
+            if (state.round + 1 > bestRound) { bestRound = state.round + 1; localStorage.setItem(bestKey, String(bestRound)); }
+            state.score += 200;
+            var res = document.getElementById('mem-end');
+            if (res) {
+                res.style.display = 'flex';
+                document.getElementById('mem-end-title').textContent = ELC.t('qWin');
+                document.getElementById('mem-end-stars').textContent = '★'.repeat(stars) + '☆'.repeat(3 - stars);
+                document.getElementById('mem-end-score').textContent = String(state.score);
+                var hasNext = idx + 1 < levels.length;
+                document.getElementById('mem-next').style.display = hasNext ? '' : 'none';
+                ['mem-next', 'mem-replay', 'mem-map'].forEach(function (id) {
+                    var old = document.getElementById(id);
+                    var nu = old.cloneNode(true);
+                    old.parentNode.replaceChild(nu, old);
+                });
+                document.getElementById('mem-next').addEventListener('click', function () { ELC.click(); playMemoryLevel(levels, idx + 1, prog, useCustom); });
+                document.getElementById('mem-replay').addEventListener('click', function () { ELC.click(); playMemoryLevel(levels, idx, prog, useCustom); });
+                document.getElementById('mem-map').addEventListener('click', function () { ELC.click(); beginMemoryMap(useCustom); });
+            }
+        }
         document.getElementById('mem-exit').addEventListener('click', function () { ELC.click(); ELC.closeExtraView(); });
-        buildRound();
+        buildGrid();
     }
 
     /* ---------- 注册到模式选择屏 ---------- */

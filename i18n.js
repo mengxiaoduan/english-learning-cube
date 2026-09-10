@@ -64,7 +64,7 @@
     var MESSAGES = {
         'zh-CN': {
             title: '世界语言方块', startGame: '▶ 开 始 游 戏', footer: '梦小段工作室出品',
-            tapSound: '🔊 点击开启音效', uiLangTitle: '选择界面语言', selectLang: '选择语言',
+            tapSound: '🔊 点击开启音效', uiLangTitle: '选择界面语言', selectLang: '选择想学习的语言',
             currentLangLabel: '当前语言', currentLangTag: '🌐 当前语言：{name} · {sub}', start: '开始游戏',
             back: '返回', backToMain: '返回主界面', modeSelect: '选择游戏模式',
             mcTetrisName: '俄罗斯方块模式', mcTetrisDesc: '经典落块 · 拼单词消行闯关', mcFillName: '填词战斗模式',
@@ -147,7 +147,7 @@
         },
         'en': {
             title: 'World Language Blocks', startGame: '▶  S T A R T', footer: 'Made by Mengxiaoduan Studio',
-            tapSound: '🔊 Tap to enable sound', uiLangTitle: 'Interface Language', selectLang: 'Select Language',
+            tapSound: '🔊 Tap to enable sound', uiLangTitle: 'Interface Language', selectLang: 'Choose a Language to Learn',
             currentLangLabel: 'Current language', currentLangTag: '🌐 Current language: {name} · {sub}', start: 'Start Game',
             back: 'Back', backToMain: 'Back to Main Menu', modeSelect: 'Select Game Mode',
             mcTetrisName: 'Tetris Mode', mcTetrisDesc: 'Classic block drop · spell words to clear lines', mcFillName: 'Word Fill Battle',
@@ -230,7 +230,7 @@
         },
         'ja': {
             title: '世界のことばブロック', startGame: '▶ ゲームスタート', footer: '夢小段スタジオ制作',
-            tapSound: '🔊 タップで音をオン', uiLangTitle: '表示言語を選択', selectLang: '言語を選択',
+            tapSound: '🔊 タップで音をオン', uiLangTitle: '表示言語を選択', selectLang: '学びたい言語を選ぼう',
             currentLangLabel: '現在の言語', currentLangTag: '🌐 現在の言語：{name} · {sub}', start: 'ゲーム開始',
             back: '戻る', backToMain: 'メイン画面に戻る', modeSelect: 'ゲームモードを選択',
             mcTetrisName: 'テトリスモード', mcTetrisDesc: '定番の落ちものパズル · 単語を綴ってライン消し', mcFillName: '単語埋めバトル',
@@ -313,7 +313,7 @@
         },
         'ko': {
             title: '세계 언어 블록', startGame: '▶ 게임 시작', footer: '몽샤오단 스튜디오 제작',
-            tapSound: '🔊 눌러서 소리 켜기', uiLangTitle: '화면 언어 선택', selectLang: '언어 선택',
+            tapSound: '🔊 눌러서 소리 켜기', uiLangTitle: '화면 언어 선택', selectLang: '배우고 싶은 언어를 선택하세요',
             currentLangLabel: '현재 언어', currentLangTag: '🌐 현재 언어: {name} · {sub}', start: '게임 시작',
             back: '뒤로', backToMain: '메인 화면으로 돌아가기', modeSelect: '게임 모드 선택',
             mcTetrisName: '테트리스 모드', mcTetrisDesc: '클래식 블록 낙하 · 단어 조합으로 줄 지우기', mcFillName: '단어 채우기 배틀',
@@ -396,7 +396,7 @@
         },
         'vi': {
             title: 'Khối Ngôn Ngữ Thế Giới', startGame: '▶  B Ắ T  Đ Ầ U', footer: 'Sản phẩm bởi studio Mengxiaoduan',
-            tapSound: '🔊 Chạm để bật âm thanh', uiLangTitle: 'Ngôn ngữ giao diện', selectLang: 'Chọn ngôn ngữ',
+            tapSound: '🔊 Chạm để bật âm thanh', uiLangTitle: 'Ngôn ngữ giao diện', selectLang: 'Chọn ngôn ngữ muốn học',
             currentLangLabel: 'Ngôn ngữ hiện tại', currentLangTag: '🌐 Ngôn ngữ hiện tại: {name} · {sub}', start: 'Bắt đầu chơi',
             back: 'Quay lại', backToMain: 'Về menu chính', modeSelect: 'Chọn chế độ chơi',
             mcTetrisName: 'Chế độ Tetris', mcTetrisDesc: 'Rơi khối cổ điển · ghép chữ để xóa hàng', mcFillName: 'Đấu điền từ',
@@ -429,7 +429,7 @@
         },
         'th': {
             title: 'บล็อกภาษาโลก', startGame: '▶  เ ริ่ ม เ ก ม', footer: 'ผลิตโดยสตูดิโอเมิ่งเสี่ยวตวน',
-            tapSound: '🔊 แตะเพื่อเปิดเสียง', uiLangTitle: 'ภาษาของหน้าจอ', selectLang: 'เลือกภาษา',
+            tapSound: '🔊 แตะเพื่อเปิดเสียง', uiLangTitle: 'ภาษาของหน้าจอ', selectLang: 'เลือกภาษาที่ต้องการเรียน',
             currentLangLabel: 'ภาษาปัจจุบัน', currentLangTag: '🌐 ภาษาปัจจุบัน: {name} · {sub}', start: 'เริ่มเกม',
             back: 'ย้อนกลับ', backToMain: 'กลับหน้าหลัก', modeSelect: 'เลือกโหมดเกม',
             mcTetrisName: 'โหมดเตทริส', mcTetrisDesc: 'บล็อกตกคลาสสิก · ประกอบคำเพื่อลบบรรทัด', mcFillName: 'ศึกเติมคำ',
@@ -462,7 +462,7 @@
         },
         'id': {
             title: 'Blok Bahasa Dunia', startGame: '▶  M U L A I', footer: 'Dibuat oleh studio Mengxiaoduan',
-            tapSound: '🔊 Ketuk untuk menyalakan suara', uiLangTitle: 'Bahasa antarmuka', selectLang: 'Pilih bahasa',
+            tapSound: '🔊 Ketuk untuk menyalakan suara', uiLangTitle: 'Bahasa antarmuka', selectLang: 'Pilih bahasa yang ingin dipelajari',
             currentLangLabel: 'Bahasa saat ini', currentLangTag: '🌐 Bahasa saat ini: {name} · {sub}', start: 'Mulai permainan',
             back: 'Kembali', backToMain: 'Kembali ke menu utama', modeSelect: 'Pilih mode permainan',
             mcTetrisName: 'Mode Tetris', mcTetrisDesc: 'Jatuhkan blok klasik · susun kata untuk menghapus baris', mcFillName: 'Battle Isi Kata',
@@ -495,7 +495,7 @@
         },
         'ms': {
             title: 'Blok Bahasa Dunia', startGame: '▶  M U L A', footer: 'Dibuat oleh studio Mengxiaoduan',
-            tapSound: '🔊 Ketik untuk menghidupkan bunyi', uiLangTitle: 'Bahasa antara muka', selectLang: 'Pilih bahasa',
+            tapSound: '🔊 Ketik untuk menghidupkan bunyi', uiLangTitle: 'Bahasa antara muka', selectLang: 'Pilih bahasa untuk dipelajari',
             currentLangLabel: 'Bahasa semasa', currentLangTag: '🌐 Bahasa semasa: {name} · {sub}', start: 'Mula permainan',
             back: 'Kembali', backToMain: 'Kembali ke menu utama', modeSelect: 'Pilih mod permainan',
             mcTetrisName: 'Mod Tetris', mcTetrisDesc: 'Jatuh blok klasik · eja perkataan untuk padam baris', mcFillName: 'Pertarungan Isi Perkataan',
@@ -528,7 +528,7 @@
         },
         'fil': {
             title: 'Blok ng mga Wika ng Mundo', startGame: '▶  S I M U L A N', footer: 'Gawa ng Mengxiaoduan Studio',
-            tapSound: '🔊 Pindutin para buksan ang tunog', uiLangTitle: 'Wika ng interface', selectLang: 'Pumili ng wika',
+            tapSound: '🔊 Pindutin para buksan ang tunog', uiLangTitle: 'Wika ng interface', selectLang: 'Piliin ang gustong matutunan',
             currentLangLabel: 'Kasalukuyang wika', currentLangTag: '🌐 Kasalukuyang wika: {name} · {sub}', start: 'Simulan ang laro',
             back: 'Bumalik', backToMain: 'Bumalik sa pangunahing menu', modeSelect: 'Pumili ng game mode',
             mcTetrisName: 'Tetris Mode', mcTetrisDesc: 'Klasikong pagbagsak ng bloke · bumuo ng salita para burahin ang linya', mcFillName: 'Word Fill Battle',
@@ -561,7 +561,7 @@
         },
         'hi': {
             title: 'विश्व भाषा ब्लॉक्स', startGame: '▶  शुरू करें', footer: 'मेंगशियाओदुआन स्टूडियो द्वारा',
-            tapSound: '🔊 ध्वनि चालू करने के लिए टैप करें', uiLangTitle: 'इंटरफ़ेस भाषा', selectLang: 'भाषा चुनें',
+            tapSound: '🔊 ध्वनि चालू करने के लिए टैप करें', uiLangTitle: 'इंटरफ़ेस भाषा', selectLang: 'जो भाषा सीखनी है वह चुनें',
             currentLangLabel: 'वर्तमान भाषा', currentLangTag: '🌐 वर्तमान भाषा: {name} · {sub}', start: 'गेम शुरू करें',
             back: 'वापस', backToMain: 'मुख्य मेन्यू पर वापस', modeSelect: 'गेम मोड चुनें',
             mcTetrisName: 'टेट्रिस मोड', mcTetrisDesc: 'क्लासिक ब्लॉक गिरना · शब्द बनाओ और पंक्तियाँ मिटाओ', mcFillName: 'शब्द भरने की लड़ाई',
@@ -594,7 +594,7 @@
         },
         'bn': {
             title: 'বিশ্ব ভাষা ব্লক', startGame: '▶  শুরু করুন', footer: 'মেংশিয়াওদুয়ান স্টুডিও নির্মিত',
-            tapSound: '🔊 শব্দ চালু করতে ট্যাপ করুন', uiLangTitle: 'ইন্টারফেসের ভাষা', selectLang: 'ভাষা নির্বাচন',
+            tapSound: '🔊 শব্দ চালু করতে ট্যাপ করুন', uiLangTitle: 'ইন্টারফেসের ভাষা', selectLang: 'যে ভাষা শিখতে চান তা বেছে নিন',
             currentLangLabel: 'বর্তমান ভাষা', currentLangTag: '🌐 বর্তমান ভাষা: {name} · {sub}', start: 'গেম শুরু',
             back: 'ফিরে যান', backToMain: 'মূল মেনুতে ফিরুন', modeSelect: 'গেম মোড নির্বাচন',
             mcTetrisName: 'টেট্রিস মোড', mcTetrisDesc: 'ক্লাসিক ব্লক পতন · শব্দ বানিয়ে সারি মুছুন', mcFillName: 'শব্দ পূরণ যুদ্ধ',
@@ -627,7 +627,7 @@
         },
         'ur': {
             title: 'دنیا کی زبانوں کے بلاکس', startGame: '▶  شروع کریں', footer: 'مینگ شیاؤڈوان اسٹوڈیو کی جانب سے',
-            tapSound: '🔊 آواز آن کرنے کے لیے ٹیپ کریں', uiLangTitle: 'انٹرفیس کی زبان', selectLang: 'زبان منتخب کریں',
+            tapSound: '🔊 آواز آن کرنے کے لیے ٹیپ کریں', uiLangTitle: 'انٹرفیس کی زبان', selectLang: 'جو زبان سیکھنی ہے وہ منتخب کریں',
             currentLangLabel: 'موجودہ زبان', currentLangTag: '🌐 موجودہ زبان: {name} · {sub}', start: 'کھیل شروع کریں',
             back: 'واپس', backToMain: 'مرکزی مینو پر واپس', modeSelect: 'کھیل کا موڈ منتخب کریں',
             mcTetrisName: 'ٹیٹرِس موڈ', mcTetrisDesc: 'کلاسک بلاک گرنا · الفاظ بنائیں اور قطاریں صاف کریں', mcFillName: 'لفظ بھرنے کی جنگ',
@@ -660,7 +660,7 @@
         },
         'ta': {
             title: 'உலக மொழி கட்டங்கள்', startGame: '▶  தொடங்கு', footer: 'மெங்சியாவோடுவான் ஸ்டூடியோ உருவாக்கியது',
-            tapSound: '🔊 ஒலியை இயக்க தட்டவும்', uiLangTitle: 'இடைமுக மொழி', selectLang: 'மொழியைத் தேர்ந்தெடுக்கவும்',
+            tapSound: '🔊 ஒலியை இயக்க தட்டவும்', uiLangTitle: 'இடைமுக மொழி', selectLang: 'கற்க விரும்பும் மொழியைத் தேர்ந்தெடுங்கள்',
             currentLangLabel: 'தற்போதைய மொழி', currentLangTag: '🌐 தற்போதைய மொழி: {name} · {sub}', start: 'விளையாட்டைத் தொடங்கு',
             back: 'பின்செல்', backToMain: 'முதன்மை பட்டியலுக்கு', modeSelect: 'விளையாட்டு முறையைத் தேர்வு',
             mcTetrisName: 'டெட்ரிஸ் முறை', mcTetrisDesc: 'பாரம்பரிய கட்டம் வீழ்ச்சி · சொற்களை இணைத்து வரிகளை அழி', mcFillName: 'சொல் நிரப்பு போர்',
@@ -693,7 +693,7 @@
         },
         'te': {
             title: 'ప్రపంచ భాషల బ్లాక్స్', startGame: '▶  ప్రారంభించండి', footer: 'మెంగ్‌శియావోదువాన్ స్టూడియో తయారు చేసినది',
-            tapSound: '🔊 శబ్దం ఆన్ చేయడానికి నొక్కండి', uiLangTitle: 'ఇంటర్‌ఫేస్ భాష', selectLang: 'భాషను ఎంచుకోండి',
+            tapSound: '🔊 శబ్దం ఆన్ చేయడానికి నొక్కండి', uiLangTitle: 'ఇంటర్‌ఫేస్ భాష', selectLang: 'నేర్చుకోదలచిన భాషను ఎంచుకోండి',
             currentLangLabel: 'ప్రస్తుత భాష', currentLangTag: '🌐 ప్రస్తుత భాష: {name} · {sub}', start: 'ఆట ప్రారంభించు',
             back: 'వెనుకకు', backToMain: 'ముఖ్య మెనూకి వెనుకకు', modeSelect: 'ఆట మోడ్ ఎంచుకోండి',
             mcTetrisName: 'టెట్రిస్ మోడ్', mcTetrisDesc: 'క్లాసిక్ బ్లాక్ పతనం · పదాలు కూర్చి వరుసలు తొలగించండి', mcFillName: 'పద పూరింపు యుద్ధం',
@@ -726,7 +726,7 @@
         },
         'my': {
             title: 'ကမ္ဘာ့ဘာသာစကားဘလောက်များ', startGame: '▶  စတင်ပါ', footer: 'မင်းရှောတွမ်စတူဒီယို ထုတ်လုပ်သည်',
-            tapSound: '🔊 အသံဖွင့်ရန် နှိပ်ပါ', uiLangTitle: ' interface ဘာသာ', selectLang: 'ဘာသာရွေးပါ',
+            tapSound: '🔊 အသံဖွင့်ရန် နှိပ်ပါ', uiLangTitle: ' interface ဘာသာ', selectLang: 'လေ့လာလိုသောဘာသာကို ရွေးပါ',
             currentLangLabel: 'လက်ရှိဘာသာ', currentLangTag: '🌐 လက်ရှိဘာသာ: {name} · {sub}', start: 'ဂိမ်းစတင်',
             back: 'နောက်သို့', backToMain: 'ပင်မမီနူးသို့', modeSelect: 'ဂိမ်းမုဒ်ရွေးပါ',
             mcTetrisName: 'တက်ထရစ်မုဒ်', mcTetrisDesc: 'ရိုးရာဘလောက်ကျဆင်း · စာလုံးပေါင်းပြီးတန်းဖျက်', mcFillName: 'စာလုံးဖြည့်တိုက်ပွဲ',
@@ -759,7 +759,7 @@
         },
         'km': {
             title: 'ប្លុកភាសាពិភពលោក', startGame: '▶  ចាប់ផ្តើម', footer: 'ផលិតដោយស្ទូឌីយោ Mengxiaoduan',
-            tapSound: '🔊 ចុចដើម្បីបើកសំឡេង', uiLangTitle: 'ភាសាចំណុចប្រទាក់', selectLang: 'ជ្រើសរើសភាសា',
+            tapSound: '🔊 ចុចដើម្បីបើកសំឡេង', uiLangTitle: 'ភាសាចំណុចប្រទាក់', selectLang: 'ជ្រើសរើសភាសាដែលចង់រៀន',
             currentLangLabel: 'ភាសាបច្ចុប្បន្ន', currentLangTag: '🌐 ភាសាបច្ចុប្បន្ន៖ {name} · {sub}', start: 'ចាប់ផ្តើមល្បែង',
             back: 'ត្រឡប់', backToMain: 'ត្រឡប់ទៅម៉ឺនុយសំខាន់', modeSelect: 'ជ្រើសរើសទម្រង់ល្បែង',
             mcTetrisName: 'ទម្រង់ Tetris', mcTetrisDesc: 'បំលែងក្បាល់បែបបុរាណ · តំរៀបអក្សរដើម្បីលុបជួរ', mcFillName: 'សមរភំពါពាក្យ',
@@ -792,7 +792,7 @@
         },
         'lo': {
             title: 'ບລັອກພາສາຂອງໂລກ', startGame: '▶  ເລີ່ມຕົ້ນ', footer: 'ຜະລິດໂດຍສະຕູດິໂອ Mengxiaoduan',
-            tapSound: '🔊 ແຕະເພື່ອເປີດສຽງ', uiLangTitle: 'ພາສາຂອງຫນ້າຈໍ', selectLang: 'ເລືອກພາສາ',
+            tapSound: '🔊 ແຕະເພື່ອເປີດສຽງ', uiLangTitle: 'ພາສາຂອງຫນ້າຈໍ', selectLang: 'ເລືອກພາສາທີ່ຕ້ອງການຮຽນ',
             currentLangLabel: 'ພາສາປັດຈຸບັນ', currentLangTag: '🌐 ພາສາປັດຈຸບັນ: {name} · {sub}', start: 'ເລີ່ມເກມ',
             back: 'ກັບຄືນ', backToMain: 'ກັບໄປໜ້າຫຼັກ', modeSelect: 'ເລືອກໂໝດເກມ',
             mcTetrisName: 'ໂໝດເຕດຣິສ', mcTetrisDesc: 'ບລັອກຕົກຄລາສສິກ · ປະກອບຄຳເພື່ອລຶບແຖວ', mcFillName: 'ສົບຜົນການຕື່ມຄຳ',
@@ -825,7 +825,7 @@
         },
         'ne': {
             title: 'विश्व भाषा ब्लकहरू', startGame: '▶  सुरु गर्नुहोस्', footer: 'मेङशियाओदुआन स्टुडियोद्वारा निर्मित',
-            tapSound: '🔊 आवाज खोल्न ट्याप गर्नुहोस्', uiLangTitle: 'इन्टरफेस भाषा', selectLang: 'भाषा छान्नुहोस्',
+            tapSound: '🔊 आवाज खोल्न ट्याप गर्नुहोस्', uiLangTitle: 'इन्टरफेस भाषा', selectLang: 'सिक्न चाहेको भाषा छान्नुहोस्',
             currentLangLabel: 'हालको भाषा', currentLangTag: '🌐 हालको भाषा: {name} · {sub}', start: 'खेल सुरु गर्नुहोस्',
             back: 'पछाडि', backToMain: 'मुख्य मेनुमा फर्कनुहोस्', modeSelect: 'खेल मोड छान्नुहोस्',
             mcTetrisName: 'टेट्रिस मोड', mcTetrisDesc: 'परम्परागत ब्लक झर्ने · शब्द बनाएर पङ्क्ति मेट्नुहोस्', mcFillName: 'शब्द भर्ने लडाइँ',
@@ -858,7 +858,7 @@
         },
         'si': {
             title: 'ලෝක භාෂා කුට්ටි', startGame: '▶  ආරම්භ කරන්න', footer: 'මෙංෂියාඩුවන් ස්ටුඩියෝ මගින්',
-            tapSound: '🔊 හඬ සක්‍රීය කිරීමට තට්ටු කරන්න', uiLangTitle: 'අතුරුමුහුණත භාෂාව', selectLang: 'භාෂාව තෝරන්න',
+            tapSound: '🔊 හඬ සක්‍රීය කිරීමට තට්ටු කරන්න', uiLangTitle: 'අතුරුමුහුණත භාෂාව', selectLang: 'ඉගෙනීමට කැමති භාෂාව තෝරන්න',
             currentLangLabel: 'වත්මන් භාෂාව', currentLangTag: '🌐 වත්මන් භාෂාව: {name} · {sub}', start: 'ක්‍රීඩාව අරඹන්න',
             back: 'ආපසු', backToMain: 'ප්‍රධාන වට්ටෝරුවට', modeSelect: 'ක්‍රීඩා ආකාරය තෝරන්න',
             mcTetrisName: 'ටෙට්‍රිස් ආකාරය', mcTetrisDesc: 'සම්භාව්‍ය කුට්ටි වැටීම · වචන හදා පේළි මකන්න', mcFillName: 'වචන පිරවුම් සටන',
@@ -891,7 +891,7 @@
         },
         'mn': {
             title: 'Дэлхийн хэлний блокууд', startGame: '▶  Э Х Л Э Х', footer: 'Мэн Сяодуань студи бүтээсэн',
-            tapSound: '🔊 Дууг асгахын тулд товшино уу', uiLangTitle: 'Интерфейсийн хэл', selectLang: 'Хэл сонгох',
+            tapSound: '🔊 Дууг асгахын тулд товшино уу', uiLangTitle: 'Интерфейсийн хэл', selectLang: 'Сурах хэлээ сонгоно уу',
             currentLangLabel: 'Одоогийн хэл', currentLangTag: '🌐 Одоогийн хэл: {name} · {sub}', start: 'Тоглоом эхлүүлэх',
             back: 'Буцах', backToMain: 'Үндсэн цэс рүү', modeSelect: 'Тоглолтын горим сонгох',
             mcTetrisName: 'Тетрис горим', mcTetrisDesc: 'Сонгодог блок унах · үг бүрдүүлж мөр арилга', mcFillName: 'Үг дүүргэх тулаан',
@@ -924,7 +924,7 @@
         },
         'ar': {
             title: 'مكعبات لغات العالم', startGame: '▶  اِبْدَأ', footer: 'من إنتاج استوديو منغ شياو دوان',
-            tapSound: '🔊 انقر لتشغيل الصوت', uiLangTitle: 'لغة الواجهة', selectLang: 'اختر اللغة',
+            tapSound: '🔊 انقر لتشغيل الصوت', uiLangTitle: 'لغة الواجهة', selectLang: 'اختر اللغة التي تريد تعلمها',
             currentLangLabel: 'اللغة الحالية', currentLangTag: '🌐 اللغة الحالية: {name} · {sub}', start: 'ابدأ اللعبة',
             back: 'رجوع', backToMain: 'رجوع إلى القائمة الرئيسية', modeSelect: 'اختر وضع اللعب',
             mcTetrisName: 'وضع تتريس', mcTetrisDesc: 'سقوط الكلاسيكية للقطع · هجّم الكلمات لتنظيف الصفوف', mcFillName: 'معركة الكلمات',
@@ -1007,7 +1007,7 @@
         },
         'fa': {
             title: 'بلوک‌های زبان‌های جهان', startGame: '▶  شروع', footer: 'ساخته استودیو منگ شیائودوان',
-            tapSound: '🔊 برای روشن کردن صدا ضربه بزنید', uiLangTitle: 'زبان رابط کاربری', selectLang: 'انتخاب زبان',
+            tapSound: '🔊 برای روشن کردن صدا ضربه بزنید', uiLangTitle: 'زبان رابط کاربری', selectLang: 'زبان مورد نظر برای یادگیری را انتخاب کنید',
             currentLangLabel: 'زبان فعلی', currentLangTag: '🌐 زبان فعلی: {name} · {sub}', start: 'شروع بازی',
             back: 'بازگشت', backToMain: 'بازگشت به منوی اصلی', modeSelect: 'انتخاب حالت بازی',
             mcTetrisName: 'حالت تتریس', mcTetrisDesc: 'سقوط کلاسیک بلوک‌ها · واژه بساز و ردیف پاک کن', mcFillName: 'نبرد پرکردن واژه',
@@ -1073,7 +1073,7 @@
         },
         'tr': {
             title: 'Dünya Dil Blokları', startGame: '▶  B A Ş L A', footer: 'Mengxiaoduan Studio yapımı',
-            tapSound: '🔊 Sesi açmak için dokunun', uiLangTitle: 'Arayüz dili', selectLang: 'Dil seçin',
+            tapSound: '🔊 Sesi açmak için dokunun', uiLangTitle: 'Arayüz dili', selectLang: 'Öğrenmek istediğiniz dili seçin',
             currentLangLabel: 'Geçerli dil', currentLangTag: '🌐 Geçerli dil: {name} · {sub}', start: 'Oyunu başlat',
             back: 'Geri', backToMain: 'Ana menüye dön', modeSelect: 'Oyun modu seç',
             mcTetrisName: 'Tetris Modu', mcTetrisDesc: 'Klasik blok düşme · kelime kur ve satır sil', mcFillName: 'Kelime Doldurma Savaşı',
@@ -1106,7 +1106,7 @@
         },
         'ru': {
             title: 'Блоки языков мира', startGame: '▶  И Г Р А Т Ь', footer: 'Создано студией Мэн Сяодуань',
-            tapSound: '🔊 Нажмите, чтобы включить звук', uiLangTitle: 'Язык интерфейса', selectLang: 'Выбор языка',
+            tapSound: '🔊 Нажмите, чтобы включить звук', uiLangTitle: 'Язык интерфейса', selectLang: 'Выберите язык для изучения',
             currentLangLabel: 'Текущий язык', currentLangTag: '🌐 Текущий язык: {name} · {sub}', start: 'Начать игру',
             back: 'Назад', backToMain: 'На главную', modeSelect: 'Выбор режима игры',
             mcTetrisName: 'Режим «Тетрис»', mcTetrisDesc: 'Классическое падение блоков · собирай слова и убирай линии', mcFillName: 'Битва за слова',
@@ -1189,7 +1189,7 @@
         },
         'uk': {
             title: 'Блоки мов світу', startGame: '▶  Г Р А Т И', footer: 'Створено студією Мен Сяодуань',
-            tapSound: '🔊 Торкніться, щоб увімкнути звук', uiLangTitle: 'Мова інтерфейсу', selectLang: 'Вибір мови',
+            tapSound: '🔊 Торкніться, щоб увімкнути звук', uiLangTitle: 'Мова інтерфейсу', selectLang: 'Виберіть мову для вивчення',
             currentLangLabel: 'Поточна мова', currentLangTag: '🌐 Поточна мова: {name} · {sub}', start: 'Почати гру',
             back: 'Назад', backToMain: 'На головне меню', modeSelect: 'Вибір режиму гри',
             mcTetrisName: 'Режим «Тетріс»', mcTetrisDesc: 'Класичне падіння блоків · складайте слова та приберіть лінії', mcFillName: 'Битва за слова',
@@ -1222,7 +1222,7 @@
         },
         'pl': {
             title: 'Bloki Języków Świata', startGame: '▶  G R A J', footer: 'Wyprodukowane przez studio Mengxiaoduan',
-            tapSound: '🔊 Dotknij, aby włączyć dźwięk', uiLangTitle: 'Język interfejsu', selectLang: 'Wybierz język',
+            tapSound: '🔊 Dotknij, aby włączyć dźwięk', uiLangTitle: 'Język interfejsu', selectLang: 'Wybierz język do nauki',
             currentLangLabel: 'Bieżący język', currentLangTag: '🌐 Bieżący język: {name} · {sub}', start: 'Rozpocznij grę',
             back: 'Wstecz', backToMain: 'Powrót do menu głównego', modeSelect: 'Wybierz tryb gry',
             mcTetrisName: 'Tryb Tetris', mcTetrisDesc: 'Klasyczne spadanie klocków · układaj słowa i usuwaj linie', mcFillName: 'Bitwa uzupełniania słów',
@@ -1255,7 +1255,7 @@
         },
         'cs': {
             title: 'Bloky jazyků světa', startGame: '▶  H R Á T', footer: 'Vytvořeno studiem Mengxiaoduan',
-            tapSound: '🔊 Klepnutím zapnete zvuk', uiLangTitle: 'Jazyk rozhraní', selectLang: 'Vyberte jazyk',
+            tapSound: '🔊 Klepnutím zapnete zvuk', uiLangTitle: 'Jazyk rozhraní', selectLang: 'Zvolte jazyk k učení',
             currentLangLabel: 'Aktuální jazyk', currentLangTag: '🌐 Aktuální jazyk: {name} · {sub}', start: 'Začít hru',
             back: 'Zpět', backToMain: 'Zpět do hlavní nabídky', modeSelect: 'Vyberte herní režim',
             mcTetrisName: 'Režim Tetris', mcTetrisDesc: 'Klasický pád bloků · skládejte slova a mažte řádky', mcFillName: 'Bitva o doplnění slov',
@@ -1288,7 +1288,7 @@
         },
         'hu': {
             title: 'Világ Nyelv Blokkok', startGame: '▶  J Á T É K', footer: 'Készítette a Mengxiaoduan Stúdió',
-            tapSound: '🔊 Koppints a hang bekapcsolásához', uiLangTitle: 'Felület nyelve', selectLang: 'Nyelv választása',
+            tapSound: '🔊 Koppints a hang bekapcsolásához', uiLangTitle: 'Felület nyelve', selectLang: 'Válassza ki a tanulni kívánt nyelvet',
             currentLangLabel: 'Jelenlegi nyelv', currentLangTag: '🌐 Jelenlegi nyelv: {name} · {sub}', start: 'Játék indítása',
             back: 'Vissza', backToMain: 'Vissza a főmenübe', modeSelect: 'Játékmód kiválasztása',
             mcTetrisName: 'Tetris mód', mcTetrisDesc: 'Klasszikus blokkesés · szavakat rakj és sorokat törölj', mcFillName: 'Szótöltő csata',
@@ -1321,7 +1321,7 @@
         },
         'ro': {
             title: 'Blocurile Limbilor Lumii', startGame: '▶  J O C A Ț I', footer: 'Creat de studioul Mengxiaoduan',
-            tapSound: '🔊 Atingeți pentru a activa sunetul', uiLangTitle: 'Limba interfeței', selectLang: 'Alegeți limba',
+            tapSound: '🔊 Atingeți pentru a activa sunetul', uiLangTitle: 'Limba interfeței', selectLang: 'Alegeți limba pe care doriți să o învățați',
             currentLangLabel: 'Limba curentă', currentLangTag: '🌐 Limba curentă: {name} · {sub}', start: 'Începe jocul',
             back: 'Înapoi', backToMain: 'Înapoi la meniul principal', modeSelect: 'Alegeți modul de joc',
             mcTetrisName: 'Modul Tetris', mcTetrisDesc: 'Cădere clasică de blocuri · compuneți cuvinte și ștergeți linii', mcFillName: 'Bătălia de completare',
@@ -1354,7 +1354,7 @@
         },
         'bg': {
             title: 'Блокове на езиците на света', startGame: '▶  И Г Р А Й', footer: 'Създадено от студио Mengxiaoduan',
-            tapSound: '🔊 Докоснете, за да включите звука', uiLangTitle: 'Език на интерфейса', selectLang: 'Изберете език',
+            tapSound: '🔊 Докоснете, за да включите звука', uiLangTitle: 'Език на интерфейса', selectLang: 'Изберете език за изучаване',
             currentLangLabel: 'Текущ език', currentLangTag: '🌐 Текущ език: {name} · {sub}', start: 'Започни играта',
             back: 'Назад', backToMain: 'Обратно в главното меню', modeSelect: 'Избери режим на игра',
             mcTetrisName: 'Режим Тетрис', mcTetrisDesc: 'Класично падащи блокове · съставяй думи и изчиствай редове', mcFillName: 'Битка за попълване',
@@ -1387,7 +1387,7 @@
         },
         'el': {
             title: 'Κύβοι Γλωσσών του Κόσμου', startGame: '▶  Π Α Ι Ξ Ε', footer: 'Παραγωγή studio Mengxiaoduan',
-            tapSound: '🔊 Πατήστε για ενεργοποίηση ήχου', uiLangTitle: 'Γλώσσα περιβάλλοντος', selectLang: 'Επιλογή γλώσσας',
+            tapSound: '🔊 Πατήστε για ενεργοποίηση ήχου', uiLangTitle: 'Γλώσσα περιβάλλοντος', selectLang: 'Επιλέξτε γλώσσα για εκμάθηση',
             currentLangLabel: 'Τρέχουσα γλώσσα', currentLangTag: '🌐 Τρέχουσα γλώσσα: {name} · {sub}', start: 'Έναρξη παιχνιδιού',
             back: 'Πίσω', backToMain: 'Επιστροφή στο κύριο μενού', modeSelect: 'Επιλογή τρόπου παιχνιδιού',
             mcTetrisName: 'Λειτουργία Tetris', mcTetrisDesc: 'Κλασική πτώση κυβών · σχηματίστε λέξεις και σβήστε γραμμές', mcFillName: 'Μάχη Συμπλήρωσης Λέξεων',
@@ -1420,7 +1420,7 @@
         },
         'nl': {
             title: 'Wereld Taalblokken', startGame: '▶  S P E L E N', footer: 'Gemaakt door Mengxiaoduan Studio',
-            tapSound: '🔊 Tik om geluid aan te zetten', uiLangTitle: 'Interfacetaal', selectLang: 'Kies taal',
+            tapSound: '🔊 Tik om geluid aan te zetten', uiLangTitle: 'Interfacetaal', selectLang: 'Kies een taal om te leren',
             currentLangLabel: 'Huidige taal', currentLangTag: '🌐 Huidige taal: {name} · {sub}', start: 'Start spel',
             back: 'Terug', backToMain: 'Terug naar hoofdmenu', modeSelect: 'Kies spelmodus',
             mcTetrisName: 'Tetris-modus', mcTetrisDesc: 'Klassieke blokkval · spel woorden en ruim rijen op', mcFillName: 'Woordvulstrijd',
@@ -1453,7 +1453,7 @@
         },
         'sv': {
             title: 'Världens Språkblock', startGame: '▶  S P E L A', footer: 'Skapad av Mengxiaoduan Studio',
-            tapSound: '🔊 Tryck för att slå på ljudet', uiLangTitle: 'Gränssnittsspråk', selectLang: 'Välj språk',
+            tapSound: '🔊 Tryck för att slå på ljudet', uiLangTitle: 'Gränssnittsspråk', selectLang: 'Välj språk att lära sig',
             currentLangLabel: 'Aktuellt språk', currentLangTag: '🌐 Aktuellt språk: {name} · {sub}', start: 'Starta spelet',
             back: 'Tillbaka', backToMain: 'Tillbaka till huvudmenyn', modeSelect: 'Välj spelläge',
             mcTetrisName: 'Tetris-läge', mcTetrisDesc: 'Klassiskt blockfall · stava ord och rensa rader', mcFillName: 'Ordfyllnadsslag',
@@ -1486,7 +1486,7 @@
         },
         'da': {
             title: 'Verdens Sprog Blokke', startGame: '▶  S P I L', footer: 'Skabt af Mengxiaoduan Studio',
-            tapSound: '🔊 Tryk for at tænde lyden', uiLangTitle: 'Grænsefladesprog', selectLang: 'Vælg sprog',
+            tapSound: '🔊 Tryk for at tænde lyden', uiLangTitle: 'Grænsefladesprog', selectLang: 'Vælg et sprog at lære',
             currentLangLabel: 'Nuværende sprog', currentLangTag: '🌐 Nuværende sprog: {name} · {sub}', start: 'Start spillet',
             back: 'Tilbage', backToMain: 'Tilbage til hovedmenuen', modeSelect: 'Vælg spiltilstand',
             mcTetrisName: 'Tetris-tilstand', mcTetrisDesc: 'Klassisk blokfald · stav ord og ryd rækker', mcFillName: 'Ordudfyldningskamp',
@@ -1519,7 +1519,7 @@
         },
         'fi': {
             title: 'Maailman Kielikuutiot', startGame: '▶  P E L A A', footer: 'Tekijä: Mengxiaoduan Studio',
-            tapSound: '🔊 Käynnistä ääni napauttamalla', uiLangTitle: 'Käyttöliittymän kieli', selectLang: 'Valitse kieli',
+            tapSound: '🔊 Käynnistä ääni napauttamalla', uiLangTitle: 'Käyttöliittymän kieli', selectLang: 'Valitse opittava kieli',
             currentLangLabel: 'Nykyinen kieli', currentLangTag: '🌐 Nykyinen kieli: {name} · {sub}', start: 'Aloita peli',
             back: 'Takaisin', backToMain: 'Takaisin päävalikkoon', modeSelect: 'Valitse pelitila',
             mcTetrisName: 'Tetris-tila', mcTetrisDesc: 'Klassinen palojen pudotus · tavaa sanoja ja tyhjennä rivejä', mcFillName: 'Sanantäyttötaistelu',
@@ -1552,7 +1552,7 @@
         },
         'no': {
             title: 'Verdens Språkblokker', startGame: '▶  S P I L L', footer: 'Laget av Mengxiaoduan Studio',
-            tapSound: '🔊 Trykk for å slå på lyden', uiLangTitle: 'Grensesnittspråk', selectLang: 'Velg språk',
+            tapSound: '🔊 Trykk for å slå på lyden', uiLangTitle: 'Grensesnittspråk', selectLang: 'Velg språk å lære',
             currentLangLabel: 'Nåværende språk', currentLangTag: '🌐 Nåværende språk: {name} · {sub}', start: 'Start spillet',
             back: 'Tilbake', backToMain: 'Tilbake til hovedmenyen', modeSelect: 'Velg spillmodus',
             mcTetrisName: 'Tetris-modus', mcTetrisDesc: 'Klassisk blokkfall · stave ord og rydd rader', mcFillName: 'Ordutfyllingskamp',
@@ -1585,7 +1585,7 @@
         },
         'de': {
             title: 'Welt-Sprachblöcke', startGame: '▶  S T A R T', footer: 'Erstellt von Mengxiaoduan Studio',
-            tapSound: '🔊 Tippen für Ton', uiLangTitle: 'Sprache der Oberfläche', selectLang: 'Sprache wählen',
+            tapSound: '🔊 Tippen für Ton', uiLangTitle: 'Sprache der Oberfläche', selectLang: 'Wählen Sie die zu lernende Sprache',
             currentLangLabel: 'Aktuelle Sprache', currentLangTag: '🌐 Aktuelle Sprache: {name} · {sub}', start: 'Spiel starten',
             back: 'Zurück', backToMain: 'Zurück zum Hauptmenü', modeSelect: 'Spielmodus wählen',
             mcTetrisName: 'Tetris-Modus', mcTetrisDesc: 'Klassischer Blockfall · Wörter buchstabieren und Reihen löschen', mcFillName: 'Wortlücken-Kampf',
@@ -1668,7 +1668,7 @@
         },
         'fr': {
             title: 'Blocs des Langues du Monde', startGame: '▶  J O U E R', footer: 'Réalisé par le studio Mengxiaoduan',
-            tapSound: '🔊 Touchez pour activer le son', uiLangTitle: 'Langue de l’interface', selectLang: 'Choisir la langue',
+            tapSound: '🔊 Touchez pour activer le son', uiLangTitle: 'Langue de l’interface', selectLang: 'Choisissez la langue à apprendre',
             currentLangLabel: 'Langue actuelle', currentLangTag: '🌐 Langue actuelle : {name} · {sub}', start: 'Commencer le jeu',
             back: 'Retour', backToMain: 'Retour au menu principal', modeSelect: 'Choisir le mode de jeu',
             mcTetrisName: 'Mode Tetris', mcTetrisDesc: 'Chute de blocs classique · épellez des mots pour effacer des lignes', mcFillName: 'Bataille de mots',
@@ -1751,7 +1751,7 @@
         },
         'it': {
             title: 'Blocchi delle Lingue del Mondo', startGame: '▶  G I O C A', footer: 'Realizzato dallo studio Mengxiaoduan',
-            tapSound: '🔊 Tocca per attivare l’audio', uiLangTitle: 'Lingua dell’interfaccia', selectLang: 'Scegli la lingua',
+            tapSound: '🔊 Tocca per attivare l’audio', uiLangTitle: 'Lingua dell’interfaccia', selectLang: 'Scegli la lingua da imparare',
             currentLangLabel: 'Lingua attuale', currentLangTag: '🌐 Lingua attuale: {name} · {sub}', start: 'Inizia la partita',
             back: 'Indietro', backToMain: 'Torna al menu principale', modeSelect: 'Scegli la modalità',
             mcTetrisName: 'Modalità Tetris', mcTetrisDesc: 'Caduta classica di blocchi · componi parole per cancellare righe', mcFillName: 'Battaglia di Parole',
@@ -1784,7 +1784,7 @@
         },
         'es': {
             title: 'Bloques de Lenguas del Mundo', startGame: '▶  J U G A R', footer: 'Creado por el estudio Mengxiaoduan',
-            tapSound: '🔊 Toca para activar el sonido', uiLangTitle: 'Idioma de la interfaz', selectLang: 'Elegir idioma',
+            tapSound: '🔊 Toca para activar el sonido', uiLangTitle: 'Idioma de la interfaz', selectLang: 'Elige el idioma que quieres aprender',
             currentLangLabel: 'Idioma actual', currentLangTag: '🌐 Idioma actual: {name} · {sub}', start: 'Comenzar el juego',
             back: 'Volver', backToMain: 'Volver al menú principal', modeSelect: 'Elegir modo de juego',
             mcTetrisName: 'Modo Tetris', mcTetrisDesc: 'Caída clásica de bloques · forma palabras para borrar líneas', mcFillName: 'Batalla de palabras',
@@ -1867,7 +1867,7 @@
         },
         'pt': {
             title: 'Blocos de Línguas do Mundo', startGame: '▶  J O G A R', footer: 'Produzido pelo estúdio Mengxiaoduan',
-            tapSound: '🔊 Toque para ativar o som', uiLangTitle: 'Idioma da interface', selectLang: 'Escolher idioma',
+            tapSound: '🔊 Toque para ativar o som', uiLangTitle: 'Idioma da interface', selectLang: 'Escolha o idioma que quer aprender',
             currentLangLabel: 'Idioma atual', currentLangTag: '🌐 Idioma atual: {name} · {sub}', start: 'Iniciar jogo',
             back: 'Voltar', backToMain: 'Voltar ao menu principal', modeSelect: 'Escolher modo de jogo',
             mcTetrisName: 'Modo Tetris', mcTetrisDesc: 'Queda clássica de blocos · forme palavras e limpe linhas', mcFillName: 'Batalha de palavras',
@@ -1950,7 +1950,7 @@
         },
         'sw': {
             title: 'Vizuibala za Lugha za Dunia', startGame: '▶  A N Z A', footer: 'Imetengenezwa na Studio ya Mengxiaoduan',
-            tapSound: '🔊 Bofya kuwasha sauti', uiLangTitle: 'Lugha ya kiolesura', selectLang: 'Chagua lugha',
+            tapSound: '🔊 Bofya kuwasha sauti', uiLangTitle: 'Lugha ya kiolesura', selectLang: 'Chagua lugha ya kujifunza',
             currentLangLabel: 'Lugha ya sasa', currentLangTag: '🌐 Lugha ya sasa: {name} · {sub}', start: 'Anza mchezo',
             back: 'Rudi', backToMain: 'Rudi kwenye menyu kuu', modeSelect: 'Chagua hali ya mchezo',
             mcTetrisName: 'Hali ya Tetris', mcTetrisDesc: 'Kuanguka kwa vizuibala · tunga maneno ili safi mistari', mcFillName: 'Mapigano ya Kujaza Maneno',
@@ -1983,7 +1983,7 @@
         },
         'af': {
             title: 'Wêreld Taalblokke', startGame: '▶  S P E E L', footer: 'Gemaak deur Mengxiaoduan Studio',
-            tapSound: '🔊 Tik om klank aan te skakel', uiLangTitle: 'Koppelvlaktaal', selectLang: 'Kies taal',
+            tapSound: '🔊 Tik om klank aan te skakel', uiLangTitle: 'Koppelvlaktaal', selectLang: 'Kies die taal wat jy wil leer',
             currentLangLabel: 'Huidige taal', currentLangTag: '🌐 Huidige taal: {name} · {sub}', start: 'Begin spel',
             back: 'Terug', backToMain: 'Terug na hoofkieslys', modeSelect: 'Kies speletjie-modus',
             mcTetrisName: 'Tetris-modus', mcTetrisDesc: 'Klassieke blokval · spel woorde om lyne uit te vee', mcFillName: 'Woordvulgeveg',

@@ -675,13 +675,13 @@
         #w-pad { position: absolute; inset: 0; z-index: 2; }
         #w-msg { min-height: 24px; color: var(--text-color); font-size: .95rem; opacity: .88; text-align: center; }
         #w-slots { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-        .w-slot { width: 52px; height: 52px; border-radius: 10px; border: 2px dashed rgba(255,255,255,.25); display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: 900; color: var(--text-color); background: rgba(15,52,96,.5); transition: all .3s; }
+        .w-slot { width: 56px; height: 52px; border-radius: 10px; border: 2px dashed rgba(255,255,255,.25); display: flex; align-items: center; justify-content: center; font-size: 21px; font-weight: 900; letter-spacing: 1px; color: var(--text-color); background: rgba(15,52,96,.5); transition: all .3s; }
         .w-slot.filled { border-style: solid; border-color: var(--target-glow); box-shadow: 0 0 14px rgba(241,196,15,.45); animation: wpop .45s ease; }
         @keyframes wpop { 0% { transform: scale(.4); } 70% { transform: scale(1.25); } 100% { transform: scale(1); } }
         .w-fly { position: fixed; z-index: 600; font-size: 56px; font-weight: 900; color: #333; pointer-events: none; transition: all .7s cubic-bezier(.45,-0.15,.6,1); }
         @keyframes wshake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-7px); } 75% { transform: translateX(7px); } }
         .w-shake { animation: wshake .3s; }
-        #w-result { display: none; flex-direction: column; align-items: center; gap: 12px; text-align: center; padding: 16px; }
+        #w-result { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 520; flex-direction: column; align-items: center; justify-content: center; gap: 14px; text-align: center; background: rgba(6, 10, 24, .9); padding: 20px; box-sizing: border-box; overflow-y: auto; }
         #w-result .w-result-title { font-size: 1.6rem; font-weight: 900; color: var(--target-glow); }
         #w-result .w-result-stars { font-size: 1.6rem; letter-spacing: 6px; color: #f1c40f; }
         #w-result .w-learned { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
@@ -732,6 +732,7 @@
     <script src="wordbank_cet6.js"></script>
     <script src="wordbank_phon.js"></script>
     <script src="wordbank_zh.js"></script>
+    <script src="wordbank_ru.js"></script>
     <script src="meanings.js"></script>
     <script src="hanzi-writer.min.js"></script>
     <script src="hanzi_data.js"></script>
@@ -974,8 +975,8 @@
                 <div class="w-result-title">🎉</div>
                 <div class="w-result-stars">★★★</div>
                 <div class="w-learned"></div>
+                <div id="w-btns"></div>
             </div>
-            <div id="w-btns"></div>
         </div>
     </div>
 
@@ -1138,6 +1139,7 @@
             try {
                 const M = window.WORD_MEANINGS || {};
                 const L = (window.I18N && I18N.lang) || 'zh-CN';
+                if (L.indexOf('zh') === 0) return fallback || '';
                 let v = M[L] && M[L][word];
                 if (v == null && window.ZH_DISPLAY && window.ZH_DISPLAY[word]) v = M[L] && M[L][window.ZH_DISPLAY[word]];
                 if (v == null) v = M.en && M.en[word];
@@ -1267,7 +1269,23 @@
             'красный': {mean: '红色', img: '🔴', color: '#ff0000'}, 'синий': {mean: '蓝色', img: '🔵', color: '#0080ff'},
             'зелёный': {mean: '绿色', img: '🟢', color: '#00b050'}, 'собака': {mean: '狗', img: '🐶', color: null},
             'погода': {mean: '天气', img: '🌦️', color: null}, 'молоко': {mean: '牛奶', img: '🥛', color: null},
-            'спасибо': {mean: '谢谢', img: '🙏', color: null}
+            'ты': {mean: '你', img: '🫵', color: null}, 'она': {mean: '她', img: '👩', color: null},
+            'они': {mean: '他们', img: '👥', color: null}, 'вы': {mean: '您', img: '🙋', color: null},
+            'еда': {mean: '食物', img: '🍚', color: null}, 'хлеб': {mean: '面包', img: '🍞', color: null},
+            'мясо': {mean: '肉', img: '🥩', color: null}, 'что': {mean: '什么', img: '❓', color: null},
+            'кто': {mean: '谁', img: '🤔', color: null}, 'где': {mean: '在哪里', img: '📍', color: null},
+            'нос': {mean: '鼻子', img: '👃', color: null}, 'рот': {mean: '嘴', img: '👄', color: null},
+            'глаз': {mean: '眼睛', img: '👁️', color: null}, 'ухо': {mean: '耳朵', img: '👂', color: null},
+            'нога': {mean: '腿；脚', img: '🦵', color: null}, 'свет': {mean: '灯；光', img: '💡', color: null},
+            'стол': {mean: '桌子', img: '🪑', color: null}, 'стул': {mean: '椅子', img: '💺', color: null},
+            'ключ': {mean: '钥匙', img: '🔑', color: null}, 'дверь': {mean: '门', img: '🚪', color: null},
+            'утро': {mean: '早上', img: '🌅', color: null}, 'вечер': {mean: '晚上', img: '🌆', color: null},
+            'день': {mean: '白天', img: '☀️', color: null}, 'ночь': {mean: '夜晚', img: '🌙', color: null},
+            'один': {mean: '一', img: '1️⃣', color: null}, 'два': {mean: '二', img: '2️⃣', color: null},
+            'три': {mean: '三', img: '3️⃣', color: null}, 'город': {mean: '城市', img: '🏙️', color: null},
+            'врач': {mean: '医生', img: '🩺', color: null}, 'метро': {mean: '地铁', img: '🚇', color: null},
+            'такси': {mean: '出租车', img: '🚕', color: null}, 'спать': {mean: '睡觉', img: '😴', color: null},
+            'пить': {mean: '喝', img: '🥤', color: null}, 'спасибо': {mean: '谢谢', img: '🙏', color: null},
         };
         const SHAPES = [[[1,1,1,1]], [[1,1],[1,1]], [[0,1,0],[1,1,1]], [[0,1,1],[1,1,0]], [[1,1,0],[0,1,1]], [[1,0,0],[1,1,1]], [[0,0,1],[1,1,1]]];
         const COLORS = ['#00f2ff', '#ffe600', '#a100ff', '#00ff66', '#ff0000', '#ff8800', '#0088ff'];
@@ -1386,22 +1404,26 @@
             const w = String(word || '').toLowerCase();
             if (!w) return;
             stopAllWordAudio();
-            const url = 'sounds/words/' + encodeURIComponent(w) + '.mp3';
-            if (wordAudioFail[url]) { speakWordTTS(w); return; }
-            const a = new Audio(url);
-            a.volume = 1;
-            let fired = false;
-            const failOnce = () => { if (fired) return; fired = true; wordAudioFail[url] = true; speakWordTTS(w); };
-            a.onerror = failOnce;
-            try { const p = a.play(); if (p && p.catch) p.catch(failOnce); } catch (e) { failOnce(); }
-            activeWordAudios.push(a);
-            a.onended = () => { const i = activeWordAudios.indexOf(a); if (i >= 0) activeWordAudios.splice(i, 1); };
+            const tryAudio = (u) => {
+                if (!u) { speakWordTTS(w); return; }
+                if (wordAudioFail[u]) { tryAudio(u.indexOf('.wav') >= 0 ? '' : u.replace('.wav', '.mp3')); return; }
+                const a = new Audio(u);
+                a.volume = 1;
+                let fired = false;
+                const failOnce = () => { if (fired) return; fired = true; wordAudioFail[u] = true; tryAudio(u.indexOf('.wav') >= 0 ? '' : u.replace('.wav', '.mp3')); };
+                a.onerror = failOnce;
+                try { const p = a.play(); if (p && p.catch) p.catch(failOnce); } catch (e) { failOnce(); }
+                activeWordAudios.push(a);
+                a.onended = () => { const i = activeWordAudios.indexOf(a); if (i >= 0) activeWordAudios.splice(i, 1); };
+            };
+            tryAudio('sounds/words/' + encodeURIComponent(w) + '.mp3');
+            tryAudio('sounds/words/' + encodeURIComponent(w) + '.wav');
         }
         function speakLetterTTS(ch) {
             if (!('speechSynthesis' in window)) return;
             try {
                 const u = new SpeechSynthesisUtterance(ch);
-                u.lang = 'en-US'; u.rate = 0.7; u.volume = 1;
+                u.lang = (window.LANG_TTS && LANG_TTS[selectedLanguage]) || 'en-US'; u.rate = 0.7; u.volume = 1;
                 window.speechSynthesis.speak(u);
             } catch (e) {}
         }
@@ -1464,7 +1486,7 @@
             } catch(e) {}
         }
 
-        function setupDifficulty(diff) { uploadedTetrisRun = null; currentDifficulty = diff; const baseDict = selectedLanguage === 'ru' ? RU_WORDS : ((selectedLanguage === 'zh' && window.ZH_WORDS) ? window.ZH_WORDS : EN_WORDS); ACTIVE_WORDS = {}; for(const w in baseDict) { if(baseDict[w].single) ACTIVE_WORDS[w] = baseDict[w]; } if (diff === 'life') { for (const w in baseDict) { if (!baseDict[w].single) ACTIVE_WORDS[w] = baseDict[w]; } } else if (diff !== 'custom') { const maxLen = parseInt(diff); for (const w in baseDict) { if (!baseDict[w].single && w.length <= maxLen) ACTIVE_WORDS[w] = baseDict[w]; } } if (diff === 'life') { const seq = (selectedLanguage === 'zh' && window.ZH_WORDS) ? Object.keys(window.ZH_WORDS) : ((typeof EN_LIFE_ORDER !== 'undefined' && EN_LIFE_ORDER.length) ? EN_LIFE_ORDER : Object.keys(baseDict)); customWordList = seq.filter(w => ACTIVE_WORDS[w] && !ACTIVE_WORDS[w].single); customWordIndex = 0; } else { customWordList = null; customWordIndex = 0; } pickNewTargetWord(); }
+        function setupDifficulty(diff) { uploadedTetrisRun = null; currentDifficulty = diff; const baseDict = selectedLanguage === 'ru' ? RU_WORDS : ((selectedLanguage === 'zh' && window.ZH_WORDS) ? window.ZH_WORDS : EN_WORDS); ACTIVE_WORDS = {}; for(const w in baseDict) { if(baseDict[w].single) ACTIVE_WORDS[w] = baseDict[w]; } if (diff === 'life') { for (const w in baseDict) { if (!baseDict[w].single) ACTIVE_WORDS[w] = baseDict[w]; } } else if (diff !== 'custom') { const maxLen = parseInt(diff); for (const w in baseDict) { if (!baseDict[w].single && w.length <= maxLen) ACTIVE_WORDS[w] = baseDict[w]; } } if (diff === 'life') { const seq = (selectedLanguage === 'zh' && window.ZH_WORDS) ? Object.keys(window.ZH_WORDS) : ((selectedLanguage === 'ru' && window.RU_LIFE_ORDER) ? window.RU_LIFE_ORDER.filter(w => ACTIVE_WORDS[w] && !ACTIVE_WORDS[w].single) : ((typeof EN_LIFE_ORDER !== 'undefined' && EN_LIFE_ORDER.length) ? EN_LIFE_ORDER : Object.keys(baseDict))); customWordList = seq.filter(w => ACTIVE_WORDS[w] && !ACTIVE_WORDS[w].single); customWordIndex = 0; } else { customWordList = null; customWordIndex = 0; } pickNewTargetWord(); }
         function setupCustomDifficulty(customDict, isRandom) { uploadedTetrisRun = null; currentDifficulty = 'custom'; ACTIVE_WORDS = {}; const baseDict = selectedLanguage === 'ru' ? RU_WORDS : ((selectedLanguage === 'zh' && window.ZH_WORDS) ? window.ZH_WORDS : EN_WORDS); const singles = selectedLanguage === 'zh' ? [] : (selectedLanguage === 'ru' ? ['я', 'а'] : ['i', 'a']); singles.forEach(s => { if (baseDict[s]) ACTIVE_WORDS[s] = baseDict[s]; }); Object.assign(ACTIVE_WORDS, customDict); if (!isRandom) { customWordList = Object.keys(customDict); customWordIndex = 0; } else { customWordList = null; } pickNewTargetWord(); }
         function parseCustomWords(input) { const dict = {}; const pairs = input.split(/;|；/); const baseDict = selectedLanguage === 'ru' ? RU_WORDS : EN_WORDS; const defaultColors = ['#00f2ff', '#ffe600', '#a100ff', '#00ff66', '#ff0000', '#ff8800', '#0088ff']; let colorIdx = 0; pairs.forEach(pair => { const parts = pair.split(/,|，/); if (parts.length >= 2) { const en = parts[0].trim().toLowerCase(); const zh = parts.slice(1).join(',').trim(); if (en && zh) { const existingWord = baseDict[en]; dict[en] = { mean: zh, img: existingWord ? existingWord.img : '📝', color: existingWord ? existingWord.color : defaultColors[colorIdx % defaultColors.length], single: en.length === 1 }; colorIdx++; } } }); return dict; }
         function pickNewTargetWord() { isWordLocked = false; seqGenIndex = 0; updateLockUI(); if (customWordList) { if (customWordIndex >= customWordList.length) customWordIndex = 0; targetWord = customWordList[customWordIndex]; customWordIndex++; } else { const availableWords = Object.keys(ACTIVE_WORDS).filter(w => !ACTIVE_WORDS[w].single); if (availableWords.length === 0) targetWord = selectedLanguage === 'ru' ? 'кот' : 'cat'; else targetWord = availableWords[Math.floor(Math.random() * availableWords.length)]; } DOM.targetWordDisplay.innerText = _dw(targetWord); DOM.targetWordMeaning.innerText = _lm(targetWord, ACTIVE_WORDS[targetWord] ? ACTIVE_WORDS[targetWord].mean : ''); targetLetterDelay = 0; updateTargetProgress(); }
@@ -1552,6 +1574,12 @@
             ['btnQPackDaily', 'btnM3PackDaily'].forEach(id => {
                 const b = document.getElementById(id);
                 if (b) { const k = isZh ? 'packZhDaily' : 'packDaily'; b.setAttribute('data-i18n', k); b.textContent = _t(k); }
+            });
+            const isRu = selectedLanguage === 'ru';
+            [['btnQPackCet4', 'packRuBank2', 'packCet4'], ['btnM3PackCet4', 'packRuBank2', 'packCet4'],
+             ['btnQPackCet6', 'packRuBank3', 'packCet6'], ['btnM3PackCet6', 'packRuBank3', 'packCet6']].forEach(pr => {
+                const b = document.getElementById(pr[0]);
+                if (b) { const k = isRu ? pr[1] : pr[2]; b.setAttribute('data-i18n', k); b.textContent = _t(k); }
             });
         }
         function layoutLangWheel() {
@@ -1899,6 +1927,20 @@
 
         // ===== 优化：基于音标/音节与前缀后缀的单词分段（wordbank_phon.js 提供数据） =====
         function m3SplitWord(W) {
+            if (window.ZH_SYL && window.ZH_SYL[W]) return window.ZH_SYL[W].slice();
+            if (/^[а-яё]+$/i.test(String(W || ''))) {
+                const vowels = 'аеёиоуыэюя';
+                const out = []; let cur = '', hasV = false;
+                const arr = String(W).split('');
+                for (let i = 0; i < arr.length; i++) {
+                    const ch = arr[i], isV = vowels.indexOf(ch.toLowerCase()) >= 0;
+                    const nextV = vowels.indexOf((arr[i + 1] || '').toLowerCase()) >= 0;
+                    if (hasV && !isV && nextV) { out.push(cur); cur = ''; hasV = false; }
+                    cur += ch; if (isV) hasV = true;
+                }
+                if (cur) out.push(cur);
+                return out.length ? out : [W];
+            }
             const wl = String(W || '').toLowerCase();
             if (typeof PHONETICS !== 'undefined' && PHONETICS[wl] && PHONETICS[wl].segs && PHONETICS[wl].segs.length > 0) return PHONETICS[wl].segs.slice();
             const len = W.length;
@@ -2207,7 +2249,7 @@
             m3Score += b.word.length * 50;
             updateM3UI(); m3UpdatePKUI();
             playSoundTarget();
-            speakWord(b.word);
+            wSpeakPair(_dw(b.word), _lm(b.word, info.mean));
             m3ThrowIconAtMonster(info.img, b.cells);
             showM3Toast(_t('m3BonusHit', { w: b.word }));
             // 奖励词格子消除并填回随机字母
@@ -2281,8 +2323,7 @@
                 const word = m3HoleWord;
                 const allCells = m3CurtainCells.slice();
 
-                // 1. 快速朗读整个单词
-                speakWord(word);
+                // 1. 音频在学习卡片中按「母语释义→中文」朗读
                 playSoundTarget();
 
                 // 2. 弹出学习卡片（简短，保持节奏）
@@ -2457,19 +2498,16 @@
                 const info = m3WordMap[word] || { mean: _t('unknownWord'), img: '📝' };
                 const imgUrl = info.img && typeof info.img === 'string' && /^(blob:|data:|https?:)/.test(info.img) ? info.img : null;
                 DOM.popupEmoji.innerHTML = imgUrl ? '<img src="' + imgUrl + '">' : (info.img || '📝');
-                DOM.popupWord.innerText = word;
+                DOM.popupWord.innerText = _dw(word);
                 const ipaInfo = (typeof PHONETICS !== 'undefined') ? PHONETICS[String(word).toLowerCase()] : null;
-                DOM.popupMeaning.innerText = info.mean + (ipaInfo && ipaInfo.ipa ? '　/' + ipaInfo.ipa + '/' : '');
+                DOM.popupMeaning.innerText = _lm(word, info.mean) + (ipaInfo && ipaInfo.ipa ? '　/' + ipaInfo.ipa + '/' : '');
                 DOM.popupScore.innerText = '';
                 DOM.popupScore.classList.add('hidden');
                 if (info.color) DOM.wordPopup.style.background = info.color;
                 else DOM.wordPopup.style.background = 'linear-gradient(135deg,#f1c40f,#e94560)';
                 DOM.wordPopup.classList.remove('hidden');
                 setTimeout(() => DOM.wordPopup.classList.add('show'), 10);
-                m3Speak(word);
-                setTimeout(() => {
-                    speakMeaning(info.mean);
-                }, 1900);
+                wSpeakPair(_dw(word), _lm(word, info.mean));
                 const dur = 2200;
                 setTimeout(() => {
                     DOM.wordPopup.classList.remove('show');
@@ -3037,9 +3075,19 @@
             state = 'match3'; m3LevelMode = false; m3PlayLevels = []; m3CurrentLevel = 0;
             startMatch3Game(customDict);
         }
+        // 按学习语言选择词库（中/英/俄三语战略）
+        function packBankFor(packKey) {
+            if (selectedLanguage === 'zh' && packKey === 'daily' && window.ZH_PACK_LEVELS) return window.ZH_PACK_LEVELS;
+            if (selectedLanguage === 'ru' && window.RU_LEVELS) {
+                if (packKey === 'daily') return window.RU_LEVELS;
+                if (packKey === 'cet4' && window.RU_LEVELS2) return window.RU_LEVELS2;
+                if (packKey === 'cet6' && window.RU_LEVELS3) return window.RU_LEVELS3;
+            }
+            return packKey === 'daily' ? window.DAILY_LEVELS : (packKey === 'cet4' ? window.CET4_LEVELS : window.CET6_LEVELS);
+        }
         // 默认词库 → 关卡列表（每 5 词一关，带关卡名）
         function m3BankLevels(packKey) {
-            const bank = (selectedLanguage === 'zh' && packKey === 'daily' && window.ZH_PACK_LEVELS) ? window.ZH_PACK_LEVELS : (packKey === 'daily' ? window.DAILY_LEVELS : (packKey === 'cet4' ? window.CET4_LEVELS : window.CET6_LEVELS));
+            const bank = packBankFor(packKey);
             const make = (items, name) => { const d = {}; items.forEach(w => { d[w[0]] = { mean: w[1] || '', img: '📝', audio: null, single: w[0].length === 1 }; }); return { name, type: '词库', dict: d }; };
             if (bank && bank.length > 0) {
                 return bank.map(lv => make(lv.words || [], lv.name || (_t(QUEST_PACKS[packKey].nameKey || QUEST_PACKS[packKey].name) + '1')));
@@ -3188,6 +3236,16 @@
             if (m3Busy || (m3State !== 'idle' && m3State !== 'selecting')) return;
             if (block) { block.classList.add('used'); block.draggable = false; block.classList.remove('dragging', 'tapped'); }
             if (m3TappedBlock === block) m3TappedBlock = null;
+            let _bad = false;
+            hs.cells.forEach((cell, i) => {
+                const hole0 = m3Holes.find(h => h.r === cell.r && h.c === cell.c && !h.filled);
+                if (!hole0) return;
+                if (cell.need !== null && cell.need !== undefined) {
+                    const ch0 = String(letters[i] === undefined || letters[i] === null ? '' : letters[i]).toLowerCase();
+                    if (ch0 !== String(cell.need).toLowerCase()) _bad = true;
+                }
+            });
+            if (_bad) { showM3Toast(_t('m3Mismatch')); playTone(150, 0.15, 'sawtooth', 0.12); return; }
             hs.cells.forEach((cell, i) => {
                 const hole = m3Holes.find(h => h.r === cell.r && h.c === cell.c && !h.filled);
                 if (!hole) return;
@@ -3533,7 +3591,7 @@
                 if (runWords.length === 0) { alert(_t('errEmpty')); return; }
             } else {
                 // 默认词库：日常/四级/六级 → 每 5 词一关的分关卡模式
-                const bank = (selectedLanguage === 'zh' && packKey === 'daily' && window.ZH_PACK_LEVELS) ? window.ZH_PACK_LEVELS : (packKey === 'daily' ? window.DAILY_LEVELS : (packKey === 'cet4' ? window.CET4_LEVELS : window.CET6_LEVELS));
+                const bank = packBankFor(packKey);
                 if (bank && bank.length > 0) {
                     levels = bank;
                     const seen = {};
@@ -3744,18 +3802,23 @@
         }
         function qBuildLetters() {
             const word = q.enemy.word;
-            const vowels = 'aeiou', all = 'abcdefghijklmnopqrstuvwxyz';
+            const isRu = /^[а-яё]+$/i.test(String(word));
+            const vowels = isRu ? 'аеёиоуыэюя' : 'aeiou';
+            let pool = String(word);
+            (q.words || []).forEach(w => { pool += (w[0] || ''); });
+            const all = pool.split('');
             const nDecoys = Math.min(2 + Math.floor(q.stage / 2), 6);
             let letters = q.wordArranged ? qNearSortedLetters(word) : word.split('');
+            const pick = () => {
+                if (all.length && Math.random() < 0.7) return all[Math.floor(Math.random() * all.length)];
+                return vowels[Math.floor(Math.random() * vowels.length)];
+            };
             if (q.wordArranged) {
                 for (let i = 0; i < nDecoys; i++) {
-                    const d = Math.random() < 0.55 ? vowels[Math.floor(Math.random() * 5)] : all[Math.floor(Math.random() * 26)];
-                    letters.splice(Math.floor(Math.random() * (letters.length + 1)), 0, d);
+                    letters.splice(Math.floor(Math.random() * (letters.length + 1)), 0, pick());
                 }
             } else {
-                while (letters.length < word.length + nDecoys) {
-                    letters.push(Math.random() < 0.55 ? vowels[Math.floor(Math.random() * 5)] : all[Math.floor(Math.random() * 26)]);
-                }
+                while (letters.length < word.length + nDecoys) letters.push(pick());
                 shuffle(letters);
             }
             return letters;
@@ -3799,6 +3862,7 @@
                 q.wordTimer = 0; q.hintShown = false;
                 qShootLetter(ch);
                 playTone(420 + Math.min(q.combo, 12) * 50, 0.12, 'sine', 0.12);
+                speakLetter(ch);
                 const enemyEl = document.getElementById('q-enemy');
                 enemyEl.classList.remove('hit'); void enemyEl.offsetWidth; enemyEl.classList.add('hit');
                 setTimeout(() => enemyEl.classList.remove('hit'), 140);
@@ -4204,8 +4268,8 @@
             }, 300);
         });
 
-        // ==================== 写字学中文模式 ====================
-        let wActive = false, wLevel = 0, wCharIdx = 0, wMistakes = 0, wScore = 0, wWriter = null, wCur = null;
+        // ==================== 写字学中文模式（词语化：写两字词 → 先读母语释义 → 读中文词） ====================
+        let wActive = false, wLevel = 0, wWordIdx = 0, wCharIdx = 0, wMistakes = 0, wScore = 0, wWriter = null, wCur = null, wCurWord = null;
         const W_PER_LEVEL = 5;
         function wStorageKey() { return 'tetris_writing_zh'; }
         function wLoadProgress() { try { const p = JSON.parse(localStorage.getItem(wStorageKey())); if (p && p.unlocked) return p; } catch (e) {} return { unlocked: 1, stars: {} }; }
@@ -4219,6 +4283,34 @@
                 u.lang = 'zh-CN'; u.rate = 0.7; u.volume = 1;
                 window.speechSynthesis.speak(u);
             } catch (e) {}
+        }
+        function wUiLang() { return (window.I18N && I18N.lang) || 'zh-CN'; }
+        function wMeaningText(wordHan) {
+            const ui = wUiLang();
+            if (ui.indexOf('zh') === 0 && window.ZH_PINYIN && ZH_PINYIN[wordHan]) return ZH_PINYIN[wordHan];
+            return _lmRaw(wordHan, '');
+        }
+        function wSpeakLocalized(text, cb) {
+            if (!text) { if (cb) setTimeout(cb, 150); return; }
+            if (!('speechSynthesis' in window)) { if (cb) setTimeout(cb, 400); return; }
+            try {
+                if (synthVoices.length === 0) loadVoices();
+                const base = wUiLang().toLowerCase().split('-')[0];
+                const v = synthVoices.find(v => v.lang && v.lang.toLowerCase().indexOf(base) === 0);
+                const u = new SpeechSynthesisUtterance(text);
+                u.lang = v ? v.lang : wUiLang(); if (v) u.voice = v;
+                u.rate = 0.85; u.volume = 1;
+                let fired = false;
+                const go = () => { if (fired) return; fired = true; if (cb) setTimeout(cb, 140); };
+                u.onend = go; u.onerror = go;
+                window.speechSynthesis.cancel();
+                window.speechSynthesis.speak(u);
+                setTimeout(go, Math.max(1600, String(text).length * 240));
+            } catch (e) { if (cb) setTimeout(cb, 200); }
+        }
+        function wSpeakPair(wordHan, meanText) {
+            /* 先读学习者语言的释义，再读中文 */
+            wSpeakLocalized(meanText, () => wSpeak(wordHan));
         }
         function wSetMsg(text) { const m = document.getElementById('w-msg'); if (m) m.textContent = text || ''; }
         function wBuildMap() {
@@ -4260,9 +4352,8 @@
             if (typeof HanziWriter === 'undefined') { alert('Hanzi Writer 未加载'); return; }
             wClosePack();
             wShowView(true);
-            wLevel = idx; wCharIdx = 0; wMistakes = 0; wScore = 0; wActive = true;
+            wLevel = idx; wWordIdx = 0; wCharIdx = 0; wMistakes = 0; wScore = 0; wActive = true;
             const res = document.getElementById('w-result'); if (res) res.style.display = 'none';
-            const btns = document.getElementById('w-btns'); if (btns) btns.innerHTML = '';
             const scoreEl = document.getElementById('w-score'); if (scoreEl) scoreEl.innerText = '0';
             wBuildSlots();
             wLoadChar();
@@ -4271,23 +4362,27 @@
             const slots = document.getElementById('w-slots');
             if (!slots) return;
             slots.innerHTML = '';
-            for (let i = 0; i < W_PER_LEVEL; i++) {
+            const lvl = window.ZH_WRITING_LEVELS[wLevel];
+            lvl.words.forEach((it, i) => {
                 const d = document.createElement('div');
                 d.className = 'w-slot';
                 d.id = 'w-slot-' + i;
                 slots.appendChild(d);
-            }
+            });
         }
         function wLoadChar() {
             const lvl = window.ZH_WRITING_LEVELS[wLevel];
-            wCur = lvl.chars[wCharIdx];
-            const ch = wCur[0], py = wCur[1];
+            wCurWord = lvl.words[wWordIdx];
+            wCur = [wCurWord.chars[wCharIdx], ''];
+            const ch = wCurWord.chars[wCharIdx];
             const badge = document.getElementById('w-stage-badge');
-            if (badge) badge.textContent = _t('qStage', { n: wLevel + 1 }) + ' · ' + lvl.name + ' (' + (wCharIdx + 1) + '/' + W_PER_LEVEL + ')';
-            const pyEl = document.getElementById('w-pinyin'); if (pyEl) pyEl.textContent = py;
-            const meanEl = document.getElementById('w-mean'); if (meanEl) meanEl.textContent = _lmRaw(ch, '');
+            if (badge) badge.textContent = _t('qStage', { n: wLevel + 1 }) + ' · ' + lvl.name + ' · ' + wCurWord.w + ' (' + (wCharIdx + 1) + '/' + wCurWord.chars.length + ')';
+            const pyEl = document.getElementById('w-pinyin'); if (pyEl) pyEl.textContent = wCurWord.p;
+            const meanEl = document.getElementById('w-mean'); if (meanEl) meanEl.textContent = _lmRaw(wCurWord.w, '');
             wSetMsg(_t('wWriteHere'));
-            for (let i = wCharIdx; i < W_PER_LEVEL; i++) { const s = document.getElementById('w-slot-' + i); if (s) { s.className = 'w-slot'; s.textContent = ''; } }
+            for (let i = wWordIdx + 1; i < W_PER_LEVEL; i++) { const s = document.getElementById('w-slot-' + i); if (s) { s.className = 'w-slot'; s.textContent = ''; } }
+            const cur = document.getElementById('w-slot-' + wWordIdx);
+            if (cur) { cur.className = 'w-slot'; cur.textContent = wCurWord.chars.slice(0, wCharIdx).join(''); }
             const pad = document.getElementById('w-pad');
             if (!pad) return;
             pad.innerHTML = '';
@@ -4309,35 +4404,48 @@
                     playTone(150, 0.15, 'sawtooth', 0.1);
                 },
                 onCorrectStroke: (d) => {
-                    const total = (window.HANZI_DATA && window.HANZI_DATA[wCur[0]] && window.HANZI_DATA[wCur[0]].medians) ? window.HANZI_DATA[wCur[0]].medians.length : 8;
+                    const total = (window.HANZI_DATA && window.HANZI_DATA[ch] && window.HANZI_DATA[ch].medians) ? window.HANZI_DATA[ch].medians.length : 8;
                     const num = (d && typeof d.strokeNum === 'number') ? d.strokeNum + 1 : 0;
                     wSetMsg(_t('wStroke', { n: num, t: total }));
                     playTone(880, 0.05, 'sine', 0.06);
                 },
                 onComplete: () => wCharDone()
             });
-            setTimeout(() => wSpeak(ch), 350);
         }
         function wCharDone() {
-            if (!wActive || !wCur) return;
-            const ch = wCur[0];
-            const gained = Math.max(40, 100 - wMistakes * 5);
+            if (!wActive || !wCurWord) return;
+            const ch = wCurWord.chars[wCharIdx];
+            wScore += 20;
+            const scoreEl = document.getElementById('w-score'); if (scoreEl) scoreEl.innerText = String(wScore);
+            wSpeak(ch);
+            const slot = document.getElementById('w-slot-' + wWordIdx);
+            if (slot) slot.textContent = wCurWord.chars.slice(0, wCharIdx + 1).join('');
+            wFlyChar(ch);
+            playSoundTarget();
+            wCharIdx++;
+            if (wCharIdx >= wCurWord.chars.length) setTimeout(wWordDone, 1000);
+            else setTimeout(wLoadChar, 1000);
+        }
+        function wWordDone() {
+            if (!wActive || !wCurWord) return;
+            const wordHan = wCurWord.w;
+            const gained = Math.max(30, 60 - wMistakes * 3);
             wScore += gained;
             const scoreEl = document.getElementById('w-score'); if (scoreEl) scoreEl.innerText = String(wScore);
-            wSetMsg(_t('wCharDone') + ' +' + gained);
+            const slot = document.getElementById('w-slot-' + wWordIdx);
+            if (slot) { slot.textContent = wordHan; slot.className = 'w-slot filled'; }
+            wSetMsg('🔊 ' + wordHan + ' · ' + wCurWord.p);
             playSoundTarget();
-            wSpeak(ch);
-            const slot = document.getElementById('w-slot-' + wCharIdx);
-            if (slot) { slot.textContent = ch; slot.className = 'w-slot filled'; }
-            wFlyChar(ch);
-            wCharIdx++;
-            if (wCharIdx >= W_PER_LEVEL) setTimeout(wLevelDone, 1000);
-            else setTimeout(wLoadChar, 1100);
+            /* 先读学习者语言的释义，再读中文词 */
+            wSpeakPair(wordHan, wMeaningText(wordHan));
+            wCharIdx = 0; wWordIdx++;
+            if (wWordIdx >= W_PER_LEVEL) setTimeout(wLevelDone, 1800);
+            else setTimeout(wLoadChar, 1800);
         }
         function wFlyChar(ch) {
             try {
                 const pad = document.getElementById('w-pad-wrap');
-                const slot = document.getElementById('w-slot-' + Math.max(0, wCharIdx));
+                const slot = document.getElementById('w-slot-' + Math.max(0, wWordIdx));
                 if (!pad || !slot) return;
                 const pr = pad.getBoundingClientRect(), sr = slot.getBoundingClientRect();
                 const fly = document.createElement('div');
@@ -4355,7 +4463,7 @@
         }
         function wLevelDone() {
             wActive = false;
-            const stars = wMistakes <= 2 ? 3 : (wMistakes <= 6 ? 2 : 1);
+            const stars = wMistakes <= 4 ? 3 : (wMistakes <= 12 ? 2 : 1);
             wSaveProgress(wLevel + 1, stars);
             const lvl = window.ZH_WRITING_LEVELS[wLevel];
             const res = document.getElementById('w-result');
@@ -4363,7 +4471,7 @@
                 res.style.display = 'flex';
                 res.querySelector('.w-result-title').textContent = _t('qWin');
                 res.querySelector('.w-result-stars').textContent = '★'.repeat(stars) + '☆'.repeat(3 - stars);
-                res.querySelector('.w-learned').innerHTML = lvl.chars.map(c => '<div class="w-lc"><b>' + c[0] + '</b><i>' + c[1] + '</i></div>').join('');
+                res.querySelector('.w-learned').innerHTML = lvl.words.map(it => '<div class="w-lc"><b>' + it.w + '</b><i>' + it.p + '</i></div>').join('');
             }
             const btns = document.getElementById('w-btns');
             if (btns) {
@@ -4374,22 +4482,23 @@
                     + '<button class="btn-action btn-secondary" id="w-btn-home">' + _t('qHome') + '</button>';
                 const bn = document.getElementById('w-btn-next'); if (bn) bn.addEventListener('click', () => { playSoundClick(); wStartLevel(wLevel + 1); });
                 const br = document.getElementById('w-btn-replay'); if (br) br.addEventListener('click', () => { playSoundClick(); wStartLevel(wLevel); });
-                const bm = document.getElementById('w-btn-map'); if (bm) bm.addEventListener('click', () => { playSoundClick(); wOpenPack(); });
+                const bm = document.getElementById('w-btn-map'); if (bm) bm.addEventListener('click', () => { playSoundClick(); res.style.display = 'none'; wOpenPack(); });
                 const bh = document.getElementById('w-btn-home'); if (bh) bh.addEventListener('click', () => { playSoundClick(); wExit(); });
             }
             startBgMusic();
         }
         function wExit() {
             wActive = false;
+            const res = document.getElementById('w-result'); if (res) res.style.display = 'none';
             wShowView(false);
             document.getElementById('mainMenuScreen').classList.add('hidden');
             startBgMusic();
         }
         document.getElementById('btnModeWrite').addEventListener('click', () => { playSoundClick(); wOpenPack(); });
         document.getElementById('btnWMapClose').addEventListener('click', () => { playSoundClick(); wClosePack(); });
-        document.getElementById('w-audio-btn').addEventListener('click', () => { playSoundClick(); if (wCur) wSpeak(wCur[0]); });
-        document.getElementById('w-demo-btn').addEventListener('click', () => { playSoundClick(); if (wWriter && wCur) { try { if (wCur[0]) { wWriter.hideCharacter(); wWriter.showOutline(false); } wWriter.animateCharacter({ onComplete: () => { try { wWriter.showOutline(true); } catch (e) {} } }); } catch (e) {} } });
-        document.getElementById('w-clear-btn').addEventListener('click', () => { playSoundClick(); if (wActive) { const cur = wCharIdx; wCharIdx = cur; wLoadChar(); } });
+        document.getElementById('w-audio-btn').addEventListener('click', () => { playSoundClick(); if (wCurWord) wSpeakPair(wCurWord.w, wMeaningText(wCurWord.w)); });
+        document.getElementById('w-demo-btn').addEventListener('click', () => { playSoundClick(); if (wWriter && wCurWord) { try { const ch = wCurWord.chars[wCharIdx] || wCurWord.chars[0]; if (window.HANZI_DATA && window.HANZI_DATA[ch]) wWriter.animateCharacter(); } catch (e) {} } });
+        document.getElementById('w-clear-btn').addEventListener('click', () => { playSoundClick(); if (wActive) wLoadChar(); });
         document.getElementById('w-map-btn').addEventListener('click', () => { playSoundClick(); wOpenPack(); });
         document.getElementById('w-exit-btn').addEventListener('click', () => { playSoundClick(); wExit(); });
         window.wExitToMenu = wExit;

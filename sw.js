@@ -1,5 +1,5 @@
 /* 英语俄罗斯方块 PWA Service Worker：离线缓存 */
-const CACHE = 'eng-tetris-v7';
+const CACHE = 'eng-tetris-v8';
 /* sounds/ 下约 6300 个单词读音 mp3 体积较大，不预缓存；
    下面的 fetch 监听会按需缓存听过的读音（首次在线播放后离线可用） */
 const ASSETS = [
@@ -13,6 +13,7 @@ const ASSETS = [
   './wordbank_cet6.js',
   './wordbank_phon.js',
   './wordbank_zh.js',
+  './wordbank_ru.js',
   './meanings.js',
   './hanzi-writer.min.js',
   './hanzi_data.js',

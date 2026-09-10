@@ -4592,7 +4592,7 @@
             window.ELC.modes.forEach(m => {
                 const b = document.createElement('button');
                 b.className = 'mode-card mc-extra';
-                b.innerHTML = '<span class="mc-icon">' + (m.icon || '🎮') + '</span><span class="mc-text"><span class="mc-name">' + (m.name || '') + '</span><span class="mc-desc">' + (m.desc || '') + '</span></span>';
+                b.innerHTML = '<span class="mc-icon">' + (m.icon || '🎮') + '</span><span class="mc-text"><span class="mc-name">' + (m.nameKey ? ELC.t(m.nameKey) : (m.name || '')) + '</span><span class="mc-desc">' + (m.descKey ? ELC.t(m.descKey) : (m.desc || '')) + '</span></span>';
                 b.addEventListener('click', () => { playSoundClick(); m.start(); });
                 host.appendChild(b);
             });

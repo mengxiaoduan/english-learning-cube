@@ -326,15 +326,15 @@
         ELC.registerMode({
             id: 'listen',
             icon: '🎧',
-            name: ELC.t('mcListenName'),
-            desc: ELC.t('mcListenDesc'),
+            nameKey: 'mcListenName',
+            descKey: 'mcListenDesc',
             start: startListen
         });
         ELC.registerMode({
             id: 'memory',
             icon: '🃏',
-            name: ELC.t('mcMemName'),
-            desc: ELC.t('mcMemDesc'),
+            nameKey: 'mcMemName',
+            descKey: 'mcMemDesc',
             start: startMemory
         });
         if (ELC.renderModes) ELC.renderModes();

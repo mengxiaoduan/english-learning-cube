@@ -1146,19 +1146,24 @@
             try {
                 const M = window.WORD_MEANINGS || {};
                 const L = (window.I18N && I18N.lang) || 'zh-CN';
+                /* 中文映射（拼音→汉字→中译中）仅在「学习中文」时启用，
+                   避免英文/俄文单词（如 you、he）与中文拼音键碰撞出错释义 */
+                const zhLearn = selectedLanguage === 'zh';
                 if (L.indexOf('zh') === 0) {
-                    const dzh = M['zh-CN'] && M['zh-CN'][word];
-                    if (dzh) return dzh;
-                    if (window.ZH_DISPLAY && window.ZH_DISPLAY[word]) {
-                        const dzh2 = M['zh-CN'] && M['zh-CN'][window.ZH_DISPLAY[word]];
-                        if (dzh2) return dzh2;
+                    if (zhLearn) {
+                        const dzh = M['zh-CN'] && M['zh-CN'][word];
+                        if (dzh) return dzh;
+                        if (window.ZH_DISPLAY && window.ZH_DISPLAY[word]) {
+                            const dzh2 = M['zh-CN'] && M['zh-CN'][window.ZH_DISPLAY[word]];
+                            if (dzh2) return dzh2;
+                        }
                     }
                     return fallback || '';
                 }
                 let v = M[L] && M[L][word];
-                if (v == null && window.ZH_DISPLAY && window.ZH_DISPLAY[word]) v = M[L] && M[L][window.ZH_DISPLAY[word]];
+                if (v == null && zhLearn && window.ZH_DISPLAY && window.ZH_DISPLAY[word]) v = M[L] && M[L][window.ZH_DISPLAY[word]];
                 if (v == null) v = M.en && M.en[word];
-                if (v == null && window.ZH_DISPLAY && window.ZH_DISPLAY[word]) v = M.en && M.en[window.ZH_DISPLAY[word]];
+                if (v == null && zhLearn && window.ZH_DISPLAY && window.ZH_DISPLAY[word]) v = M.en && M.en[window.ZH_DISPLAY[word]];
                 if (v != null) return v;
             } catch (e) {}
             return fallback || '';

@@ -256,6 +256,8 @@
         .m3-btn.m3-btn-menu { background: linear-gradient(to bottom, #0088ff, #005bb5); border: 1px solid rgba(0,0,0,0.4); box-shadow: inset 0 0 8px rgba(255,255,255,0.3), 0 3px 0 #003d7a; }
         .m3-btn.m3-btn-refresh { background: linear-gradient(to bottom, #f39c12, #d35400); border: 1px solid rgba(0,0,0,0.4); box-shadow: inset 0 0 8px rgba(255,255,255,0.3), 0 3px 0 #a04000; color: #fff; font-weight: bold; }
         .m3-btn.m3-btn-refresh:disabled { opacity: 0.4; cursor: not-allowed; }
+        .word-keep { box-shadow: 0 0 10px rgba(241,196,15,.55) !important; animation: wordkeep-pop .4s ease; }
+        @keyframes wordkeep-pop { 0% { transform: scale(.5); } 70% { transform: scale(1.25); } 100% { transform: scale(1); } }
         #m3-grid-container { position: relative; width: min(92vmin, calc(100vh - 280px), 620px); aspect-ratio: 1/1; flex-shrink: 0; background: radial-gradient(circle at 30% 20%, #1d2b52 0%, #111a35 70%); border: 2px solid rgba(241,196,15,0.3); border-radius: 12px; overflow: hidden; box-shadow: 0 6px 20px rgba(0,0,0,0.55), inset 0 0 24px rgba(0,0,0,0.4); }
         .m3-cell { position: absolute; display: flex; justify-content: center; align-items: center; font-weight: 900; color: #000; cursor: pointer; border-radius: 6px; transition: top 0.3s cubic-bezier(0.34,1.2,0.64,1), left 0.3s cubic-bezier(0.34,1.2,0.64,1), transform 0.15s, box-shadow 0.15s; box-shadow: inset 0 0 6px rgba(255,255,255,0.4), inset 0 -3px 0 rgba(0,0,0,0.2), 0 2px 4px rgba(0,0,0,0.3); border: 1px solid rgba(0,0,0,0.25); text-transform: lowercase; }
         .m3-cell:hover { transform: translateY(-2px); }
@@ -2266,18 +2268,20 @@
             wSpeakPair(_dw(b.word), _lm(b.word, info.mean));
             m3ThrowIconAtMonster(info.img, b.cells);
             showM3Toast(_t('m3BonusHit', { w: b.word }));
-            // 奖励词格子消除并填回随机字母
+            // 奖励词格子保留拼好的完整单词（金色高亮，学习强化），直到下次目标刷新
             b.cells.forEach((cell, i) => {
-                m3Grid[cell.r][cell.c] = { letter: m3RandomLetter() };
+                const keepLetter = (cell.need !== null && cell.need !== undefined) ? cell.need : b.word[i];
+                m3Grid[cell.r][cell.c] = { letter: keepLetter, lockedWord: b.word };
                 const el = m3CellElements[cell.r] && m3CellElements[cell.r][cell.c];
                 if (el) {
                     el.classList.remove('hole', 'ready', 'filled', 'right', 'deco');
-                    el.innerText = '';
+                    el.classList.add('word-keep');
+                    el.innerText = keepLetter;
+                    el.style.background = 'linear-gradient(160deg,#f1c40f,#e94560)';
+                    el.style.color = '#fff';
                     setTimeout(() => {
                         const pos = m3CellPx(cell.r - m3EatenRows, cell.c);
                         el.style.top = pos.y + 'px'; el.style.left = pos.x + 'px';
-                        el.style.background = m3ColorOf(m3Grid[cell.r][cell.c].letter);
-                        el.innerText = m3Grid[cell.r][cell.c].letter;
                         el.classList.add('burst');
                     }, 40 + i * 40);
                 }

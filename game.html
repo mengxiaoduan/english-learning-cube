@@ -2110,7 +2110,13 @@
                 return !(cell && (cell.fixed || cell.hole));
             };
             let variant = null;
-            const fitPool = M3_TETRO_VARIANTS.filter(v => v.baseLen === n && v.normCells.every(([dr, dc]) => isFree(wordRow + (dr - v.baseR), baseCol + (dc - v.baseMinC))));
+            /* 同批未填洞形状去重：避免出现两个相同形状的空洞，玩家无法分辨字母块归属 */
+            const usedSigs = new Set();
+            m3HoleShapes.forEach(hs0 => {
+                usedSigs.add(hs0.normCells.map(p => p.join(',')).sort().join('|'));
+            });
+            const sigOf = v => v.normCells.map(p => p.join(',')).sort().join('|');
+            const fitPool = M3_TETRO_VARIANTS.filter(v => v.baseLen === n && !usedSigs.has(sigOf(v)) && v.normCells.every(([dr, dc]) => isFree(wordRow + (dr - v.baseR), baseCol + (dc - v.baseMinC))));
             if (fitPool.length > 0) variant = fitPool[Math.floor(Math.random() * fitPool.length)];
 
             if (!variant) {
@@ -2265,7 +2271,7 @@
             m3Score += b.word.length * 50;
             updateM3UI(); m3UpdatePKUI();
             playSoundTarget();
-            wSpeakPair(_dw(b.word), _lm(b.word, info.mean));
+            wSpeakPair(_dw(b.word), _lmRaw(b.word, info.mean));
             m3ThrowIconAtMonster(info.img, b.cells);
             showM3Toast(_t('m3BonusHit', { w: b.word }));
             // 奖励词格子保留拼好的完整单词（金色高亮，学习强化），直到下次目标刷新
@@ -2525,7 +2531,7 @@
                 else DOM.wordPopup.style.background = 'linear-gradient(135deg,#f1c40f,#e94560)';
                 DOM.wordPopup.classList.remove('hidden');
                 setTimeout(() => DOM.wordPopup.classList.add('show'), 10);
-                wSpeakPair(_dw(word), _lm(word, info.mean));
+                wSpeakPair(_dw(word), _lmRaw(word, info.mean));
                 const dur = 2200;
                 setTimeout(() => {
                     DOM.wordPopup.classList.remove('show');
@@ -2991,7 +2997,7 @@
             if (m3FillPackKey) {
                 // 默认词库：保存星级并解锁下一关
                 try {
-                    const key = 'tetris_m3_' + m3FillPackKey;
+                    const key = 'tetris_m3_' + selectedLanguage + '_' + m3FillPackKey;
                     const p = JSON.parse(localStorage.getItem(key)) || { unlocked: 1, stars: {} };
                     const st = m3CalcStars(true);
                     p.stars[m3CurrentLevel + 1] = Math.max(p.stars[m3CurrentLevel + 1] || 0, st);
@@ -3022,7 +3028,7 @@
             list.innerHTML = '';
             let unlocked = 999999, starsMap = {};
             if (m3FillPackKey) {
-                try { const p = JSON.parse(localStorage.getItem('tetris_m3_' + m3FillPackKey)); if (p) { unlocked = p.unlocked || 1; starsMap = p.stars || {}; } } catch (e) {}
+                try { const p = JSON.parse(localStorage.getItem('tetris_m3_' + selectedLanguage + '_' + m3FillPackKey)); if (p) { unlocked = p.unlocked || 1; starsMap = p.stars || {}; } } catch (e) {}
             }
             m3PlayLevels.forEach((lvl, idx) => {
                 const locked = (idx + 1) > unlocked;
@@ -3119,7 +3125,7 @@
             m3FillPackKey = packKey;
             m3PlayLevels = m3BankLevels(packKey);
             let unlocked = 1;
-            try { const p = JSON.parse(localStorage.getItem('tetris_m3_' + packKey)); if (p && p.unlocked) unlocked = p.unlocked; } catch (e) {}
+            try { const p = JSON.parse(localStorage.getItem('tetris_m3_' + selectedLanguage + '_' + packKey)); if (p && p.unlocked) unlocked = p.unlocked; } catch (e) {}
             m3LevelMode = true;
             m3CurrentLevel = Math.max(0, Math.min(unlocked, m3PlayLevels.length) - 1);
             DOM.customSelectScreen.classList.add('hidden'); DOM.overlay.style.display = 'none';
@@ -3601,7 +3607,7 @@
         let q = null;
         let qRafId = 0, qPausePanel = null, qResultEl = null;
 
-        function qStorageKey(packKey) { return 'tetris_quest_' + (packKey || 'default'); }
+        function qStorageKey(packKey) { return 'tetris_quest_' + selectedLanguage + '_' + (packKey || 'default'); }
         function qLoadProgress(packKey) { try { const p = JSON.parse(localStorage.getItem(qStorageKey(packKey))); if (p && p.unlocked) return p; } catch (e) {} return { unlocked: 1, stars: {} }; }
         function qSaveProgress(stage, stars, packKey) { try { const p = qLoadProgress(packKey); if (stars > 0) { p.stars[stage] = Math.max(p.stars[stage] || 0, stars); p.unlocked = Math.max(p.unlocked, stage + 1); } localStorage.setItem(qStorageKey(packKey), JSON.stringify(p)); } catch (e) {} }
         function qProgressStars(stage, packKey) { const p = qLoadProgress(packKey); return p.stars[stage] || 0; }
@@ -4315,8 +4321,6 @@
         }
         function wUiLang() { return (window.I18N && I18N.lang) || 'zh-CN'; }
         function wMeaningText(wordHan) {
-            const ui = wUiLang();
-            if (ui.indexOf('zh') === 0 && window.ZH_PINYIN && ZH_PINYIN[wordHan]) return ZH_PINYIN[wordHan];
             return _lmRaw(wordHan, '');
         }
         function wSpeakLocalized(text, cb) {

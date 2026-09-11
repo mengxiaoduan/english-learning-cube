@@ -1,12 +1,15 @@
 /* ============================================================
- * 世界语言方块 · 通用玩法扩展包 v2
+ * 世界语言方块 · 通用玩法扩展包 v3
  * ------------------------------------------------------------
- * 基于 window.ELC 扩展 API 开发，演示新玩法接入方式：
- *   ELC.registerMode({ id, icon, nameKey, descKey, start })
- * 内置玩法（均分关卡 + 进度保存 + 学习卡 + DIY 自定义词包）：
- *   1. 🎧 听力挑战 —— 每关 10 词：听发音选词语（练耳朵）
- *   2. 🃏 记忆配对 —— 每关 6 对（12 张卡）：词语与释义翻牌配对
- * 未来玩法照此结构接入即可；玩家可用自定义词表（word,mean）DIY。
+ * 基于 window.ELC 扩展 API。内置玩法（分关卡/进度/学习卡弹窗/暂停菜单）：
+ *   1. 🎧 听力挑战 —— 每关 10 词，3 心，听音选词
+ *   2. 🃏 记忆配对 —— 每关 6 对 12 卡，词语释义配对
+ * 通用能力：
+ *   · 暂停菜单（继续/重玩/关卡/返回）与其他模式一致
+ *   · 学习卡 = 居中弹窗（缩略图 + 词语 + 拼音 + 释义 + 发音）
+ *   · 过关结算 = 居中弹窗（单屏适配 电脑/手机）
+ *   · DIY：核心词库 / 自定义词表 / 上传关卡 三种词源
+ *   · 复习提醒：每天 6/12/18/22 点提醒复习已学词（通知+弹窗）
  * ============================================================ */
 (function () {
     'use strict';
@@ -27,14 +30,19 @@
         + '.lis-opt.bad { border-color: #e94560; background: rgba(233,69,96,.18); animation: exshake .3s; }'
         + '@keyframes exshake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-7px); } 75% { transform: translateX(7px); } }'
         + '.lis-mean { min-height: 26px; color: #f1c40f; font-size: 1rem; text-align: center; }'
-        + '.ex-panel { background: linear-gradient(160deg,#0f3460,#16213e); border: 2px solid rgba(255,255,255,.18); border-radius: 18px; padding: 24px 20px; text-align: center; max-width: 92vw; width: 460px; display: flex; flex-direction: column; gap: 12px; }'
+        + '.ex-modal { position: fixed; inset: 0; z-index: 545; display: flex; align-items: center; justify-content: center; background: rgba(6,10,24,.9); padding: 18px; box-sizing: border-box; }'
+        + '.ex-panel { background: linear-gradient(160deg,#0f3460,#16213e); border: 2px solid rgba(255,255,255,.18); border-radius: 18px; padding: 22px 20px; text-align: center; max-width: 92vw; width: 440px; max-height: 88vh; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; margin: auto; }'
         + '.ex-panel h2 { margin: 0; color: #f1c40f; font-size: 1.3rem; }'
         + '.ex-panel .big { font-size: 2rem; font-weight: 900; color: #eee; }'
         + '.ex-col { display: flex; flex-direction: column; gap: 10px; }'
-        + '.ex-learn { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%); z-index: 540; background: linear-gradient(160deg,#f1c40f,#e94560); color: #fff; border-radius: 16px; padding: 12px 26px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,.5); animation: expop .35s ease; }'
-        + '.ex-learn .w { font-size: 1.5rem; font-weight: 900; }'
-        + '.ex-learn .m { font-size: .95rem; opacity: .95; margin-top: 2px; }'
-        + '@keyframes expop { 0% { transform: translateX(-50%) scale(.6); opacity: 0; } 100% { transform: translateX(-50%) scale(1); opacity: 1; } }'
+        + '/* 学习卡：居中弹窗（缩略图+词+拼音+释义） */'
+        + '.ex-learn { position: fixed; inset: 0; z-index: 550; display: flex; align-items: center; justify-content: center; background: rgba(6,10,24,.72); }'
+        + '.ex-learn-card { background: linear-gradient(160deg,#f1c40f,#e94560); border-radius: 22px; padding: 26px 34px; text-align: center; color: #fff; box-shadow: 0 14px 44px rgba(0,0,0,.55); animation: expop .3s ease; max-width: 86vw; }'
+        + '.ex-learn-card .thumb { font-size: 4rem; line-height: 1.15; filter: drop-shadow(0 4px 8px rgba(0,0,0,.3)); }'
+        + '.ex-learn-card .w { font-size: 2.2rem; font-weight: 900; margin-top: 6px; text-shadow: 0 2px 6px rgba(0,0,0,.25); }'
+        + '.ex-learn-card .p { font-size: 1.05rem; opacity: .95; margin-top: 2px; }'
+        + '.ex-learn-card .m { font-size: 1.1rem; opacity: .96; margin-top: 4px; }'
+        + '@keyframes expop { 0% { transform: scale(.6); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }'
         + '.ex-map { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 0; width: min(92vw, 480px); }'
         + '.ex-map-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px; border-radius: 12px; border: 2px solid rgba(255,255,255,.14); background: rgba(255,255,255,.06); color: #eee; cursor: pointer; text-align: left; }'
         + '.ex-map-item.locked { opacity: .45; cursor: not-allowed; }'
@@ -51,7 +59,12 @@
         + '.mem-card.done .mem-front { border-color: #53d769; background: rgba(83,215,105,.16); }'
         + '.mem-word { font-size: 1.1rem; font-weight: 900; }'
         + '.mem-text { font-size: .85rem; opacity: .92; }'
-        + '@media (max-width: 700px) { .lis-grid { gap: 9px; } .lis-opt { font-size: 1.05rem; padding: 14px 8px; } .mem-grid { gap: 8px; } }';
+        + '/* 复习提醒弹窗 */'
+        + '#ex-review { position: fixed; inset: 0; z-index: 900; display: none; align-items: center; justify-content: center; background: rgba(6,10,24,.88); padding: 18px; box-sizing: border-box; }'
+        + '#ex-review .ex-words { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 420px; }'
+        + '#ex-review .ex-wchip { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.22); border-radius: 10px; padding: 7px 12px; color: #eee; font-size: .92rem; cursor: pointer; }'
+        + '#ex-review .ex-wchip:active { transform: scale(.95); }'
+        + '@media (max-width: 700px) { .lis-grid { gap: 9px; } .lis-opt { font-size: 1.05rem; padding: 14px 8px; } .mem-grid { gap: 8px; } .ex-learn-card { padding: 20px 26px; } .ex-learn-card .thumb { font-size: 3.2rem; } .ex-learn-card .w { font-size: 1.8rem; } }';
 
     function injectCSS() {
         if (document.getElementById('elc-extra-css')) return;
@@ -61,7 +74,7 @@
         document.head.appendChild(st);
     }
 
-    /* ---------- DIY：自定义词包 ---------- */
+    /* ---------- DIY 词源：核心 / 自定义 / 上传关卡 ---------- */
     function parseCustomText(text) {
         var list = [];
         String(text || '').split(/[\n;]+/).forEach(function (line) {
@@ -79,12 +92,12 @@
     function pickPool(useCustom) {
         if (useCustom) {
             var c = ELC.customPack();
-            if (c && c.length >= 4) return c.map(function (x) { return { word: x.word, display: x.word, mean: x.mean, tts: x.word }; });
+            if (c && c.length >= 4) return c.map(function (x) { return { word: x.word, display: x.word, mean: x.mean, tts: x.word, emoji: '📖' }; });
         }
         return ELC.words();
     }
 
-    /* ---------- 关卡体系：词池 → 每 K 词一关 ---------- */
+    /* ---------- 关卡体系 ---------- */
     var LIS_PER = 10, MEM_WORDS_PER = 6, MAX_LEVELS = 20;
     function buildLevels(pool, per) {
         var lv = [];
@@ -92,6 +105,17 @@
             lv.push(pool.slice(i, i + per));
         }
         return lv;
+    }
+    function levelsFromUploads() {
+        var ups = ELC.uploadedLevels();
+        var lv = [];
+        ups.forEach(function (u) {
+            var words = (u.words || []).map(function (w) {
+                return { word: w[0], display: w[0], mean: w[1], tts: w[0], emoji: '📦' };
+            });
+            if (words.length >= 4) lv.push(words.slice(0, 20));
+        });
+        return lv.slice(0, MAX_LEVELS);
     }
     function loadProg(key) {
         try { var p = JSON.parse(localStorage.getItem(key)); if (p && p.unlocked) return p; } catch (e) {}
@@ -102,12 +126,12 @@
 
     function buildMap(host, levels, prog, onPick) {
         host.innerHTML = '';
-        levels.forEach(function (lv, i) {
+        levels.forEach(function (words, i) {
             var locked = i + 1 > prog.unlocked;
             var st = prog.stars[i + 1] || 0;
             var b = document.createElement('button');
             b.className = 'ex-map-item' + (locked ? ' locked' : '');
-            b.innerHTML = '<span class="n">' + ELC.t('qStage', { n: i + 1 }) + ' · ' + lv[0].display + '…</span><span class="s">' + (locked ? '🔒' : starStr(st)) + '</span>';
+            b.innerHTML = '<span class="n">' + ELC.t('qStage', { n: i + 1 }) + ' · ' + words[0].display + '…</span><span class="s">' + (locked ? '🔒' : starStr(st)) + '</span>';
             if (!locked) b.addEventListener('click', function () { ELC.click(); onPick(i); });
             host.appendChild(b);
         });
@@ -123,12 +147,15 @@
         document.getElementById('ex-map-back').addEventListener('click', function () { ELC.click(); ELC.closeExtraView(); });
     }
 
+    /* ---------- 词源选择弹窗：核心 / 自定义 / 上传关卡 ---------- */
     function openPackPicker(onPick) {
         var custom = ELC.customPack();
+        var ups = ELC.uploadedLevels();
         var html = '<div class="ex-panel" style="margin:auto;">'
             + '<h2>🎮 ' + ELC.t('packDaily') + ' / ' + ELC.t('packCustom') + '</h2>'
             + '<div class="ex-col">'
             + '<button class="btn-action" id="ex-use-core">📚 ' + ELC.t('packDaily') + '</button>'
+            + (ups.length ? '<button class="btn-action" id="ex-use-uploads">📦 ' + ELC.t('uploadLevel') + ' (' + ups.length + ')</button>' : '')
             + '<button class="btn-action btn-secondary" id="ex-use-custom">✏️ ' + ELC.t('packCustom') + (custom ? ' (' + custom.length + ')' : '') + '</button>'
             + '</div>'
             + '<div id="ex-custom-area" style="display:none;">'
@@ -141,6 +168,11 @@
         ELC.openExtraView('<div style="display:flex;flex-direction:column;min-height:100%;justify-content:center;width:100%;">' + html + '</div>');
         document.getElementById('ex-use-core').addEventListener('click', function () { ELC.click(); onPick(false); });
         document.getElementById('ex-pack-back').addEventListener('click', function () { ELC.click(); ELC.closeExtraView(); });
+        var upBtn = document.getElementById('ex-use-uploads');
+        if (upBtn) upBtn.addEventListener('click', function () {
+            ELC.click();
+            onPick('uploads');
+        });
         document.getElementById('ex-use-custom').addEventListener('click', function () {
             ELC.click();
             var area = document.getElementById('ex-custom-area');
@@ -166,60 +198,184 @@
         shuffle(others);
         return others.slice(0, n);
     }
+
+    /* ---------- 学习卡：居中弹窗（缩略图+词+拼音+释义），自动关闭 ---------- */
     var learnTimer = null;
     function showLearnCard(word) {
         var old = document.getElementById('ex-learn-card');
         if (old) old.remove();
         if (learnTimer) { clearTimeout(learnTimer); learnTimer = null; }
-        var pinyin = (window.ZH_PINYIN && window.ZH_PINYIN[word.word]) || '';
+        var pinyin = (window.ZH_PINYIN && window.ZH_PINYIN[word.display]) || (window.ZH_PINYIN && window.ZH_PINYIN[word.word]) || '';
         var el = document.createElement('div');
         el.id = 'ex-learn-card';
         el.className = 'ex-learn';
-        el.innerHTML = '<div class="w">' + word.display + '</div><div class="m">' + (pinyin ? pinyin + ' · ' : '') + word.mean + '</div>';
+        el.innerHTML = '<div class="ex-learn-card">'
+            + '<div class="thumb">' + (word.emoji || '📖') + '</div>'
+            + '<div class="w">' + word.display + '</div>'
+            + (pinyin ? '<div class="p">' + pinyin + '</div>' : '')
+            + '<div class="m">' + word.mean + '</div>'
+            + '</div>';
+        el.addEventListener('click', function () { el.remove(); if (learnTimer) { clearTimeout(learnTimer); learnTimer = null; } });
         document.body.appendChild(el);
-        learnTimer = setTimeout(function () { el.remove(); learnTimer = null; }, 2000);
+        learnTimer = setTimeout(function () { el.remove(); if (learnTimer) { learnTimer = null; } }, 2100);
     }
 
-    /* ============================================================
-     * 模式 1：🎧 听力挑战（每关 10 词，3 心，进度保存）
-     * ============================================================ */
-    var LIS_PER = 10;
-    function startListen() { openPackPicker(function (useCustom) { beginListenMap(useCustom); }); }
-
-    function beginListenMap(useCustom) {
-        var pool = pickPool(useCustom);
-        if (pool.length < 4) { ELC.toast(ELC.t('errNoWords')); ELC.closeExtraView(); return; }
-        var levels = buildLevels(pool, LIS_PER);
-        var prog = loadProg('elc_listen_prog_' + ELC.learningLang + (useCustom ? '_c' : ''));
-        openMap(ELC.t('mcListenName'), levels, prog, function (idx) {
-            playListenLevel(levels, idx, prog, useCustom);
+    /* ---------- 暂停菜单（居中弹窗，与其他模式一致） ---------- */
+    function openPause(titleText, onResume, onReplay, onMap, onExit) {
+        var old = document.getElementById('ex-pause');
+        if (old) old.remove();
+        var el = document.createElement('div');
+        el.id = 'ex-pause';
+        el.className = 'ex-modal';
+        el.innerHTML = '<div class="ex-panel">'
+            + '<h2>' + titleText + '</h2>'
+            + '<div class="ex-col">'
+            + '<button class="btn-action" id="ex-p-resume">' + ELC.t('m3Resume') + '</button>'
+            + '<button class="btn-action btn-secondary" id="ex-p-replay">' + ELC.t('m3Restart') + '</button>'
+            + '<button class="btn-action btn-secondary" id="ex-p-map">' + ELC.t('m3Map') + '</button>'
+            + '<button class="btn-action btn-secondary" id="ex-p-exit">' + ELC.t('qHome') + '</button>'
+            + '</div></div>';
+        document.body.appendChild(el);
+        document.getElementById('ex-p-resume').addEventListener('click', function () { ELC.click(); el.remove(); onResume(); });
+        document.getElementById('ex-p-replay').addEventListener('click', function () { ELC.click(); el.remove(); onReplay(); });
+        document.getElementById('ex-p-map').addEventListener('click', function () { ELC.click(); el.remove(); onMap(); });
+        document.getElementById('ex-p-exit').addEventListener('click', function () { ELC.click(); el.remove(); onExit(); });
+    }
+    function openEndPanel(endId, titleText, stars, scoreText, buttons) {
+        var old = document.getElementById(endId);
+        if (old) old.remove();
+        var el = document.createElement('div');
+        el.id = endId;
+        el.className = 'ex-modal';
+        el.innerHTML = '<div class="ex-panel">'
+            + '<h2>' + titleText + '</h2>'
+            + (stars ? '<div style="color:#f1c40f;font-size:1.7rem;letter-spacing:6px;">' + stars + '</div>' : '')
+            + '<div class="big">' + scoreText + '</div>'
+            + '<div class="ex-col" id="' + endId + '-btns"></div>'
+            + '</div>';
+        document.body.appendChild(el);
+        var host = document.getElementById(endId + '-btns');
+        buttons.forEach(function (b) {
+            var btn = document.createElement('button');
+            btn.className = 'btn-action' + (b.secondary ? ' btn-secondary' : '');
+            btn.innerHTML = b.label;
+            btn.addEventListener('click', function () { ELC.click(); el.remove(); b.fn(); });
+            host.appendChild(btn);
         });
     }
 
-    function playListenLevel(levels, idx, prog, useCustom) {
+    /* ---------- 复习提醒（6/12/18/22 点） ---------- */
+    var REVIEW_HOURS = [6, 12, 18, 22];
+    function todayStr() { var d = new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
+    function currentSlot() {
+        var h = new Date().getHours(); var slot = -1;
+        for (var i = 0; i < REVIEW_HOURS.length; i++) { if (h >= REVIEW_HOURS[i]) slot = i; }
+        return slot;
+    }
+    function learnedWords() { return ELC.learnedWords(); }
+    function notifyReview(n) {
+        if (!('Notification' in window) || Notification.permission !== 'granted') return;
+        try {
+            new Notification(ELC.t('reviewTitle'), { body: ELC.t('reviewDesc', { n: n }), icon: 'icons/icon-192.png', tag: 'elc-review' });
+        } catch (e) {}
+    }
+    function showReviewPopup() {
+        if (document.getElementById('ex-review')) return;
+        var learned = shuffle(learnedWords()).slice(0, 6);
+        if (!learned.length) return;
+        var el = document.createElement('div');
+        el.id = 'ex-review';
+        el.innerHTML = '<div class="ex-panel">'
+            + '<h2>' + ELC.t('reviewTitle') + '</h2>'
+            + '<div style="color:#eee;">' + ELC.t('reviewDesc', { n: learnedWords().length }) + '</div>'
+            + '<div class="ex-words">' + learned.map(function (x) { return '<button class="ex-wchip" data-w="' + x.w + '">🔊 ' + x.w + '</button>'; }).join('') + '</div>'
+            + '<div class="ex-col">'
+            + '<button class="btn-action" id="ex-r-start">' + ELC.t('reviewStart') + '</button>'
+            + '<button class="btn-action btn-secondary" id="ex-r-off">' + ELC.t('reviewOff') + '</button>'
+            + '<button class="btn-action btn-secondary" id="ex-r-ok">' + ELC.t('reviewLater') + '</button>'
+            + '</div></div>';
+        document.body.appendChild(el);
+        el.querySelectorAll('.ex-wchip').forEach(function (chip) {
+            chip.addEventListener('click', function () { ELC.tts(chip.dataset.w); });
+        });
+        document.getElementById('ex-r-start').addEventListener('click', function () {
+            ELC.click(); el.remove();
+            var c0 = document.querySelectorAll('#modeExtraCards .mode-card')[0];
+            if (c0) c0.click();
+        });
+        document.getElementById('ex-r-off').addEventListener('click', function () {
+            ELC.click();
+            localStorage.setItem('elc_review_off', todayStr());
+            el.remove();
+        });
+        document.getElementById('ex-r-ok').addEventListener('click', function () { ELC.click(); el.remove(); });
+    }
+    function checkReview() {
+        try {
+            if (!window.ELC) return;
+            if (localStorage.getItem('elc_review_off') === todayStr()) return;
+            var slot = currentSlot();
+            if (slot < 0) return;
+            var slotKey = 'elc_review_done_' + todayStr() + '_' + slot;
+            if (localStorage.getItem(slotKey)) return;
+            var learned = learnedWords();
+            if (learned.length < 4) return;
+            localStorage.setItem(slotKey, '1');
+            showReviewPopup();
+            notifyReview(learned.length);
+        } catch (e) {}
+    }
+    function startReviewTimer() {
+        checkReview();
+        setInterval(checkReview, 60000);
+        /* 首次交互时申请通知权限（部分浏览器要求手势） */
+        var ask = function () {
+            if ('Notification' in window && Notification.permission === 'default') {
+                try { Notification.requestPermission(); } catch (e) {}
+            }
+            document.removeEventListener('click', ask);
+            document.removeEventListener('touchstart', ask);
+        };
+        document.addEventListener('click', ask);
+        document.addEventListener('touchstart', ask);
+    }
+
+    /* ============================================================
+     * 模式 1：🎧 听力挑战（每关 10 词，3 心，暂停菜单）
+     * ============================================================ */
+    var LIS_PER = 10;
+    function startListen() {
+        openPackPicker(function (src) {
+            if (src === 'uploads') { beginListenLevels(levelsFromUploads(), 'up'); }
+            else { beginListenLevels(buildLevels(pickPool(src), LIS_PER), src ? 'c' : 'core'); }
+        });
+    }
+
+    function beginListenLevels(levels, srcTag) {
+        if (!levels.length) { ELC.toast(ELC.t('errNoWords')); ELC.closeExtraView(); return; }
+        var progKey = 'elc_listen_prog_' + ELC.learningLang + '_' + srcTag;
+        var prog = loadProg(progKey);
+        openMap(ELC.t('mcListenName'), levels, prog, function (idx) {
+            playListenLevel(levels, idx, prog, progKey, srcTag);
+        });
+    }
+
+    function playListenLevel(levels, idx, prog, progKey, srcTag) {
         var words = levels[idx];
-        var state = { score: 0, streak: 0, best: 0, hearts: 3, asked: 0, order: shuffle(words.slice()), cur: null, lock: false };
+        var state = { score: 0, streak: 0, best: 0, hearts: 3, asked: 0, order: shuffle(words.slice()), cur: null, lock: false, paused: false };
         var highKey = 'elc_listen_high_' + ELC.learningLang;
         var high = parseInt(localStorage.getItem(highKey) || '0', 10);
 
         ELC.openExtraView(
             '<div class="ex-top">'
-            + '<button class="ex-btn" id="lis-exit">✕ ' + ELC.t('qExit') + '</button>'
-            + '<div class="ex-title">' + ELC.t('mcListenName') + '</div>'
-            + '<div class="ex-stat">⭐ <span id="lis-score">0</span>　❤️ <span id="lis-hearts">3</span>　🔥 <span id="lis-streak">0</span>　' + ELC.t('qStage', { n: idx + 1 }) + '</div>'
+            + '<button class="ex-btn" id="lis-pause">⏸ ' + ELC.t('qPauseBtn') + '</button>'
+            + '<div class="ex-title">🎧 ' + ELC.t('mcListenName') + '</div>'
+            + '<div class="ex-stat">⭐ <span id="lis-score">0</span>　❤️ <span id="lis-hearts">3</span>　🔥 <span id="lis-streak">0</span></div>'
             + '</div>'
             + '<div class="lis-mean" id="lis-mean"></div>'
             + '<button class="lis-speaker" id="lis-play">🔊</button>'
             + '<div class="lis-tip">' + ELC.t('wListen') + '</div>'
-            + '<div class="lis-grid" id="lis-grid"></div>'
-            + '<div id="lis-end" style="display:none;" class="ex-panel">'
-            + '<h2 id="lis-end-title"></h2>'
-            + '<div class="big" id="lis-end-score"></div>'
-            + '<div id="lis-end-best" style="color:#f1c40f;"></div>'
-            + '<div class="ex-col">'
-            + '<button class="btn-action" id="lis-again">' + ELC.t('m3Again') + '</button>'
-            + '<button class="btn-action btn-secondary" id="lis-home">' + ELC.t('qHome') + '</button>'
-            + '</div></div>');
+            + '<div class="lis-grid" id="lis-grid"></div>');
 
         function updateHUD() {
             document.getElementById('lis-score').textContent = state.score;
@@ -227,13 +383,14 @@
             document.getElementById('lis-streak').textContent = state.streak;
         }
         function question() {
+            if (state.paused) return;
             if (state.hearts <= 0 || state.asked >= words.length) { end(); return; }
             state.cur = state.order[state.asked];
             state.asked++;
             state.lock = false;
             var nOpts = state.streak >= 6 ? 5 : 4;
             var others = sampleOthers(words, state.cur, Math.min(nOpts - 1, Math.max(0, words.length - 1)));
-            if (others.length < nOpts - 1) others = others.concat(sampleOthers(pool, state.cur, nOpts - 1 - others.length));
+            if (others.length < nOpts - 1) others = others.concat(sampleOthers(ELC.words(), state.cur, nOpts - 1 - others.length));
             var opts = shuffle(others.slice(0, nOpts - 1).concat([state.cur]));
             var grid = document.getElementById('lis-grid');
             grid.innerHTML = '';
@@ -245,8 +402,9 @@
                 grid.appendChild(b);
             });
             document.getElementById('lis-mean').textContent = '';
-            setTimeout(function () { ELC.tts(state.cur.tts); }, 250);
+            setTimeout(function () { if (!state.paused) ELC.tts(state.cur.tts); }, 250);
         }
+        function pool(wordsRef) { return wordsRef; }
         function answer(o, btn) {
             if (state.lock) return;
             state.lock = true;
@@ -256,8 +414,6 @@
                 state.streak++;
                 state.score += 50 + Math.min(state.streak, 10) * 10;
                 ELC.tone(880, 0.08, 'sine', 0.1);
-                document.getElementById('lis-mean').textContent = state.cur.display + ' · ' + state.cur.mean;
-                showLearnCard(state.cur);
             } else {
                 btn.classList.add('bad');
                 state.hearts--; state.streak = 0;
@@ -265,73 +421,69 @@
                 document.querySelectorAll('#lis-grid .lis-opt').forEach(function (el) {
                     if (el.textContent === state.cur.display) el.classList.add('ok');
                 });
-                document.getElementById('lis-mean').textContent = state.cur.display + ' · ' + state.cur.mean;
-                showLearnCard(state.cur);
             }
+            document.getElementById('lis-mean').textContent = state.cur.display + ' · ' + state.cur.mean;
+            showLearnCard(state.cur);
             updateHUD();
-            setTimeout(function () { question(); }, ok ? 1400 : 2000);
+            setTimeout(function () { if (!state.paused) question(); else state.pendingNext = true; }, ok ? 1500 : 2100);
         }
         function end() {
             var pass = state.hearts > 0;
             var stars = !pass ? 0 : (state.hearts >= 3 ? 3 : (state.hearts === 2 ? 2 : 1));
-            if (pass) { prog.stars[idx + 1] = Math.max(prog.stars[idx + 1] || 0, stars); prog.unlocked = Math.max(prog.unlocked, Math.min(idx + 2, levels.length)); saveProg('elc_listen_prog_' + ELC.learningLang + (useCustom ? '_c' : ''), prog); }
+            if (pass) { prog.stars[idx + 1] = Math.max(prog.stars[idx + 1] || 0, stars); prog.unlocked = Math.max(prog.unlocked, Math.min(idx + 2, levels.length)); saveProg(progKey, prog); }
             var isHigh = state.score > high;
             if (isHigh) { localStorage.setItem(highKey, String(state.score)); high = state.score; }
-            document.getElementById('lis-grid').style.display = 'none';
-            document.getElementById('lis-speaker').style.display = 'none';
-            document.getElementById('lis-tip').style.display = 'none';
-            document.getElementById('lis-mean').style.display = 'none';
-            document.getElementById('lis-end').style.display = 'flex';
-            document.getElementById('lis-end-title').textContent = pass ? ELC.t('qWin') : ELC.t('qFail');
-            document.getElementById('lis-end-score').textContent = String(state.score);
-            document.getElementById('lis-end-best').textContent = ELC.t('highScore') + ': ' + high + ' · 🔥 ' + state.best;
+            openEndPanel('lis-end', pass ? ELC.t('qWin') : ELC.t('qFail'), stars ? starStr(stars) : '', String(state.score), [
+                { label: ELC.t('m3Again'), fn: function () { playListenLevel(levels, idx, prog, progKey, srcTag); } },
+                { label: ELC.t('m3Map'), secondary: true, fn: function () { beginListenLevels(levels, srcTag); } },
+                { label: ELC.t('qHome'), secondary: true, fn: function () { ELC.closeExtraView(); } }
+            ]);
         }
         document.getElementById('lis-play').addEventListener('click', function () { if (state.cur) ELC.tts(state.cur.tts); });
-        document.getElementById('lis-exit').addEventListener('click', function () { ELC.click(); ELC.closeExtraView(); });
-        document.getElementById('lis-again').addEventListener('click', function () { ELC.click(); ELC.closeExtraView(); setTimeout(function () { beginListenMap(useCustom); }, 60); });
-        document.getElementById('lis-home').addEventListener('click', function () { ELC.click(); ELC.closeExtraView(); });
+        document.getElementById('lis-pause').addEventListener('click', function () {
+            state.paused = true;
+            openPause(ELC.t('mcListenName'),
+                function () { state.paused = false; if (state.pendingNext) { state.pendingNext = false; question(); } },
+                function () { state.paused = false; playListenLevel(levels, idx, prog, progKey, srcTag); },
+                function () { beginListenLevels(levels, srcTag); },
+                function () { ELC.closeExtraView(); });
+        });
         updateHUD();
         question();
     }
 
     /* ============================================================
-     * 模式 2：🃏 记忆配对（每关 6 对 12 卡，进度保存，配对学习卡）
+     * 模式 2：🃏 记忆配对（每关 6 对 12 卡，暂停菜单）
      * ============================================================ */
-    function startMemory() { openPackPicker(function (useCustom) { beginMemoryMap(useCustom); }); }
-
-    function beginMemoryMap(useCustom) {
-        var pool = pickPool(useCustom);
-        if (pool.length < 4) { ELC.toast(ELC.t('errNoWords')); ELC.closeExtraView(); return; }
-        var levels = buildLevels(pool, MEM_WORDS_PER);
-        var prog = loadProg('elc_mem_prog_' + ELC.learningLang + (useCustom ? '_c' : ''));
-        openMap(ELC.t('mcMemName'), levels, prog, function (idx) {
-            playMemoryLevel(levels, idx, prog, useCustom);
+    function startMemory() {
+        openPackPicker(function (src) {
+            if (src === 'uploads') { beginMemoryLevels(levelsFromUploads(), 'up'); }
+            else { beginMemoryLevels(buildLevels(pickPool(src), MEM_WORDS_PER), src ? 'c' : 'core'); }
         });
     }
 
-    function playMemoryLevel(levels, idx, prog, useCustom) {
+    function beginMemoryLevels(levels, srcTag) {
+        if (!levels.length) { ELC.toast(ELC.t('errNoWords')); ELC.closeExtraView(); return; }
+        var progKey = 'elc_mem_prog_' + ELC.learningLang + '_' + srcTag;
+        var prog = loadProg(progKey);
+        openMap(ELC.t('mcMemName'), levels, prog, function (idx) {
+            playMemoryLevel(levels, idx, prog, progKey, srcTag);
+        });
+    }
+
+    function playMemoryLevel(levels, idx, prog, progKey, srcTag) {
         var words = levels[idx];
-        var state = { round: idx + 1, moves: 0, score: 0, first: null, lock: false, matched: 0, total: words.length };
+        var state = { round: idx + 1, moves: 0, score: 0, first: null, lock: false, matched: 0, total: words.length, paused: false };
         var bestKey = 'elc_mem_best_' + ELC.learningLang;
         var bestRound = parseInt(localStorage.getItem(bestKey) || '1', 10);
 
         ELC.openExtraView(
             '<div class="ex-top">'
-            + '<button class="ex-btn" id="mem-exit">✕ ' + ELC.t('qExit') + '</button>'
-            + '<div class="ex-title">' + ELC.t('mcMemName') + '</div>'
+            + '<button class="ex-btn" id="mem-pause">⏸ ' + ELC.t('qPauseBtn') + '</button>'
+            + '<div class="ex-title">🃏 ' + ELC.t('mcMemName') + '</div>'
             + '<div class="ex-stat" id="mem-stat"></div>'
             + '</div>'
-            + '<div class="mem-grid" id="mem-grid"></div>'
-            + '<div style="color:rgba(255,255,255,.6);font-size:.85rem;" id="mem-best">' + ELC.t('highScore') + ': ' + bestRound + '</div>'
-            + '<div id="mem-end" style="display:none;" class="ex-panel">'
-            + '<h2 id="mem-end-title"></h2>'
-            + '<div id="mem-end-stars" style="color:#f1c40f;font-size:1.6rem;letter-spacing:6px;"></div>'
-            + '<div class="big" id="mem-end-score"></div>'
-            + '<div class="ex-col">'
-            + '<button class="btn-action" id="mem-next">' + ELC.t('qNextStage') + '</button>'
-            + '<button class="btn-action btn-secondary" id="mem-replay">' + ELC.t('qReplay') + '</button>'
-            + '<button class="btn-action btn-secondary" id="mem-map">' + ELC.t('m3Map') + '</button>'
-            + '</div></div>');
+            + '<div class="mem-grid" id="mem-grid"></div>');
 
         function updateHUD() {
             document.getElementById('mem-stat').innerHTML = ELC.t('qStage', { n: state.round }) + '　' + ELC.t('m3Steps') + ' ' + state.moves + '　⭐ ' + state.score;
@@ -359,7 +511,7 @@
             updateHUD();
         }
         function flip(btn, card) {
-            if (state.lock || btn.classList.contains('flip') || btn.classList.contains('done')) return;
+            if (state.paused || state.lock || btn.classList.contains('flip') || btn.classList.contains('done')) return;
             btn.classList.add('flip');
             if (!state.first) { state.first = { btn: btn, card: card }; return; }
             var a = state.first; state.first = null;
@@ -370,11 +522,10 @@
                 state.matched++;
                 state.score += 100;
                 ELC.tone(660, 0.1, 'sine', 0.1);
-                /* 学习卡：展示词语与释义并朗读 */
                 showLearnCard(card.word);
                 ELC.tts(card.word.tts);
                 updateHUD();
-                if (state.matched >= state.total) setTimeout(levelDone, 900);
+                if (state.matched >= state.total) setTimeout(levelDone, 1100);
             } else {
                 state.lock = true;
                 setTimeout(function () {
@@ -388,29 +539,37 @@
             var stars = state.moves <= 9 ? 3 : (state.moves <= 16 ? 2 : 1);
             prog.stars[idx + 1] = Math.max(prog.stars[idx + 1] || 0, stars);
             prog.unlocked = Math.max(prog.unlocked, Math.min(idx + 2, levels.length));
-            saveProg('elc_mem_prog_' + ELC.learningLang + (useCustom ? '_c' : ''), prog);
-            if (state.round + 1 > bestRound) { bestRound = state.round + 1; localStorage.setItem(bestKey, String(bestRound)); }
-            state.score += 200;
-            var res = document.getElementById('mem-end');
-            if (res) {
-                res.style.display = 'flex';
-                document.getElementById('mem-end-title').textContent = ELC.t('qWin');
-                document.getElementById('mem-end-stars').textContent = '★'.repeat(stars) + '☆'.repeat(3 - stars);
-                document.getElementById('mem-end-score').textContent = String(state.score);
-                var hasNext = idx + 1 < levels.length;
-                document.getElementById('mem-next').style.display = hasNext ? '' : 'none';
-                ['mem-next', 'mem-replay', 'mem-map'].forEach(function (id) {
-                    var old = document.getElementById(id);
-                    var nu = old.cloneNode(true);
-                    old.parentNode.replaceChild(nu, old);
-                });
-                document.getElementById('mem-next').addEventListener('click', function () { ELC.click(); playMemoryLevel(levels, idx + 1, prog, useCustom); });
-                document.getElementById('mem-replay').addEventListener('click', function () { ELC.click(); playMemoryLevel(levels, idx, prog, useCustom); });
-                document.getElementById('mem-map').addEventListener('click', function () { ELC.click(); beginMemoryMap(useCustom); });
-            }
+            saveProg(progKey, prog);
+            openEndPanel('mem-end', ELC.t('qWin'), starStr(stars), String(state.score), [
+                { label: ELC.t('qNextStage'), fn: function () { if (idx + 1 < levels.length) playMemoryLevel(levels, idx + 1, prog, progKey, srcTag); else beginMemoryLevels(levels, srcTag); } },
+                { label: ELC.t('qReplay'), secondary: true, fn: function () { playMemoryLevel(levels, idx, prog, progKey, srcTag); } },
+                { label: ELC.t('m3Map'), secondary: true, fn: function () { beginMemoryLevels(levels, srcTag); } }
+            ]);
         }
-        document.getElementById('mem-exit').addEventListener('click', function () { ELC.click(); ELC.closeExtraView(); });
+        document.getElementById('mem-pause').addEventListener('click', function () {
+            state.paused = true;
+            openPause(ELC.t('mcMemName'),
+                function () { state.paused = false; },
+                function () { playMemoryLevel(levels, idx, prog, progKey, srcTag); },
+                function () { beginMemoryLevels(levels, srcTag); },
+                function () { ELC.closeExtraView(); });
+        });
         buildGrid();
+    }
+
+    /* ---------- 复习提醒（6/12/18/22 点，通知 + 弹窗） ---------- */
+    function startReviewTimer() {
+        checkReview();
+        setInterval(checkReview, 60000);
+        var ask = function () {
+            if ('Notification' in window && Notification.permission === 'default') {
+                try { Notification.requestPermission(); } catch (e) {}
+            }
+            document.removeEventListener('click', ask);
+            document.removeEventListener('touchstart', ask);
+        };
+        document.addEventListener('click', ask);
+        document.addEventListener('touchstart', ask);
     }
 
     /* ---------- 注册到模式选择屏 ---------- */
@@ -432,6 +591,7 @@
             start: startMemory
         });
         if (ELC.renderModes) ELC.renderModes();
+        startReviewTimer();
     }
     boot();
 })();

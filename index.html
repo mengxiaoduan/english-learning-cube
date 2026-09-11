@@ -2525,6 +2525,7 @@
                 DOM.popupWord.innerText = _dw(word);
                 const ipaInfo = (typeof PHONETICS !== 'undefined') ? PHONETICS[String(word).toLowerCase()] : null;
                 DOM.popupMeaning.innerText = _lm(word, info.mean) + (ipaInfo && ipaInfo.ipa ? '　/' + ipaInfo.ipa + '/' : '');
+                try { if (window.ELC) ELC.trackLearned(_dw(word), _lm(word, info.mean), info.img || '📝'); } catch (e) {}
                 DOM.popupScore.innerText = '';
                 DOM.popupScore.classList.add('hidden');
                 if (info.color) DOM.wordPopup.style.background = info.color;
@@ -4470,6 +4471,7 @@
             if (slot) { slot.textContent = wordHan; slot.className = 'w-slot filled'; }
             wSetMsg('🔊 ' + wordHan + ' · ' + wCurWord.p);
             playSoundTarget();
+            try { if (window.ELC) ELC.trackLearned(wordHan, wMeaningText(wordHan), '✍️'); } catch (e) {}
             /* 先读学习者语言的释义，再读中文词 */
             wSpeakPair(wordHan, wMeaningText(wordHan));
             wCharIdx = 0; wWordIdx++;
@@ -4588,6 +4590,31 @@
             },
             customPack: () => {
                 try { return JSON.parse(localStorage.getItem('elc_custom_pack') || 'null'); } catch (e) { return null; }
+            },
+            uploadedLevels: () => {
+                try {
+                    return (m3Levels || []).filter(l => l.dict && Object.keys(l.dict).length).map(l => ({
+                        name: l.name,
+                        words: Object.keys(l.dict).map(w => ({ word: w, display: w, mean: (l.dict[w] && l.dict[w].mean) || '' }))
+                    }));
+                } catch (e) { return []; }
+            },
+            openUploadModal: () => {
+                const m = document.getElementById('uploadLevelModal');
+                if (m) { m.style.display = 'flex'; if (DOM.overlay) DOM.overlay.style.display = 'none'; }
+            },
+            trackLearned: (w, m, img) => {
+                try {
+                    let arr = JSON.parse(localStorage.getItem('elc_learned_words') || '[]');
+                    if (!arr.some(x => x.w === w)) {
+                        arr.unshift({ w, m: m || '', e: img || '📖' });
+                        arr = arr.slice(0, 60);
+                        localStorage.setItem('elc_learned_words', JSON.stringify(arr));
+                    }
+                } catch (e) {}
+            },
+            learnedWords: () => {
+                try { return JSON.parse(localStorage.getItem('elc_learned_words') || '[]'); } catch (e) { return []; }
             },
             setCustomPack: (list) => { try { localStorage.setItem('elc_custom_pack', JSON.stringify(list || [])); } catch (e) {} },
             registerMode: (m) => { if (m && m.id && m.start) window.ELC.modes.push(m); },

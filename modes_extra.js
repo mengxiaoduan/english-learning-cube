@@ -374,6 +374,7 @@
             '<div class="ex-top">'
             + '<button class="ex-btn" id="lis-pause">' + ELC.t('qPauseBtn') + '</button>'
             + '<button class="ex-btn" id="lis-map">' + ELC.t('mapBtn') + '</button>'
+            + '<button class="ex-btn" id="lis-exit">' + ELC.t('qHome') + '</button>'
             + '<div class="ex-title">' + ELC.t('mcListenName') + '</div>'
             + '<div class="ex-stat">⭐ <span id="lis-score">0</span>　❤️ <span id="lis-hearts">3</span>　🔥 <span id="lis-streak">0</span></div>'
             + '</div>'
@@ -449,6 +450,7 @@
         }
         document.getElementById('lis-play').addEventListener('click', function () { if (state.cur) ELC.tts(state.cur.tts); });
         document.getElementById('lis-map').addEventListener('click', function () { openListenMap(levels, srcTag); });
+        document.getElementById('lis-exit').addEventListener('click', function () { ELC.closeExtraView(); });
         document.getElementById('lis-pause').addEventListener('click', function () {
             state.paused = true;
             openPause(ELC.t('mcListenName'),
@@ -493,6 +495,7 @@
             '<div class="ex-top">'
             + '<button class="ex-btn" id="mem-pause">' + ELC.t('qPauseBtn') + '</button>'
             + '<button class="ex-btn" id="mem-map">' + ELC.t('mapBtn') + '</button>'
+            + '<button class="ex-btn" id="mem-exit">' + ELC.t('qHome') + '</button>'
             + '<div class="ex-title">' + ELC.t('mcMemName') + '</div>'
             + '<div class="ex-stat" id="mem-stat"></div>'
             + '</div>'
@@ -532,6 +535,14 @@
             updateHUD();
             if (a.card.pair === card.pair && a.card.type !== card.type) {
                 a.btn.classList.add('done'); btn.classList.add('done');
+                /* 同一对卡片统一背景色，让词与释义的关联一目了然 */
+                var hue = (a.card.pair * 47 + 195) % 360;
+                var pairBg = 'hsl(' + hue + ', 45%, 40%)';
+                [a.btn, btn].forEach(function (cc) {
+                    cc.style.borderColor = pairBg;
+                    var front = cc.querySelector('.mem-front');
+                    if (front) front.style.background = pairBg;
+                });
                 state.matched++;
                 state.score += 100;
                 ELC.tone(660, 0.1, 'sine', 0.1);
@@ -556,6 +567,7 @@
             openEndPanel('mem-end', ELC.t('qWin'), starStr(stars), String(state.score), btns);
         }
         document.getElementById('mem-map').addEventListener('click', function () { openMemoryMap(levels, srcTag); });
+        document.getElementById('mem-exit').addEventListener('click', function () { ELC.closeExtraView(); });
         document.getElementById('mem-pause').addEventListener('click', function () {
             state.paused = true;
             openPause(ELC.t('mcMemName'),

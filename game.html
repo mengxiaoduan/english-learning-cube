@@ -213,7 +213,7 @@
         .modal-content { background: var(--panel-bg); padding: 30px; border-radius: 10px; text-align: center; width: 300px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
         .modal-content h3 { margin: 0 0 20px 0; color: var(--text-color); }
         .modal-content .loading-bar-container { width: 100%; max-width: none; }
-        #wordPopup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); background: linear-gradient(135deg, var(--accent-color), var(--panel-bg)); padding: 46px 70px; border-radius: 22px; text-align: center; box-shadow: 0 0 60px rgba(0, 0, 0, 0.7), 0 0 0 4px rgba(241,196,15,0.35); z-index: 500; transition: transform 0.3s ease-out, opacity 0.3s; opacity: 0; pointer-events: none; max-width: 88vw; }
+        #wordPopup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); background: linear-gradient(135deg, var(--accent-color), var(--panel-bg)); padding: 46px 70px; border-radius: 22px; text-align: center; box-shadow: 0 0 60px rgba(0, 0, 0, 0.7), 0 0 0 4px rgba(241,196,15,0.35); z-index: 560; transition: transform 0.3s ease-out, opacity 0.3s; opacity: 0; pointer-events: none; max-width: 88vw; }
         #wordPopup.show { transform: translate(-50%, -50%) scale(1); opacity: 1; }
         #popupEmoji { font-size: 6.5rem; line-height: 1.2; margin-bottom: 10px; }
         #popupEmoji img { width: 180px; height: 180px; object-fit: contain; background: rgba(255,255,255,0.12); border-radius: 18px; box-shadow: 0 6px 24px rgba(0,0,0,0.5); }
@@ -954,7 +954,7 @@
     </div>
 
     <!-- 扩展玩法通用视图容器（听力挑战 / 记忆配对 / 未来玩法 / DIY） -->
-    <div id="gameVerBadge" style="position:fixed;left:10px;bottom:8px;z-index:40;font-size:12px;color:rgba(255,255,255,.35);letter-spacing:1px;user-select:none;">v2.0.3</div>
+    <div id="gameVerBadge" style="position:fixed;left:10px;bottom:8px;z-index:40;font-size:12px;color:rgba(255,255,255,.35);letter-spacing:1px;user-select:none;">v2.0.4</div>
     <div id="extra-mode-view"></div>
 
     <!-- 写字学中文模式视图 -->
@@ -4675,7 +4675,7 @@
     </script>
     <script>
     (function () {
-        var GAME_VER = '2.0.3';
+        var GAME_VER = '2.0.4';
         try {
             var badge = document.getElementById('gameVerBadge');
             if (badge) badge.textContent = '世界语言方块 v' + GAME_VER;

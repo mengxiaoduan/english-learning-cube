@@ -32,7 +32,6 @@
         + '.ex-col { display: flex; flex-direction: column; gap: 10px; }'
         + '.ex-scroll { overflow-y: auto; flex: 1; min-height: 0; }'
         + '/* 学习卡弹窗 */'
-        + '.ex-learn { position: fixed; inset: 0; z-index: 1520; display: flex; align-items: center; justify-content: center; background: rgba(6,10,24,.72); }'
         + '.ex-learn-card { background: linear-gradient(160deg,#f1c40f,#e94560); border-radius: 22px; padding: 26px 34px; text-align: center; color: #fff; box-shadow: 0 14px 44px rgba(0,0,0,.55); animation: expop .3s ease; max-width: 86vw; }'
         + '.ex-learn-card .thumb { font-size: 4rem; line-height: 1.15; filter: drop-shadow(0 4px 8px rgba(0,0,0,.3)); }'
         + '.ex-learn-card .w { font-size: 2.2rem; font-weight: 900; margin-top: 6px; text-shadow: 0 2px 6px rgba(0,0,0,.25); }'
@@ -164,7 +163,8 @@
             + '<h2>' + ELC.t('packDaily') + ' / ' + ELC.t('packCustom') + '</h2>'
             + '<div class="ex-col">'
             + '<button class="btn-action" id="ex-use-core">' + ELC.t('packDaily') + '</button>'
-            + (ups.length ? '<button class="btn-action" id="ex-use-uploads">' + ELC.t('uploadLevel') + ' (' + ups.length + ')</button>' : '')
+            + (ups.length ? '<button class="btn-action" id="ex-use-uploads">📦 ' + ELC.t('uploadLevel') + ' (' + ups.length + ')</button>' : '')
+            + '<button class="btn-action" id="ex-open-upload">📤 ' + ELC.t('uploadLevel') + '</button>'
             + '<button class="btn-action btn-secondary" id="ex-use-custom">' + ELC.t('packCustom') + (custom ? ' (' + custom.length + ')' : '') + '</button>'
             + '</div>'
             + '<div id="ex-custom-area" style="display:none;">'
@@ -188,6 +188,22 @@
                 ta.value = custom.map(function (x) { return x.word + ',' + x.mean; }).join('\n');
             }
         });
+        var openUpload = document.getElementById('ex-open-upload');
+        if (openUpload) openUpload.addEventListener('click', function () {
+            closeModal();
+            if (ELC.openUploadModal) { ELC.openUploadModal(); }
+            var closeBtn = document.getElementById('btnCloseUploadModal');
+            if (closeBtn) closeBtn.addEventListener('click', function () {
+                setTimeout(function () {
+                    var ev = document.getElementById('extra-mode-view');
+                    if (ev && ev.style.display === 'flex') {
+                        var ov = document.getElementById('overlay');
+                        if (ov) ov.style.display = 'none';
+                        openPackPicker(onPick);
+                    }
+                }, 80);
+            }, { once: true });
+        });
         document.getElementById('ex-custom-start').addEventListener('click', function () {
             ELC.click();
             var list = parseCustomText(document.getElementById('ex-custom-text').value);
@@ -198,28 +214,32 @@
         });
     }
 
-    /* ===== 学习卡：居中弹窗（缩略图+词+拼音+释义） ===== */
-    var learnTimer = null;
+    /* ===== 学习卡：复用全局 wordPopup，与填词/闯关模式完全一致 ===== */
+    var learnTimer = null, learnTtsTimer = null;
     function showLearnCard(word) {
-        var old = document.getElementById('ex-learn-card');
-        if (old) old.remove();
-        if (learnTimer) { clearTimeout(learnTimer); learnTimer = null; }
-        var pinyin = '';
-        if (window.ZH_PINYIN) {
-            pinyin = (ELC.learningLang === 'zh') ? (window.ZH_PINYIN[word.display] || window.ZH_PINYIN[word.word] || '') : '';
-        }
-        var el = document.createElement('div');
-        el.id = 'ex-learn-card';
-        el.className = 'ex-learn';
-        var html = '<div class="ex-learn-card">'
-            + '<div class="thumb">' + (word.emoji || '📖') + '</div>'
-            + '<div class="w">' + word.display + '</div>';
-        if (pinyin) html += '<div class="p">' + pinyin + '</div>';
-        html += '<div class="m">' + word.mean + '</div></div>';
-        el.innerHTML = html;
-        el.addEventListener('click', function () { el.remove(); if (learnTimer) { clearTimeout(learnTimer); learnTimer = null; } });
-        document.body.appendChild(el);
-        learnTimer = setTimeout(function () { var x = document.getElementById('ex-learn-card'); if (x) x.remove(); }, 2100);
+        var pop = document.getElementById('wordPopup');
+        if (!pop) return;
+        try {
+            var emojiEl = document.getElementById('popupEmoji');
+            if (emojiEl) emojiEl.innerHTML = word.emoji || '📖';
+            var wEl = document.getElementById('popupWord');
+            if (wEl) wEl.innerText = word.display;
+            var mEl = document.getElementById('popupMeaning');
+            if (mEl) mEl.innerText = word.mean || '';
+            var sEl = document.getElementById('popupScore');
+            if (sEl) { sEl.innerText = ''; sEl.classList.add('hidden'); }
+            pop.style.background = 'linear-gradient(135deg,#f1c40f,#e94560)';
+            pop.classList.remove('hidden');
+            setTimeout(function () { pop.classList.add('show'); }, 10);
+            ELC.tts(word.tts || word.display);
+            if (learnTtsTimer) clearTimeout(learnTtsTimer);
+            if (word.mean) learnTtsTimer = setTimeout(function () { try { ELC.tts(word.mean); } catch (e) {} }, 900);
+        } catch (e) {}
+        if (learnTimer) clearTimeout(learnTimer);
+        learnTimer = setTimeout(function () {
+            pop.classList.remove('show');
+            setTimeout(function () { pop.classList.add('hidden'); }, 300);
+        }, 2600);
     }
 
     /* ===== 暂停菜单（居中弹窗） ===== */
@@ -335,6 +355,11 @@
         if (!levels.length) { ELC.toast(ELC.t('errNoWords')); ELC.closeExtraView(); return; }
         var progKey = 'elc_listen_prog_' + ELC.learningLang + '_' + srcTag;
         var prog = loadProg(progKey);
+        playListenLevel(levels, 0, prog, progKey, srcTag);   // 直接进入第一关
+    }
+    function openListenMap(levels, srcTag) {
+        var progKey = 'elc_listen_prog_' + ELC.learningLang + '_' + srcTag;
+        var prog = loadProg(progKey);
         openMap(ELC.t('mcListenName'), levels, prog, function (idx) {
             playListenLevel(levels, idx, prog, progKey, srcTag);
         });
@@ -347,7 +372,8 @@
 
         ELC.openExtraView(
             '<div class="ex-top">'
-            + '<button class="ex-btn" id="lis-pause">⏸ ' + ELC.t('qPauseBtn') + '</button>'
+            + '<button class="ex-btn" id="lis-pause">' + ELC.t('qPauseBtn') + '</button>'
+            + '<button class="ex-btn" id="lis-map">' + ELC.t('mapBtn') + '</button>'
             + '<div class="ex-title">' + ELC.t('mcListenName') + '</div>'
             + '<div class="ex-stat">⭐ <span id="lis-score">0</span>　❤️ <span id="lis-hearts">3</span>　🔥 <span id="lis-streak">0</span></div>'
             + '</div>'
@@ -422,12 +448,13 @@
             openEndPanel('lis-end', pass ? ELC.t('qWin') : ELC.t('qFail'), stars ? starStr(stars) : '', String(state.score), btns);
         }
         document.getElementById('lis-play').addEventListener('click', function () { if (state.cur) ELC.tts(state.cur.tts); });
+        document.getElementById('lis-map').addEventListener('click', function () { openListenMap(levels, srcTag); });
         document.getElementById('lis-pause').addEventListener('click', function () {
             state.paused = true;
             openPause(ELC.t('mcListenName'),
                 function () { state.paused = false; if (state.pendingNext) { state.pendingNext = false; question(); } },
                 function () { state.paused = false; playListenLevel(levels, idx, prog, progKey, srcTag); },
-                function () { beginListenLevels(levels, srcTag); },
+                function () { openListenMap(levels, srcTag); },
                 function () { ELC.closeExtraView(); });
         });
         updateHUD();
@@ -447,6 +474,11 @@
         if (!levels.length) { ELC.toast(ELC.t('errNoWords')); ELC.closeExtraView(); return; }
         var progKey = 'elc_mem_prog_' + ELC.learningLang + '_' + srcTag;
         var prog = loadProg(progKey);
+        playMemoryLevel(levels, 0, prog, progKey, srcTag);   // 直接进入第一关
+    }
+    function openMemoryMap(levels, srcTag) {
+        var progKey = 'elc_mem_prog_' + ELC.learningLang + '_' + srcTag;
+        var prog = loadProg(progKey);
         openMap(ELC.t('mcMemName'), levels, prog, function (idx) {
             playMemoryLevel(levels, idx, prog, progKey, srcTag);
         });
@@ -459,7 +491,8 @@
 
         ELC.openExtraView(
             '<div class="ex-top">'
-            + '<button class="ex-btn" id="mem-pause">⏸ ' + ELC.t('qPauseBtn') + '</button>'
+            + '<button class="ex-btn" id="mem-pause">' + ELC.t('qPauseBtn') + '</button>'
+            + '<button class="ex-btn" id="mem-map">' + ELC.t('mapBtn') + '</button>'
             + '<div class="ex-title">' + ELC.t('mcMemName') + '</div>'
             + '<div class="ex-stat" id="mem-stat"></div>'
             + '</div>'
@@ -522,12 +555,13 @@
             btns.push({ label: ELC.t('m3Map'), secondary: true, fn: function () { beginMemoryLevels(levels, srcTag); } });
             openEndPanel('mem-end', ELC.t('qWin'), starStr(stars), String(state.score), btns);
         }
+        document.getElementById('mem-map').addEventListener('click', function () { openMemoryMap(levels, srcTag); });
         document.getElementById('mem-pause').addEventListener('click', function () {
             state.paused = true;
             openPause(ELC.t('mcMemName'),
                 function () { state.paused = false; },
                 function () { playMemoryLevel(levels, idx, prog, progKey, srcTag); },
-                function () { beginMemoryLevels(levels, srcTag); },
+                function () { openMemoryMap(levels, srcTag); },
                 function () { ELC.closeExtraView(); });
         });
         buildGrid();

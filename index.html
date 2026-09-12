@@ -954,6 +954,7 @@
     </div>
 
     <!-- 扩展玩法通用视图容器（听力挑战 / 记忆配对 / 未来玩法 / DIY） -->
+    <div id="gameVerBadge" style="position:fixed;left:10px;bottom:8px;z-index:40;font-size:12px;color:rgba(255,255,255,.35);letter-spacing:1px;user-select:none;">v2.0.3</div>
     <div id="extra-mode-view"></div>
 
     <!-- 写字学中文模式视图 -->
@@ -1577,7 +1578,8 @@
             other: { name: '其他语言', nameKey: 'lcNameOther', subKey: 'lcSubOther', blocks: [['更','#ff0000'],['多','#ffe600']], toastKey: 'alertOtherLang' }
         };
         let langRot = 0;
-        function showMenuScreen(id) { document.querySelectorAll('#overlay .menu-screen').forEach(s => { if (s.id !== id) s.classList.add('hidden'); }); const el = document.getElementById(id); if (el) el.classList.remove('hidden'); if (id === 'langSelectScreen') layoutLangWheel(); if (id === 'modeSelectScreen' && window.ELC && window.ELC.renderModes) { try { window.ELC.renderModes(); } catch (e) {} } }
+        function showMenuScreen(id) {
+            try { DOM.wordPopup.classList.add('hidden'); DOM.wordPopup.classList.remove('show'); } catch (e) {} document.querySelectorAll('#overlay .menu-screen').forEach(s => { if (s.id !== id) s.classList.add('hidden'); }); const el = document.getElementById(id); if (el) el.classList.remove('hidden'); if (id === 'langSelectScreen') layoutLangWheel(); if (id === 'modeSelectScreen' && window.ELC && window.ELC.renderModes) { try { window.ELC.renderModes(); } catch (e) {} } }
         function langSelIndex() { return ((Math.round(-langRot / LANG_STEP) % LANG_ORDER.length) + LANG_ORDER.length) % LANG_ORDER.length; }
         function langNearestRot(target) { const cur = ((langRot % 360) + 360) % 360; let diff = (((target % 360) + 360) % 360) - cur; if (diff > 180) diff -= 360; if (diff < -180) diff += 360; return langRot + diff; }
         function langUpdateMeta(sel) {
@@ -2534,7 +2536,7 @@
                 else DOM.wordPopup.style.background = 'linear-gradient(135deg,#f1c40f,#e94560)';
                 DOM.wordPopup.classList.remove('hidden');
                 setTimeout(() => DOM.wordPopup.classList.add('show'), 10);
-                wSpeakPair(_dw(word), _lmRaw(word, info.mean));
+                try { wSpeakPair(_dw(word), _lmRaw(word, info.mean)); } catch (e) {}
                 const dur = 2200;
                 setTimeout(() => {
                     DOM.wordPopup.classList.remove('show');
@@ -2916,10 +2918,13 @@
                 renderM3Targets(); 
                 updateM3UI(); 
                 playSoundClear(); 
-                setTimeout(() => { 
-                    const popWords = targetWord ? wordInfos.filter(x => x.isTarget) : wordInfos; 
-                    popWords.forEach(x => m3QueuePopup(x.word, x.pts, x.isTarget)); 
-                    m3DrainPopupQueue(); 
+                setTimeout(() => {
+                    /* 学习卡已在 m3ResolveHoleTarget 展示过，命中路径不再二次弹分卡 */
+                    if (!isHoleTarget) {
+                        const popWords = targetWord ? wordInfos.filter(x => x.isTarget) : wordInfos;
+                        popWords.forEach(x => m3QueuePopup(x.word, x.pts, x.isTarget));
+                        m3DrainPopupQueue();
+                    }
                     wordInfos.forEach(x => { if (!isHoleTarget) Battle.wordAttack(x.word, x.isTarget); }); 
                     setTimeout(() => { 
                         resolve({ targetHit, hitWord, allDone: m3AllTargetsDone() }); 
@@ -2939,7 +2944,7 @@
         function m3QueuePopup(word, pts, isTarget) { if (m3PopupShownWords[word]) return; m3PopupShownWords[word] = true; m3PopupQueue.push({ word, pts, isTarget }); }
         function m3DrainPopupQueue() { if (m3PopupQueue.length === 0) return; const item = m3PopupQueue.shift(); showM3Popup(item.word, item.pts, item.isTarget, () => setTimeout(m3DrainPopupQueue, 220)); }
         function m3Speak(word) { const info = m3WordMap[word]; if (info && info.audio) { try { const a = new Audio(info.audio); a.play(); return; } catch (e) {} } speakWord(word); }
-        function showM3Popup(word, score, isTarget, onDone) { const info = m3WordMap[word] || { mean: _t('unknownWord'), img: '📝' }; const imgUrl = info.img && typeof info.img === 'string' && /^(blob:|data:|https?:)/.test(info.img) ? info.img : null; const ipaInfo = (typeof PHONETICS !== 'undefined') ? PHONETICS[String(word).toLowerCase()] : null; DOM.popupEmoji.innerHTML = imgUrl ? '<img src="' + imgUrl + '">' : (info.img || '📝'); DOM.popupWord.innerText = word; DOM.popupMeaning.innerText = info.mean + (ipaInfo && ipaInfo.ipa ? '　/' + ipaInfo.ipa + '/' : ''); DOM.popupScore.innerText = score > 0 ? ('+' + score + (isTarget ? ' 🎯' : '')) : ''; DOM.popupScore.classList.toggle('hidden', score <= 0); if (info.color) DOM.wordPopup.style.background = info.color; else DOM.wordPopup.style.background = isTarget ? 'linear-gradient(135deg,#f1c40f,#e94560)' : 'linear-gradient(135deg,#e94560,#0f3460)'; DOM.wordPopup.classList.remove('hidden'); setTimeout(() => DOM.wordPopup.classList.add('show'), 10); m3Speak(word); const dur = isTarget ? 3400 : Math.min(3400, 1200 + word.length * 160); setTimeout(() => { DOM.wordPopup.classList.remove('show'); setTimeout(() => { DOM.wordPopup.classList.add('hidden'); if (onDone) onDone(); }, 300); }, dur); }
+        function showM3Popup(word, score, isTarget, onDone) { const info = m3WordMap[word] || { mean: _t('unknownWord'), img: '📝' }; const imgUrl = info.img && typeof info.img === 'string' && /^(blob:|data:|https?:)/.test(info.img) ? info.img : null; const ipaInfo = (typeof PHONETICS !== 'undefined') ? PHONETICS[String(word).toLowerCase()] : null; DOM.popupEmoji.innerHTML = imgUrl ? '<img src="' + imgUrl + '">' : (info.img || '📝'); DOM.popupWord.innerText = word; DOM.popupMeaning.innerText = info.mean + (ipaInfo && ipaInfo.ipa ? '　/' + ipaInfo.ipa + '/' : ''); DOM.popupScore.innerText = score > 0 ? ('+' + score + (isTarget ? ' 🎯' : '')) : ''; DOM.popupScore.classList.toggle('hidden', score <= 0); if (info.color) DOM.wordPopup.style.background = info.color; else DOM.wordPopup.style.background = isTarget ? 'linear-gradient(135deg,#f1c40f,#e94560)' : 'linear-gradient(135deg,#e94560,#0f3460)'; DOM.wordPopup.classList.remove('hidden'); setTimeout(() => DOM.wordPopup.classList.add('show'), 10); try { m3Speak(word); } catch (e) {} const dur = isTarget ? 3400 : Math.min(3400, 1200 + word.length * 160); setTimeout(() => { DOM.wordPopup.classList.remove('show'); setTimeout(() => { DOM.wordPopup.classList.add('hidden'); if (onDone) onDone(); }, 300); }, dur); }
         function showM3Toast(text) { let toast = document.getElementById('m3-toast'); if (!toast) { toast = document.createElement('div'); toast.id = 'm3-toast'; toast.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(241,196,15,0.95);color:#000;font-weight:bold;font-size:1.2rem;padding:12px 24px;border-radius:10px;z-index:3500;box-shadow:0 0 20px rgba(241,196,15,0.6);transition:opacity .3s;pointer-events:none;white-space:nowrap;'; document.body.appendChild(toast); } toast.innerText = text; toast.style.opacity = '1'; clearTimeout(toast._t); toast._t = setTimeout(() => { toast.style.opacity = '0'; }, 1400); }
         function m3CalcStars(isWin) { if (isWin) { const total = Math.max(10, m3Targets.reduce((a, t) => a + t.word.length, 0)); if (m3Steps <= Math.round(total * 0.6)) return 3; if (m3Steps <= Math.round(total * 1.0)) return 2; return 1; } return m3Score >= 3000 ? 2 : m3Score >= 1000 ? 1 : 0; }
         function showM3Result(title, isWin) { 
@@ -3068,6 +3073,7 @@
             m3StartFeeder(); m3StartEater(); 
         };
         window.m3ExitToMenu = function() { 
+            try { DOM.wordPopup.classList.add('hidden'); DOM.wordPopup.classList.remove('show'); } catch (e) {}
             m3StopEater(); m3StopFeeder(); m3ResetPause(); 
             const ba = document.getElementById('battle-area'); if (ba) ba.style.display = 'none'; 
             if (m3ResultEl) m3ResultEl.style.display = 'none'; 
@@ -4633,6 +4639,7 @@
             },
             closeExtraView: () => {
                 const v = document.getElementById('extra-mode-view'); if (v) { v.style.display = 'none'; v.innerHTML = ''; }
+                try { DOM.wordPopup.classList.add('hidden'); DOM.wordPopup.classList.remove('show'); } catch (e) {}
                 if (DOM.overlay) DOM.overlay.style.display = 'flex';
                 showMenuScreen('modeSelectScreen');
                 startBgMusic();
@@ -4666,6 +4673,28 @@
 
     })();
     </script>
-    <script>if ('serviceWorker' in navigator) { window.addEventListener('load', function () { navigator.serviceWorker.register('./sw.js').catch(function () {}); }); }</script>
+    <script>
+    (function () {
+        var GAME_VER = '2.0.3';
+        try {
+            var badge = document.getElementById('gameVerBadge');
+            if (badge) badge.textContent = '世界语言方块 v' + GAME_VER;
+            if (localStorage.getItem('elc_game_ver') !== GAME_VER && !sessionStorage.getItem('elc_ver_reloading')) {
+                localStorage.setItem('elc_game_ver', GAME_VER);
+                sessionStorage.setItem('elc_ver_reloading', '1');
+                if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) {
+                    navigator.serviceWorker.getRegistrations().then(function (rs) { rs.forEach(function (r) { r.unregister(); }); });
+                }
+                if (window.caches && caches.keys) {
+                    caches.keys().then(function (ks) { ks.forEach(function (k) { caches.delete(k); }); });
+                }
+                setTimeout(function () { location.reload(); }, 400);
+                return;
+            }
+            sessionStorage.removeItem('elc_ver_reloading');
+        } catch (e) {}
+        if ('serviceWorker' in navigator) { window.addEventListener('load', function () { navigator.serviceWorker.register('./sw.js').catch(function () {}); }); }
+    })();
+    </script>
 </body>
 </html>

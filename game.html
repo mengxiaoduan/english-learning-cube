@@ -2476,6 +2476,8 @@
             m3KPlayer = Math.min(m3KTotal, m3KPlayer + restored);
             m3KMonster = Math.max(0, m3KMonster - restored);
             m3RestoreCells();
+            /* 重种当前目标词洞（含奖励洞重登记）：被吞行的洞已标记 filled，不重种则目标永远无法完成 */
+            m3PlantHoles();
             renderMatch3Grid(true);
             m3CurtainCells.forEach(([r, c], i) => { setTimeout(() => { const el = m3CellElements[r] && m3CellElements[r][c]; if (el) el.classList.add('curtain-drop'); }, 60 + i * 30); });
             m3UpdatePKUI();
@@ -2669,11 +2671,11 @@
             const selectLevelBtn = document.getElementById('btnSelectLevelFromPause');
             if (selectLevelBtn) selectLevelBtn.style.display = m3LevelMode ? 'block' : 'none';
             renderM3Targets();
+            m3InitPK(); m3UpdatePKUI();
             initMatch3Grid();
             renderMatch3Grid();
             updateM3UI();
             m3ResetIdle();
-            m3InitPK(); m3UpdatePKUI();
             const ba = document.getElementById('battle-area'); if (ba) ba.style.display = 'none';
             const bl = document.getElementById('battle-log-panel'); if (bl) bl.style.display = 'none';
             m3StartFeeder();
@@ -2791,7 +2793,7 @@
         }
 
         m3Container.addEventListener('click', (e) => { if (m3Busy || (m3State !== 'idle' && m3State !== 'selecting')) return; if (m3ResultEl && m3ResultEl.style.display === 'flex') return; const el = e.target.closest('.m3-cell'); if (!el) return; const r = parseInt(el.dataset.r, 10), c = parseInt(el.dataset.c, 10); if (isNaN(r) || isNaN(c)) return; if (m3TappedBlock) { m3FillFromTap(r, c); return; } handleM3CellClick(r, c); });
-        function handleM3CellClick(r, c) { if (m3Busy || (m3State !== 'idle' && m3State !== 'selecting')) return; const cd = m3Grid[r] && m3Grid[r][c]; if (cd && cd.rock) return; if (cd && cd.fixed) return; if (cd && cd.hole && !cd.filled) return; m3ResetIdle(); playSoundClick(); if (!m3SelectedCell) { m3SelectedCell = { r, c }; m3State = 'selecting'; updateM3Selection(); return; } const { r: sr, c: sc } = m3SelectedCell; if (sr === r && sc === c) { m3SelectedCell = null; m3State = 'idle'; updateM3Selection(); return; } const cellA = m3Grid[sr][sc]; const isHoleA = !!(cellA && cellA.hole && cellA.filled); const isHoleB = !!(cd && cd.hole && cd.filled); const isNormalA = !!(cellA && !cellA.hole && !cellA.fixed && !cellA.rock); const isNormalB = !!(cd && !cd.hole && !cd.fixed && !cd.rock); const adjacent = Math.abs(sr - r) + Math.abs(sc - c) === 1; if (isHoleA && isHoleB) { m3SelectedCell = null; m3State = 'idle'; updateM3Selection(); m3SwapHoleLetters({ r: sr, c: sc }, { r, c }); } else if ((isHoleA && isNormalB && adjacent) || (isNormalA && isHoleB && adjacent)) { m3SelectedCell = null; m3State = 'idle'; updateM3Selection(); m3SwapHoleWithNormal({ r: sr, c: sc }, { r, c }); } else if (isNormalA && isNormalB && adjacent) { m3SelectedCell = null; m3State = 'idle'; updateM3Selection(); swapM3Cells({ r: sr, c: sc }, { r, c }); } else { m3SelectedCell = { r, c }; m3State = 'selecting'; updateM3Selection(); } }
+        function handleM3CellClick(r, c) { if (m3Busy || (m3State !== 'idle' && m3State !== 'selecting')) return; const cd = m3Grid[r] && m3Grid[r][c]; if (cd && cd.rock) return; if (cd && cd.fixed) return; if (cd && cd.hole && !cd.filled) return; if (cd && cd.hole && cd.filled) return; /* 已填洞格不参与交换调整（高难度模式预留 m3SwapHoleLetters 接口） */ m3ResetIdle(); playSoundClick(); if (!m3SelectedCell) { m3SelectedCell = { r, c }; m3State = 'selecting'; updateM3Selection(); return; } const { r: sr, c: sc } = m3SelectedCell; if (sr === r && sc === c) { m3SelectedCell = null; m3State = 'idle'; updateM3Selection(); return; } const cellA = m3Grid[sr][sc]; const isHoleA = !!(cellA && cellA.hole && cellA.filled); const isHoleB = !!(cd && cd.hole && cd.filled); const isNormalA = !!(cellA && !cellA.hole && !cellA.fixed && !cellA.rock); const isNormalB = !!(cd && !cd.hole && !cd.fixed && !cd.rock); const adjacent = Math.abs(sr - r) + Math.abs(sc - c) === 1; if (isHoleA && isHoleB) { m3SelectedCell = null; m3State = 'idle'; updateM3Selection(); m3SwapHoleLetters({ r: sr, c: sc }, { r, c }); } else if ((isHoleA && isNormalB && adjacent) || (isNormalA && isHoleB && adjacent)) { m3SelectedCell = null; m3State = 'idle'; updateM3Selection(); m3SwapHoleWithNormal({ r: sr, c: sc }, { r, c }); } else if (isNormalA && isNormalB && adjacent) { m3SelectedCell = null; m3State = 'idle'; updateM3Selection(); swapM3Cells({ r: sr, c: sc }, { r, c }); } else { m3SelectedCell = { r, c }; m3State = 'selecting'; updateM3Selection(); } }
         function updateM3Selection() { for (let r = 0; r < m3Rows; r++) { for (let c = 0; c < m3Cols; c++) { const el = m3CellElements[r] && m3CellElements[r][c]; if (el) el.classList.toggle('selected', !!(m3SelectedCell && m3SelectedCell.r === r && m3SelectedCell.c === c)); } } }
         function swapM3Cells(a, b) { m3ResetIdle(); const elA = m3CellElements[a.r][a.c], elB = m3CellElements[b.r][b.c]; if (!elA || !elB) { m3State = 'idle'; return; } if ((m3Grid[a.r][a.c] && (m3Grid[a.r][a.c].rock || m3Grid[a.r][a.c].hole)) || (m3Grid[b.r][b.c] && (m3Grid[b.r][b.c].rock || m3Grid[b.r][b.c].hole))) { m3SelectedCell = null; m3State = 'idle'; updateM3Selection(); return; } elA.classList.add('swapping'); elB.classList.add('swapping'); const tmp = m3Grid[a.r][a.c]; m3Grid[a.r][a.c] = m3Grid[b.r][b.c]; m3Grid[b.r][b.c] = tmp; m3CellElements[a.r][a.c] = elB; m3CellElements[b.r][b.c] = elA; elA.dataset.r = b.r; elA.dataset.c = b.c; elB.dataset.r = a.r; elB.dataset.c = a.c; const posA = m3CellPx(b.r, b.c), posB = m3CellPx(a.r, a.c); elA.innerText = m3Grid[b.r][b.c].letter; elA.style.background = m3ColorOf(m3Grid[b.r][b.c].letter); elB.innerText = m3Grid[a.r][a.c].letter; elB.style.background = m3ColorOf(m3Grid[a.r][a.c].letter); elA.style.left = posA.x + 'px'; elA.style.top = posA.y + 'px'; elB.style.left = posB.x + 'px'; elB.style.top = posB.y + 'px'; m3OnStep(); updateM3UI(); m3State = 'swapping'; setTimeout(() => { elA.classList.remove('swapping'); elB.classList.remove('swapping'); m3ResolveSwap(a, b); }, 300); }
         
@@ -3060,8 +3062,7 @@
             const lpR = document.getElementById('m3-learned-panel'); if (lpR) lpR.querySelectorAll('.m3-learned-chip').forEach(x => x.remove()); 
             const lcR = document.getElementById('m3-learned-count'); if (lcR) lcR.innerText = '0'; 
             if (m3Cfg) m3Targets = m3Cfg.targets.map(t => Object.assign({}, t)); 
-            renderM3Targets(); initMatch3Grid(); renderMatch3Grid(); updateM3UI(); updateM3RefreshUI(); m3ResetIdle(); 
-            m3InitPK(); m3UpdatePKUI(); 
+            renderM3Targets(); m3InitPK(); m3UpdatePKUI(); initMatch3Grid(); renderMatch3Grid(); updateM3UI(); updateM3RefreshUI(); m3ResetIdle(); 
             const baR = document.getElementById('battle-area'); if (baR) baR.style.display = 'none'; 
             const blR = document.getElementById('battle-log-panel'); if (blR) blR.style.display = 'none'; 
             m3StartFeeder(); m3StartEater(); 

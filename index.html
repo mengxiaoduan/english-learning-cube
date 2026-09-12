@@ -2209,13 +2209,27 @@
         function m3PlantBonusHoles() {
             m3BonusWords = [];
             const bonusPool = ['eat', 'fight', 'apple', 'sun', 'run', 'dog', 'cat', 'book', 'milk', 'love', 'fish', 'bird', 'star', 'ball', 'tree'];
-            const candidates = bonusPool.filter(w => m3WordMap[w] && !m3Targets.some(t => t.word === w));
+            let candidates = bonusPool.filter(w => m3WordMap[w] && !m3Targets.some(t => t.word === w));
+            /* 测试钩子：?m3test=1 时按指定顺序优先种植奖励词（并临时补词表） */
+            if (window.M3T && M3T._forceBonus && M3T._forceBonus.length) {
+                M3T._forceBonus.slice().reverse().forEach(w => {
+                    if (!m3WordMap[w]) m3WordMap[w] = { mean: 'test', img: '' };
+                    if (!m3Targets.some(t => t.word === w)) candidates = [w].concat(candidates.filter(x => x !== w));
+                });
+            }
             if (candidates.length < 2) {
                 const extra = Object.keys(m3WordMap).filter(w => w.length >= 3 && w.length <= 6 && !m3Targets.some(t => t.word === w) && !candidates.includes(w));
                 shuffle(extra);
                 for (const w of extra) { if (candidates.length >= 6) break; candidates.push(w); }
             }
             shuffle(candidates);
+            /* 测试钩子：洗牌后把强制词放最前，保证确定性种植顺序 */
+            if (window.M3T && M3T._forceBonus && M3T._forceBonus.length) {
+                M3T._forceBonus.slice().reverse().forEach(w => {
+                    if (!m3WordMap[w]) m3WordMap[w] = { mean: 'test', img: '' };
+                    if (!m3Targets.some(t => t.word === w)) candidates = [w].concat(candidates.filter(x => x !== w));
+                });
+            }
             let planted = 0;
             for (const w of candidates) {
                 if (planted >= 2) break;
@@ -2476,6 +2490,8 @@
             m3KPlayer = Math.min(m3KTotal, m3KPlayer + restored);
             m3KMonster = Math.max(0, m3KMonster - restored);
             m3RestoreCells();
+            /* 重种当前目标词洞（含奖励洞重登记）：被吞行的洞已标记 filled，不重种则目标永远无法完成 */
+            m3PlantHoles();
             renderMatch3Grid(true);
             m3CurtainCells.forEach(([r, c], i) => { setTimeout(() => { const el = m3CellElements[r] && m3CellElements[r][c]; if (el) el.classList.add('curtain-drop'); }, 60 + i * 30); });
             m3UpdatePKUI();
@@ -2566,7 +2582,14 @@
             const corrProb = 0.75;
 
             if (unfilledShapes.length > 0 && (forceCorrect || Math.random() < corrProb)) {
-                const hs = unfilledShapes[m3FeederSeqIdx % unfilledShapes.length];
+                let hs = null;
+                /* 测试钩子：按指定词顺序出块 */
+                if (window.M3T && M3T._feedSeq && M3T._feedSeq.length) {
+                    const want = String(M3T._feedSeq[0]).toLowerCase();
+                    const pool = unfilledShapes.filter(h => h.normNeeds.filter(n => n !== null && n !== undefined).join('').toLowerCase() === want);
+                    if (pool.length) { hs = pool[0]; M3T._feedSeq.shift(); }
+                }
+                if (!hs) hs = unfilledShapes[m3FeederSeqIdx % unfilledShapes.length];
                 m3FeederSeqIdx++;
                 letters = hs.normNeeds.map(n => (n !== null && n !== undefined) ? n : m3RandomLetter());
                 blockCells = hs.normCells;
@@ -2669,11 +2692,11 @@
             const selectLevelBtn = document.getElementById('btnSelectLevelFromPause');
             if (selectLevelBtn) selectLevelBtn.style.display = m3LevelMode ? 'block' : 'none';
             renderM3Targets();
+            m3InitPK(); m3UpdatePKUI();
             initMatch3Grid();
             renderMatch3Grid();
             updateM3UI();
             m3ResetIdle();
-            m3InitPK(); m3UpdatePKUI();
             const ba = document.getElementById('battle-area'); if (ba) ba.style.display = 'none';
             const bl = document.getElementById('battle-log-panel'); if (bl) bl.style.display = 'none';
             m3StartFeeder();
@@ -2791,7 +2814,7 @@
         }
 
         m3Container.addEventListener('click', (e) => { if (m3Busy || (m3State !== 'idle' && m3State !== 'selecting')) return; if (m3ResultEl && m3ResultEl.style.display === 'flex') return; const el = e.target.closest('.m3-cell'); if (!el) return; const r = parseInt(el.dataset.r, 10), c = parseInt(el.dataset.c, 10); if (isNaN(r) || isNaN(c)) return; if (m3TappedBlock) { m3FillFromTap(r, c); return; } handleM3CellClick(r, c); });
-        function handleM3CellClick(r, c) { if (m3Busy || (m3State !== 'idle' && m3State !== 'selecting')) return; const cd = m3Grid[r] && m3Grid[r][c]; if (cd && cd.rock) return; if (cd && cd.fixed) return; if (cd && cd.hole && !cd.filled) return; m3ResetIdle(); playSoundClick(); if (!m3SelectedCell) { m3SelectedCell = { r, c }; m3State = 'selecting'; updateM3Selection(); return; } const { r: sr, c: sc } = m3SelectedCell; if (sr === r && sc === c) { m3SelectedCell = null; m3State = 'idle'; updateM3Selection(); return; } const cellA = m3Grid[sr][sc]; const isHoleA = !!(cellA && cellA.hole && cellA.filled); const isHoleB = !!(cd && cd.hole && cd.filled); const isNormalA = !!(cellA && !cellA.hole && !cellA.fixed && !cellA.rock); const isNormalB = !!(cd && !cd.hole && !cd.fixed && !cd.rock); const adjacent = Math.abs(sr - r) + Math.abs(sc - c) === 1; if (isHoleA && isHoleB) { m3SelectedCell = null; m3State = 'idle'; updateM3Selection(); m3SwapHoleLetters({ r: sr, c: sc }, { r, c }); } else if ((isHoleA && isNormalB && adjacent) || (isNormalA && isHoleB && adjacent)) { m3SelectedCell = null; m3State = 'idle'; updateM3Selection(); m3SwapHoleWithNormal({ r: sr, c: sc }, { r, c }); } else if (isNormalA && isNormalB && adjacent) { m3SelectedCell = null; m3State = 'idle'; updateM3Selection(); swapM3Cells({ r: sr, c: sc }, { r, c }); } else { m3SelectedCell = { r, c }; m3State = 'selecting'; updateM3Selection(); } }
+        function handleM3CellClick(r, c) { if (m3Busy || (m3State !== 'idle' && m3State !== 'selecting')) return; const cd = m3Grid[r] && m3Grid[r][c]; if (cd && cd.rock) return; if (cd && cd.fixed) return; if (cd && cd.hole && !cd.filled) return; if (cd && (cd.lockedWord || (cd.hole && cd.filled))) return; /* 已填洞格与已拼词格不参与交换调整（高难度模式预留 m3SwapHoleLetters 接口） */ m3ResetIdle(); playSoundClick(); if (!m3SelectedCell) { m3SelectedCell = { r, c }; m3State = 'selecting'; updateM3Selection(); return; } const { r: sr, c: sc } = m3SelectedCell; if (sr === r && sc === c) { m3SelectedCell = null; m3State = 'idle'; updateM3Selection(); return; } const cellA = m3Grid[sr][sc]; const isHoleA = !!(cellA && cellA.hole && cellA.filled); const isHoleB = !!(cd && cd.hole && cd.filled); const isNormalA = !!(cellA && !cellA.hole && !cellA.fixed && !cellA.rock); const isNormalB = !!(cd && !cd.hole && !cd.fixed && !cd.rock); const adjacent = Math.abs(sr - r) + Math.abs(sc - c) === 1; if (isHoleA && isHoleB) { m3SelectedCell = null; m3State = 'idle'; updateM3Selection(); m3SwapHoleLetters({ r: sr, c: sc }, { r, c }); } else if ((isHoleA && isNormalB && adjacent) || (isNormalA && isHoleB && adjacent)) { m3SelectedCell = null; m3State = 'idle'; updateM3Selection(); m3SwapHoleWithNormal({ r: sr, c: sc }, { r, c }); } else if (isNormalA && isNormalB && adjacent) { m3SelectedCell = null; m3State = 'idle'; updateM3Selection(); swapM3Cells({ r: sr, c: sc }, { r, c }); } else { m3SelectedCell = { r, c }; m3State = 'selecting'; updateM3Selection(); } }
         function updateM3Selection() { for (let r = 0; r < m3Rows; r++) { for (let c = 0; c < m3Cols; c++) { const el = m3CellElements[r] && m3CellElements[r][c]; if (el) el.classList.toggle('selected', !!(m3SelectedCell && m3SelectedCell.r === r && m3SelectedCell.c === c)); } } }
         function swapM3Cells(a, b) { m3ResetIdle(); const elA = m3CellElements[a.r][a.c], elB = m3CellElements[b.r][b.c]; if (!elA || !elB) { m3State = 'idle'; return; } if ((m3Grid[a.r][a.c] && (m3Grid[a.r][a.c].rock || m3Grid[a.r][a.c].hole)) || (m3Grid[b.r][b.c] && (m3Grid[b.r][b.c].rock || m3Grid[b.r][b.c].hole))) { m3SelectedCell = null; m3State = 'idle'; updateM3Selection(); return; } elA.classList.add('swapping'); elB.classList.add('swapping'); const tmp = m3Grid[a.r][a.c]; m3Grid[a.r][a.c] = m3Grid[b.r][b.c]; m3Grid[b.r][b.c] = tmp; m3CellElements[a.r][a.c] = elB; m3CellElements[b.r][b.c] = elA; elA.dataset.r = b.r; elA.dataset.c = b.c; elB.dataset.r = a.r; elB.dataset.c = a.c; const posA = m3CellPx(b.r, b.c), posB = m3CellPx(a.r, a.c); elA.innerText = m3Grid[b.r][b.c].letter; elA.style.background = m3ColorOf(m3Grid[b.r][b.c].letter); elB.innerText = m3Grid[a.r][a.c].letter; elB.style.background = m3ColorOf(m3Grid[a.r][a.c].letter); elA.style.left = posA.x + 'px'; elA.style.top = posA.y + 'px'; elB.style.left = posB.x + 'px'; elB.style.top = posB.y + 'px'; m3OnStep(); updateM3UI(); m3State = 'swapping'; setTimeout(() => { elA.classList.remove('swapping'); elB.classList.remove('swapping'); m3ResolveSwap(a, b); }, 300); }
         
@@ -3060,12 +3083,54 @@
             const lpR = document.getElementById('m3-learned-panel'); if (lpR) lpR.querySelectorAll('.m3-learned-chip').forEach(x => x.remove()); 
             const lcR = document.getElementById('m3-learned-count'); if (lcR) lcR.innerText = '0'; 
             if (m3Cfg) m3Targets = m3Cfg.targets.map(t => Object.assign({}, t)); 
-            renderM3Targets(); initMatch3Grid(); renderMatch3Grid(); updateM3UI(); updateM3RefreshUI(); m3ResetIdle(); 
-            m3InitPK(); m3UpdatePKUI(); 
+            renderM3Targets(); m3InitPK(); m3UpdatePKUI(); initMatch3Grid(); renderMatch3Grid(); updateM3UI(); updateM3RefreshUI(); m3ResetIdle(); 
             const baR = document.getElementById('battle-area'); if (baR) baR.style.display = 'none'; 
             const blR = document.getElementById('battle-log-panel'); if (blR) blR.style.display = 'none'; 
             m3StartFeeder(); m3StartEater(); 
         };
+        /* ===== 自动化测试钩子：仅 ?m3test=1 时启用 ===== */
+        if (location.search.indexOf('m3test=1') >= 0) {
+            window.M3T = {
+                _forceBonus: [], _feedSeq: [],
+                planBonus(words) { this._forceBonus = words || []; },
+                feed(words) { this._feedSeq = (words || []).slice(); },
+                eat(sec) { m3EatTime = sec; },
+                spawn() { m3SpawnFeederBlock(true); },
+                eatRow() { m3EatRow(); },
+                shapes() { return m3HoleShapes.map(hs => hs.normNeeds.filter(n => n !== null && n !== undefined).join('') + '@' + hs.cells.map(c => c.r + ',' + c.c).join('|')); },
+                fill(word) {
+                    const w = String(word).toLowerCase();
+                    const cands = [...document.querySelectorAll('#m3-feeder .m3-feeder-block:not(.used)')].filter(x => (x.dataset.letters || '').toLowerCase().indexOf(w) === 0);
+                    if (!cands.length) return 'no-block';
+                    for (const b of cands) {
+                        let cells = null; try { cells = JSON.parse(b.dataset.cells || '[]'); } catch (e) { cells = []; }
+                        for (const hs of m3HoleShapes) {
+                            if (!m3SameShape(cells, hs.normCells)) continue;
+                            const hasUnfilled = hs.cells.some(cell => { const h = m3Holes.find(h2 => h2.r === cell.r && h2.c === cell.c); return h && !h.filled; });
+                            if (!hasUnfilled) continue;
+                            m3DoFillHole(b, hs, (b.dataset.letters || '').split(''));
+                            return 'filled:' + b.dataset.letters;
+                        }
+                    }
+                    return 'no-hole';
+                },
+                restart() { m3Restart(); },
+                togglePause() { m3TogglePause(); },
+                st() {
+                    return {
+                        bonus: (m3BonusWords || []).map(b => ({ w: b.word, done: b.done, cells: b.cells.map(c => c.r + ',' + c.c + '=' + c.need) })),
+                        target: m3HotTarget() ? m3HotTarget().word : null,
+                        progress: m3DoneCount() + '/' + m3Targets.length,
+                        score: m3Score, kPlayer: m3KPlayer, kMonster: m3KMonster,
+                        eaten: m3EatenRows, busy: m3Busy, st: m3State, paused: m3Paused,
+                        holesUnfilled: m3Holes.filter(h => !h.filled && h.need !== null && h.need !== undefined).map(h => h.r + ',' + h.c + '=' + h.need),
+                        goldCells: document.querySelectorAll('.m3-cell.word-keep').length,
+                        tray: [...document.querySelectorAll('#m3-feeder .m3-feeder-block:not(.used)')].map(b => b.dataset.letters),
+                        learned: m3Learned.map(x => x.word)
+                    };
+                }
+            };
+        }
         window.m3ExitToMenu = function() { 
             m3StopEater(); m3StopFeeder(); m3ResetPause(); 
             const ba = document.getElementById('battle-area'); if (ba) ba.style.display = 'none'; 

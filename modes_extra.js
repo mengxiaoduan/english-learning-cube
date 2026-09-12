@@ -161,11 +161,11 @@
         var custom = ELC.customPack();
         var ups = ELC.uploadedLevels();
         var html = '<div class="ex-panel">'
-            + '<h2>🎮 ' + ELC.t('packDaily') + ' / ' + ELC.t('packCustom') + '</h2>'
+            + '<h2>' + ELC.t('packDaily') + ' / ' + ELC.t('packCustom') + '</h2>'
             + '<div class="ex-col">'
-            + '<button class="btn-action" id="ex-use-core">📚 ' + ELC.t('packDaily') + '</button>'
-            + (ups.length ? '<button class="btn-action" id="ex-use-uploads">📦 ' + ELC.t('uploadLevel') + ' (' + ups.length + ')</button>' : '')
-            + '<button class="btn-action btn-secondary" id="ex-use-custom">✏️ ' + ELC.t('packCustom') + (custom ? ' (' + custom.length + ')' : '') + '</button>'
+            + '<button class="btn-action" id="ex-use-core">' + ELC.t('packDaily') + '</button>'
+            + (ups.length ? '<button class="btn-action" id="ex-use-uploads">' + ELC.t('uploadLevel') + ' (' + ups.length + ')</button>' : '')
+            + '<button class="btn-action btn-secondary" id="ex-use-custom">' + ELC.t('packCustom') + (custom ? ' (' + custom.length + ')' : '') + '</button>'
             + '</div>'
             + '<div id="ex-custom-area" style="display:none;">'
             + '<textarea id="ex-custom-text" style="width:100%;min-height:120px;border-radius:10px;border:1px solid rgba(255,255,255,.25);background:rgba(0,0,0,.3);color:#eee;padding:10px;box-sizing:border-box;font-family:inherit;"></textarea>'

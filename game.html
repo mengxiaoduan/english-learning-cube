@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#1a1a2e">
     <link rel="manifest" href="manifest.webmanifest">
-    <script src="i18n.js"></script>
+    <script src="i18n.js?v=2.0.7"></script>
     <link rel="apple-touch-icon" href="icons/icon-192.png">
     <title>世界语言方块</title>
     <style>
@@ -731,16 +731,16 @@
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script>if (typeof JSZip === 'undefined') document.write('<script src="jszip.min.js"><\/script>');</script>
-    <script src="wordbank_daily.js"></script>
-    <script src="wordbank_cet4.js"></script>
-    <script src="wordbank_cet6.js"></script>
-    <script src="wordbank_phon.js"></script>
-    <script src="wordbank_zh.js"></script>
-    <script src="wordbank_ru.js"></script>
-    <script src="modes_extra.js"></script>
-    <script src="meanings.js"></script>
+    <script src="wordbank_daily.js?v=2.0.7"></script>
+    <script src="wordbank_cet4.js?v=2.0.7"></script>
+    <script src="wordbank_cet6.js?v=2.0.7"></script>
+    <script src="wordbank_phon.js?v=2.0.7"></script>
+    <script src="wordbank_zh.js?v=2.0.7"></script>
+    <script src="wordbank_ru.js?v=2.0.7"></script>
+    <script src="modes_extra.js?v=2.0.7"></script>
+    <script src="meanings.js?v=2.0.7"></script>
     <script src="hanzi-writer.min.js"></script>
-    <script src="hanzi_data.js"></script>
+    <script src="hanzi_data.js?v=2.0.7"></script>
 </head>
 <body>
     <div id="loadingScreen">
@@ -954,7 +954,7 @@
     </div>
 
     <!-- 扩展玩法通用视图容器（听力挑战 / 记忆配对 / 未来玩法 / DIY） -->
-    <div id="gameVerBadge" style="position:fixed;left:10px;bottom:8px;z-index:40;font-size:12px;color:rgba(255,255,255,.35);letter-spacing:1px;user-select:none;">v2.0.6</div>
+    <div id="gameVerBadge" style="position:fixed;left:10px;bottom:8px;z-index:40;font-size:12px;color:rgba(255,255,255,.35);letter-spacing:1px;user-select:none;">v2.0.7</div>
     <div id="extra-mode-view"></div>
 
     <!-- 写字学中文模式视图 -->
@@ -4724,7 +4724,7 @@
     </script>
     <script>
     (function () {
-        var GAME_VER = '2.0.6';
+        var GAME_VER = '2.0.7';
         try {
             var badge = document.getElementById('gameVerBadge');
             if (badge) badge.textContent = '世界语言方块 v' + GAME_VER;

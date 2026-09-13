@@ -1,5 +1,5 @@
 /* 世界语言方块 PWA Service Worker：离线缓存 */
-const CACHE = 'eng-tetris-v23';
+const CACHE = 'eng-tetris-v24';
 /* sounds/ 下约 6300 个单词读音 mp3 体积较大，不预缓存；
    下面的 fetch 监听会按需缓存听过的读音（首次在线播放后离线可用） */
 const ASSETS = [
@@ -23,7 +23,7 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS.map((u) => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', (e) => {

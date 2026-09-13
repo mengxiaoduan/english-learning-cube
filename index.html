@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#1a1a2e">
     <link rel="manifest" href="manifest.webmanifest">
-    <script src="i18n.js?v=eng-tetris-v28"></script>
+    <script src="i18n.js?v=eng-tetris-v29"></script>
     <link rel="apple-touch-icon" href="icons/icon-192.png">
     <title>世界语言方块</title>
     <style>
@@ -731,16 +731,16 @@
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script>if (typeof JSZip === 'undefined') document.write('<script src="jszip.min.js"><\/script>');</script>
-    <script src="wordbank_daily.js?v=eng-tetris-v28"></script>
-    <script src="wordbank_cet4.js?v=eng-tetris-v28"></script>
-    <script src="wordbank_cet6.js?v=eng-tetris-v28"></script>
-    <script src="wordbank_phon.js?v=eng-tetris-v28"></script>
-    <script src="wordbank_zh.js?v=eng-tetris-v28"></script>
-    <script src="wordbank_ru.js?v=eng-tetris-v28"></script>
-    <script src="modes_extra.js?v=eng-tetris-v28"></script>
-    <script src="meanings.js?v=eng-tetris-v28"></script>
+    <script src="wordbank_daily.js?v=eng-tetris-v29"></script>
+    <script src="wordbank_cet4.js?v=eng-tetris-v29"></script>
+    <script src="wordbank_cet6.js?v=eng-tetris-v29"></script>
+    <script src="wordbank_phon.js?v=eng-tetris-v29"></script>
+    <script src="wordbank_zh.js?v=eng-tetris-v29"></script>
+    <script src="wordbank_ru.js?v=eng-tetris-v29"></script>
+    <script src="modes_extra.js?v=eng-tetris-v29"></script>
+    <script src="meanings.js?v=eng-tetris-v29"></script>
     <script src="hanzi-writer.min.js"></script>
-    <script src="hanzi_data.js?v=eng-tetris-v28"></script>
+    <script src="hanzi_data.js?v=eng-tetris-v29"></script>
 </head>
 <body>
     <div id="loadingScreen">
@@ -954,7 +954,7 @@
     </div>
 
     <!-- 扩展玩法通用视图容器（听力挑战 / 记忆配对 / 未来玩法 / DIY） -->
-    <div id="gameVerBadge" style="position:fixed;left:10px;bottom:8px;z-index:40;font-size:12px;color:rgba(255,255,255,.35);letter-spacing:1px;user-select:none;">v2.1.1</div>
+    <div id="gameVerBadge" style="position:fixed;left:10px;bottom:8px;z-index:40;font-size:12px;color:rgba(255,255,255,.35);letter-spacing:1px;user-select:none;">v2.1.2</div>
     <div id="extra-mode-view"></div>
 
     <!-- 写字学中文模式视图 -->
@@ -2210,8 +2210,14 @@
         // ===== 奖励单词空洞：eat/apple/fight 等基础词，拼成后把图标砸向怪物 =====
         function m3PlantBonusHoles() {
             m3BonusWords = [];
-            const bonusPool = ['eat', 'fight', 'apple', 'sun', 'run', 'dog', 'cat', 'book', 'milk', 'love', 'fish', 'bird', 'star', 'ball', 'tree'];
-            let candidates = bonusPool.filter(w => m3WordMap[w] && !m3Targets.some(t => t.word === w));
+            /* 奖励词跟随学习语言：中文给拼音词、俄文给俄语词，英语保留经典奖励词表 */
+            let candidates;
+            if (selectedLanguage === 'en') {
+                const bonusPool = ['eat', 'fight', 'apple', 'sun', 'run', 'dog', 'cat', 'book', 'milk', 'love', 'fish', 'bird', 'star', 'ball', 'tree'];
+                candidates = bonusPool.filter(w => m3WordMap[w] && !m3Targets.some(t => t.word === w));
+            } else {
+                candidates = Object.keys(m3WordMap).filter(w => w.length >= 3 && w.length <= 6 && !m3Targets.some(t => t.word === w));
+            }
             if (candidates.length < 2) {
                 const extra = Object.keys(m3WordMap).filter(w => w.length >= 3 && w.length <= 6 && !m3Targets.some(t => t.word === w) && !candidates.includes(w));
                 shuffle(extra);
@@ -2275,7 +2281,7 @@
             playSoundTarget();
             wSpeakPair(_dw(b.word), _lmRaw(b.word, info.mean));
             m3ThrowIconAtMonster(info.img, b.cells);
-            showM3Toast(_t('m3BonusHit', { w: b.word }));
+            showM3Toast(_t('m3BonusHit', { w: _dw(b.word) }));
             // 奖励词格子保留拼好的完整单词（金色高亮，学习强化），直到下次目标刷新
             b.cells.forEach((cell, i) => {
                 const keepLetter = (cell.need !== null && cell.need !== undefined) ? cell.need : b.word[i];
@@ -2436,8 +2442,9 @@
             if (m3Busy || state !== 'match3') { m3StartEater(); return; }
             const row = m3EatenRows;
             if (row >= m3Rows) { m3GameOver(); return; }
-            // 该行包含目标单词（幕布字母或词槽）→ 触发“目标被吞噬”抢救
-            const targetInRow = (typeof m3Holes !== 'undefined' && m3Holes.some(h => h.r === row && h.need !== null && h.need !== undefined)) ||
+            // 该行包含【目标单词】（词槽 wordIdx>=0 或幕布字母）→ 才触发“目标被吞噬”抢救
+            // 注意：奖励词洞 wordIdx=-1，被吞不触发拉回（只是普通行被吃掉）
+            const targetInRow = (typeof m3Holes !== 'undefined' && m3Holes.some(h => h.r === row && h.need !== null && h.need !== undefined && h.wordIdx !== -1)) ||
                                 (typeof m3CurtainCells !== 'undefined' && m3CurtainCells.some(([r]) => r === row));
             if (targetInRow) { m3TargetEatenPullback(); return; }
             m3Busy = true; m3State = 'completing';
@@ -2474,11 +2481,12 @@
             }
             const restored = m3EatenRows;
             m3EatenRows = 0;
-            for (let r = 0; r < restored; r++) for (let c = 0; c < m3Cols; c++) m3Grid[r][c] = { letter: m3RandomLetter() };
             m3KPlayer = Math.min(m3KTotal, m3KPlayer + restored);
             m3KMonster = Math.max(0, m3KMonster - restored);
+            /* 整张棋盘重置 + 重种：旧洞（目标/奖励/孤儿）全部清除，
+               否则旧洞残留在棋盘上无法触发，且会与新洞视觉重叠 */
+            for (let r = 0; r < m3Rows; r++) for (let c = 0; c < m3Cols; c++) m3Grid[r][c] = { letter: m3RandomLetter() };
             m3RestoreCells();
-            /* 重种当前目标词洞（含奖励洞重登记）：被吞行的洞已标记 filled，不重种则目标永远无法完成 */
             m3PlantHoles();
             renderMatch3Grid(true);
             m3CurtainCells.forEach(([r, c], i) => { setTimeout(() => { const el = m3CellElements[r] && m3CellElements[r][c]; if (el) el.classList.add('curtain-drop'); }, 60 + i * 30); });
@@ -2641,6 +2649,26 @@
             showM3Toast(any ? '点击闪烁的金色空洞填入该形状' : '当前没有可填的空洞');
         }
 
+        /* 开发/测试钩子：仅 ?dev=1 时挂载到 window，正常玩家完全不可见 */
+        if (location.search.indexOf('dev=1') >= 0) {
+            window.__m3dev = {
+                eatRow: function () { m3EatRow(); },
+                setEaten: function (n) { m3EatenRows = n; },
+                plant: function () { m3PlantHoles(); renderMatch3Grid(true); },
+                refresh: function () { m3Restart(); },
+                state: function () {
+                    return {
+                        eaten: m3EatenRows, busy: m3Busy, st: m3State, paused: m3Paused,
+                        target: m3HotTarget() ? m3HotTarget().word : null,
+                        bonus: (m3BonusWords || []).map(function (b) { return b.word; }),
+                        holesUnfilled: m3Holes.filter(function (h) { return !h.filled && h.need !== null && h.need !== undefined; }).map(function (h) { return h.r + ',' + h.c + '=' + h.need + ':w' + h.wordIdx; }),
+                        holesAll: m3Holes.length,
+                        progress: (document.getElementById('m3-target-progress') || {}).textContent,
+                        toast: (document.getElementById('m3-toast') || {}).innerText
+                    };
+                }
+            };
+        }
         function startMatch3Game(customDict, level) {
             stopBgMusic();
             m3WordMap = {};
@@ -4648,6 +4676,7 @@
             },
             setUploadContext: (m) => { try { customScreenMode = m; } catch (e) {} },
             returnToCustom: (mode) => { try { window.ELC.__rt && window.ELC.__rt(mode); } catch (e) {} },
+            __devHook: null,
             setUploadedLevels: (levels) => { try { m3Levels = levels || []; renderUploadedLevels(); } catch (e) {} },
             ipa: (w) => {
                 try {
@@ -4731,8 +4760,36 @@
     })();
     </script>
     <script>
+    /* 开发/测试钩子：仅 URL 带 ?dev=1 时激活，正常玩家不可见不可触发 */
     (function () {
-        var GAME_VER = '2.1.1';
+        if (location.search.indexOf('dev=1') < 0) return;
+        var t0 = Date.now();
+        var timer = setInterval(function () {
+            if (window.ELC && typeof m3EatRow === 'function') {
+                clearInterval(timer);
+                window.__m3dev = {
+                    eatRow: function () { m3EatRow(); },
+                    setEaten: function (n) { m3EatenRows = n; },
+                    state: function () {
+                        return {
+                            eaten: m3EatenRows, busy: m3Busy, st: m3State,
+                            target: m3HotTarget() ? m3HotTarget().word : null,
+                            bonus: (m3BonusWords || []).map(function (b) { return b.word; }),
+                            holesUnfilled: m3Holes.filter(function (h) { return !h.filled && h.need !== null && h.need !== undefined; }).map(function (h) { return h.r + ',' + h.c + '=' + h.need + ':w' + h.wordIdx; }),
+                            progress: (document.getElementById('m3-target-progress') || {}).textContent,
+                            toast: (document.getElementById('m3-toast') || {}).innerText
+                        };
+                    },
+                    plant: function () { m3PlantHoles(); renderMatch3Grid(true); },
+                    refresh: function () { m3Restart(); }
+                };
+            }
+        }, 200);
+    })();
+    </script>
+    <script>
+    (function () {
+        var GAME_VER = '2.1.2';
         try {
             var badge = document.getElementById('gameVerBadge');
             if (badge) badge.textContent = '世界语言方块 v' + GAME_VER;

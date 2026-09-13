@@ -243,7 +243,7 @@
             var isListen = mode === 'listen';
             var startLabel = isListen ? '▶ ' + ELC.t('mcListenName') : '▶ ' + ELC.t('mcMemName');
             var html = '<div class="ex-panel">'
-                + '<h2>✏️ ' + ELC.t('packCustom') + '</h2>'
+                + '<h2>' + ELC.t('packCustom') + '</h2>'
                 + '<textarea id="ex-custom-text" style="width:100%;min-height:120px;border-radius:10px;border:1px solid rgba(255,255,255,.25);background:rgba(0,0,0,.3);color:#eee;padding:10px;box-sizing:border-box;font-family:inherit;"></textarea>'
                 + '<div style="color:rgba(255,255,255,.55);font-size:.8rem;text-align:left;margin-top:4px;">' + ELC.t('customTip') + '</div>'
                 + '<button class="btn-action" id="ex-custom-start">' + startLabel + '</button>'

@@ -195,10 +195,10 @@
                 + '<h2>' + icon + ' ' + title + '</h2>'
                 + '<div class="sub">' + sub + '</div>'
                 + '<div class="ex-col">'
-                + '<button class="btn-action" data-pack="daily">📗 ' + ELC.t('packDaily') + '</button>'
-                + '<button class="btn-action" data-pack="cet4">📘 ' + ELC.t('packCet4') + '</button>'
-                + '<button class="btn-action" data-pack="cet6">📕 ' + ELC.t('packCet6') + '</button>'
-                + '<button class="btn-action btn-secondary" data-pack="custom">✏️ ' + ELC.t('packCustom') + '</button>'
+                + '<button class="btn-action" data-pack="daily">' + ELC.t('packDaily') + '</button>'
+                + '<button class="btn-action" data-pack="cet4">' + ELC.t('packCet4') + '</button>'
+                + '<button class="btn-action" data-pack="cet6">' + ELC.t('packCet6') + '</button>'
+                + '<button class="btn-action btn-secondary" data-pack="custom">' + ELC.t('packCustom') + '</button>'
                 + '</div>'
                 + '<div class="ex-rules">' + rules.join('<br>') + '</div>'
                 + '<button class="btn-action btn-secondary" id="ex-pack-back">' + ELC.t('back') + '</button>'
@@ -207,6 +207,7 @@
             overlay.querySelectorAll('[data-pack]').forEach(function (b) {
                 b.addEventListener('click', function () {
                     ELC.click();
+                    closeModal();
                     var pk = b.getAttribute('data-pack');
                     if (pk === 'custom') openCustomScreen(mode, onPick);
                     else onPick(pk, ELC.packWords(pk).map(normWord));

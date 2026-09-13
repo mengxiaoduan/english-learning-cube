@@ -231,7 +231,7 @@
                     closeModal();
                     var pk = b.getAttribute('data-pack');
                     if (pk === 'custom') openCustomScreen(mode, onPick);
-                    else onPick(pk, ELC.packWords(pk).map(normWord));
+                    else onPick(ELC.packWords(pk).map(normWord), pk);
                 });
             });
             byId('ex-pack-back').addEventListener('click', function () { closeModal(); ELC.click(); ELC.closeExtraView(); });
@@ -263,6 +263,7 @@
                 var ups = ELC.uploadedLevelList();
                 box.innerHTML = ups.length ? '<div style="color:rgba(255,255,255,.55);font-size:.8rem;text-align:left;">📦 已上传关卡（点击开始）</div>' : '';
                 ups.forEach(function (l, i) {
+                (window.__m3log = window.__m3log || []).push('renderUpListItem: ' + l.name + ' words=' + l.words.map(w => w.word).join(','));
                     var b = document.createElement('button');
                     b.className = 'ex-up-item';
                     b.innerHTML = '<span class="n">' + (i + 1) + '. ' + l.name + '</span><span class="c">' + l.words.length + ' 词</span>';
@@ -270,7 +271,7 @@
                         ELC.click();
                         var words = l.words.map(normWord);
                         closeModal();
-                        onPick('up:' + l.name, words);
+                        onPick(words, 'up:' + l.name);
                     });
                     box.appendChild(b);
                 });
@@ -284,7 +285,7 @@
                 ELC.setCustomPack(list);
                 var words = list.map(function (x) { return normWord({ word: x.word, mean: x.mean, img: '📝' }); });
                 closeModal();
-                onPick('custom', words);
+                onPick(words, 'custom');
             });
             byId('ex-open-upload').addEventListener('click', function () {
                 ELC.click();
@@ -308,6 +309,7 @@
 
         /* ================= 🎧 听力挑战（5 词一关，顺序出题） ================= */
         function startListenLevels(levels, srcTag) {
+            (window.__m3log = window.__m3log || []).push('startListenLevels: ' + levels.map(l => l.map(w => w.word).join(',')).join(' ;; '));
             if (!levels.length) { ELC.toast(ELC.t('errNoWords')); ELC.closeExtraView(); return; }
             var progKey = 'elc_listen_prog_' + ELC.learningLang + '_' + srcTag;
             var prog = loadProg(progKey);
@@ -424,6 +426,7 @@
 
         /* ================= 🃏 记忆配对（6 词一轮，整关学完才通关） ================= */
         function startMemoryLevels(levels, srcTag) {
+            (window.__m3log = window.__m3log || []).push('startMemoryLevels: ' + levels.map(l => l.map(w => w.word).join(',')).join(' ;; '));
             if (!levels.length) { ELC.toast(ELC.t('errNoWords')); ELC.closeExtraView(); return; }
             var progKey = 'elc_mem_prog_' + ELC.learningLang + '_' + srcTag;
             var prog = loadProg(progKey);
@@ -548,22 +551,15 @@
         }
 
         /* ================= 模式注册与启动 ================= */
-        function startListen(packKeyOrWords) {
-            if (Array.isArray(packKeyOrWords)) {
-                var lv = chunk(packKeyOrWords, LIS_PER);           // 自定义/上传：按配置顺序 5 词一关
-                startListenLevels(lv, 'custom');
-            } else {
-                var words = (ELC.packWords ? ELC.packWords(packKeyOrWords) : ELC.words()).map(normWord);
-                startListenLevels(chunk(words, LIS_PER), packKeyOrWords);
-            }
+        function startListen(words, srcTag) {
+            /* words: 词对象数组；srcTag: 进度存档标签。始终 5 词一关（顺序分关） */
+            startListenLevels(chunk(words, LIS_PER), srcTag);
         }
-        function startMemory(packKeyOrWords) {
-            if (Array.isArray(packKeyOrWords)) {
-                startMemoryLevels([packKeyOrWords], 'custom');      // 自定义/上传：整关一词组，内部 6 词分轮
-            } else {
-                var words = (ELC.packWords ? ELC.packWords(packKeyOrWords) : ELC.words()).map(normWord);
-                startMemoryLevels(chunk(words, MEM_PER), packKeyOrWords);
-            }
+        function startMemory(words, srcTag) {
+            /* words: 词对象数组；srcTag: 进度存档标签。
+               自定义/上传（up: / custom）＝整关一词组，内部 6 词分轮；常规词库＝6 词一关 */
+            var levels = (String(srcTag).indexOf('up:') === 0 || srcTag === 'custom') ? [words] : chunk(words, MEM_PER);
+            startMemoryLevels(levels, srcTag);
         }
         ELC.registerMode({ id: 'listen', icon: '🎧', nameKey: 'mcListenName', descKey: 'mcListenDesc', start: function () { openPackModal('listen', startListen); } });
         ELC.registerMode({ id: 'memory', icon: '🃏', nameKey: 'mcMemName', descKey: 'mcMemDesc', start: function () { openPackModal('memory', startMemory); } });
@@ -581,7 +577,7 @@
             if (mode === 'listen') {
                 var all = [];
                 ups.forEach(function (l) { l.words.forEach(function (w) { all.push(normWord(w)); }); });
-                startListenLevels(chunk(all, LIS_PER), 'up');
+                startListen(all, 'up');
             } else {
                 var lv = ups.map(function (l) { return l.words.map(normWord); });
                 startMemoryLevels(lv, 'up');

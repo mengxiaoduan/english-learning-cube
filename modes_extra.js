@@ -201,8 +201,10 @@
         /* ================= 词源选择（与填词/闯关同构） ================= */
         var LIS_PER = 5;    // 听力 5 词一关
         var MEM_PER = 6;    // 记忆 6 词一轮
+        var currentPick = { mode: 'listen', onPick: function () {} };
 
         function openPackModal(mode, onPick) {
+            currentPick = { mode: mode, onPick: onPick };
             var isListen = mode === 'listen';
             var icon = isListen ? '🎧' : '🃏';
             var title = isListen ? ELC.t('mcListenName') : ELC.t('mcMemName');
@@ -237,6 +239,7 @@
 
         /* ================= 自定义关卡（词表 + 上传） ================= */
         function openCustomScreen(mode, onPick) {
+            currentPick = { mode: mode, onPick: onPick };
             var isListen = mode === 'listen';
             var startLabel = isListen ? '▶ ' + ELC.t('mcListenName') : '▶ ' + ELC.t('mcMemName');
             var html = '<div class="ex-panel">'
@@ -564,6 +567,9 @@
         }
         ELC.registerMode({ id: 'listen', icon: '🎧', nameKey: 'mcListenName', descKey: 'mcListenDesc', start: function () { openPackModal('listen', startListen); } });
         ELC.registerMode({ id: 'memory', icon: '🃏', nameKey: 'mcMemName', descKey: 'mcMemDesc', start: function () { openPackModal('memory', startMemory); } });
+        window.ELC.__rt = function (mode) {
+            openCustomScreen(mode, currentPick.onPick);
+        };
         ELC.startUploaded = function (mode) {
             /* 无论从哪个入口开始，先收起所有上传相关弹窗 */
             ['uploadLevelModal', 'uploadModeModal', 'levelSelectModal'].forEach(function (id) {

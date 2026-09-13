@@ -954,7 +954,7 @@
     </div>
 
     <!-- 扩展玩法通用视图容器（听力挑战 / 记忆配对 / 未来玩法 / DIY） -->
-    <div id="gameVerBadge" style="position:fixed;left:10px;bottom:8px;z-index:40;font-size:12px;color:rgba(255,255,255,.35);letter-spacing:1px;user-select:none;">v2.0.4</div>
+    <div id="gameVerBadge" style="position:fixed;left:10px;bottom:8px;z-index:40;font-size:12px;color:rgba(255,255,255,.35);letter-spacing:1px;user-select:none;">v2.0.5</div>
     <div id="extra-mode-view"></div>
 
     <!-- 写字学中文模式视图 -->
@@ -3570,14 +3570,32 @@
                 alert(_t('errNoLevels'));
                 return;
             }
+            // 听力/记忆模式进入上传流程时，按其模式开始（自动分割：听力 5 词/关，记忆整关 6 词分轮）
+            if ((customScreenMode === 'listen' || customScreenMode === 'memory') && window.ELC && ELC.startUploaded) {
+                document.getElementById('uploadLevelModal').style.display = 'none';
+                ELC.startUploaded(customScreenMode);
+                return;
+            }
             // 从哪个模式的自定义关卡进入上传，就直接以该模式开始，无需再选模式
             if (customScreenMode === 'fill') startUploadedFill();
             else if (customScreenMode === 'quest') startUploadedQuest();
             else startUploadedTetris(0);
         });
-        document.getElementById('btnUploadModeTetris').addEventListener('click', () => { playSoundClick(); startUploadedTetris(0); });
-        document.getElementById('btnUploadModeFill').addEventListener('click', () => { playSoundClick(); startUploadedFill(); });
-        document.getElementById('btnUploadModeQuest').addEventListener('click', () => { playSoundClick(); startUploadedQuest(); });
+        document.getElementById('btnUploadModeTetris').addEventListener('click', () => {
+            playSoundClick();
+            if ((customScreenMode === 'listen' || customScreenMode === 'memory') && window.ELC && ELC.startUploaded) { ELC.startUploaded(customScreenMode); return; }
+            startUploadedTetris(0);
+        });
+        document.getElementById('btnUploadModeFill').addEventListener('click', () => {
+            playSoundClick();
+            if ((customScreenMode === 'listen' || customScreenMode === 'memory') && window.ELC && ELC.startUploaded) { ELC.startUploaded(customScreenMode); return; }
+            startUploadedFill();
+        });
+        document.getElementById('btnUploadModeQuest').addEventListener('click', () => {
+            playSoundClick();
+            if ((customScreenMode === 'listen' || customScreenMode === 'memory') && window.ELC && ELC.startUploaded) { ELC.startUploaded(customScreenMode); return; }
+            startUploadedQuest();
+        });
         document.getElementById('btnUploadModeClose').addEventListener('click', () => { playSoundClick(); document.getElementById('uploadModeModal').style.display = 'none'; });
 
         // ==================== 单词闯关大冒险（Word Quest Adventure） ====================
@@ -4598,6 +4616,37 @@
             customPack: () => {
                 try { return JSON.parse(localStorage.getItem('elc_custom_pack') || 'null'); } catch (e) { return null; }
             },
+            packWords: (packKey) => {
+                /* 与填词/闯关同一词库（packBankFor/m3BankLevels），供扩展模式复用 */
+                try {
+                    const out = [];
+                    m3BankLevels(packKey).forEach(lv => {
+                        for (const w in lv.dict) {
+                            const d = lv.dict[w];
+                            out.push({ word: w, display: w, mean: d.mean || '', img: d.img || '📝', audio: d.audio || null });
+                        }
+                    });
+                    return out;
+                } catch (e) { return []; }
+            },
+            uploadedLevelList: () => {
+                try {
+                    return m3Levels.filter(l => l.dict && Object.keys(l.dict).length).map(l => ({
+                        name: l.name,
+                        words: Object.keys(l.dict).map(w => ({
+                            word: w, display: w, mean: (l.dict[w] && l.dict[w].mean) || '',
+                            img: (l.dict[w] && l.dict[w].img) || '📝', audio: (l.dict[w] && l.dict[w].audio) || null
+                        }))
+                    }));
+                } catch (e) { return []; }
+            },
+            setUploadContext: (m) => { try { customScreenMode = m; } catch (e) {} },
+            ipa: (w) => {
+                try {
+                    const entry = (typeof PHONETICS !== 'undefined') ? PHONETICS[String(w).toLowerCase()] : null;
+                    return entry && entry.ipa ? '/' + entry.ipa + '/' : '';
+                } catch (e) { return ''; }
+            },
             uploadedLevels: () => {
                 try {
                     return (m3Levels || []).filter(l => l.dict && Object.keys(l.dict).length).map(l => ({
@@ -4675,7 +4724,7 @@
     </script>
     <script>
     (function () {
-        var GAME_VER = '2.0.4';
+        var GAME_VER = '2.0.5';
         try {
             var badge = document.getElementById('gameVerBadge');
             if (badge) badge.textContent = '世界语言方块 v' + GAME_VER;

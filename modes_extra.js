@@ -20,7 +20,7 @@
         var CSS = ''
             + '#extra-mode-view { justify-content: flex-start; gap: 12px; }'
             + '.ex-top { width: 100%; max-width: 640px; display: flex; align-items: center; gap: 8px; position: relative; }'
-            + '.ex-title { font-size: 1.3rem; font-weight: 900; background: linear-gradient(to right,#e94560,#f1c40f); -webkit-background-clip: text; background-clip: text; color: transparent; position: absolute; left: 50%; transform: translateX(-50%); white-space: nowrap; }'
+            + '.ex-title { font-size: 1.3rem; font-weight: 900; background: linear-gradient(to right,#e94560,#f1c40f); -webkit-background-clip: text; background-clip: text; color: transparent; flex: 1 1 auto; text-align: center; min-width: 0; overflow: hidden; text-overflow: ellipsis; }'
             + '.ex-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }'
             + '.ex-stat { color: #eee; font-size: .95rem; background: rgba(15,52,96,.6); border-radius: 10px; padding: 5px 12px; }'
             + '.ex-btn { background: rgba(15,52,96,.8); color: #eee; border: 1px solid rgba(255,255,255,.18); border-radius: 10px; padding: 7px 12px; cursor: pointer; font-size: .95rem; white-space: nowrap; }'
@@ -95,6 +95,25 @@
                 if (m.length >= 2 && m[0].trim() && m[1].trim()) list.push({ word: m[0].trim(), mean: m.slice(1).join(',').trim() });
             });
             return list;
+        }
+        function openEndPanel(endId, titleText, stars, scoreText, buttons) {
+            var oldEl = byId(endId); if (oldEl) oldEl.remove();
+            var el = document.createElement('div');
+            el.id = endId; el.className = 'ex-modal';
+            var btnHtml = buttons.map(function (b, i) {
+                return '<button class="btn-action' + (b.secondary ? ' btn-secondary' : '') + '" data-bidx="' + i + '">' + b.label + '</button>';
+            }).join('');
+            el.innerHTML = '<div class="ex-panel">'
+                + '<h2>' + titleText + '</h2>'
+                + (stars ? '<div style="color:#f1c40f;font-size:1.7rem;letter-spacing:6px;">' + stars + '</div>' : '')
+                + '<div class="big">' + scoreText + '</div>'
+                + '<div class="ex-col" id="' + endId + '-btns">' + btnHtml + '</div>'
+                + '</div>';
+            document.body.appendChild(el);
+            buttons.forEach(function (b, i) {
+                var btn = el.querySelector('[data-bidx="' + i + '"]');
+                if (btn) btn.addEventListener('click', function () { el.remove(); ELC.click(); b.fn(); });
+            });
         }
 
         /* ================= 学习卡（复用全局 wordPopup，与填词/闯关一致） ================= */
@@ -266,6 +285,7 @@
             });
             byId('ex-open-upload').addEventListener('click', function () {
                 ELC.click();
+                closeModal();   // 关闭自定义界面，避免开始游戏后残留在最上层
                 if (ELC.setUploadContext) ELC.setUploadContext(mode);
                 if (ELC.openUploadModal) ELC.openUploadModal();
                 var closeBtn = byId('btnCloseUploadModal');
@@ -545,6 +565,11 @@
         ELC.registerMode({ id: 'listen', icon: '🎧', nameKey: 'mcListenName', descKey: 'mcListenDesc', start: function () { openPackModal('listen', startListen); } });
         ELC.registerMode({ id: 'memory', icon: '🃏', nameKey: 'mcMemName', descKey: 'mcMemDesc', start: function () { openPackModal('memory', startMemory); } });
         ELC.startUploaded = function (mode) {
+            /* 无论从哪个入口开始，先收起所有上传相关弹窗 */
+            ['uploadLevelModal', 'uploadModeModal', 'levelSelectModal'].forEach(function (id) {
+                var m = byId(id); if (m) m.style.display = 'none';
+            });
+            var ov = byId('overlay'); if (ov) ov.style.display = 'none';
             var ups = ELC.uploadedLevelList();
             if (!ups.length) { ELC.toast(ELC.t('errNoWords')); return; }
             if (mode === 'listen') {

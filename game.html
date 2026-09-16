@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#1a1a2e">
     <link rel="manifest" href="manifest.webmanifest">
-    <script src="i18n.js?v=eng-tetris-v31"></script>
+    <script src="i18n.js?v=eng-tetris-v32"></script>
     <link rel="apple-touch-icon" href="icons/icon-192.png">
     <title>世界语言方块</title>
     <style>
@@ -731,16 +731,16 @@
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script>if (typeof JSZip === 'undefined') document.write('<script src="jszip.min.js"><\/script>');</script>
-    <script src="wordbank_daily.js?v=eng-tetris-v31"></script>
-    <script src="wordbank_cet4.js?v=eng-tetris-v31"></script>
-    <script src="wordbank_cet6.js?v=eng-tetris-v31"></script>
-    <script src="wordbank_phon.js?v=eng-tetris-v31"></script>
-    <script src="wordbank_zh.js?v=eng-tetris-v31"></script>
-    <script src="wordbank_ru.js?v=eng-tetris-v31"></script>
-    <script src="modes_extra.js?v=eng-tetris-v31"></script>
-    <script src="meanings.js?v=eng-tetris-v31"></script>
+    <script src="wordbank_daily.js?v=eng-tetris-v32"></script>
+    <script src="wordbank_cet4.js?v=eng-tetris-v32"></script>
+    <script src="wordbank_cet6.js?v=eng-tetris-v32"></script>
+    <script src="wordbank_phon.js?v=eng-tetris-v32"></script>
+    <script src="wordbank_zh.js?v=eng-tetris-v32"></script>
+    <script src="wordbank_ru.js?v=eng-tetris-v32"></script>
+    <script src="modes_extra.js?v=eng-tetris-v32"></script>
+    <script src="meanings.js?v=eng-tetris-v32"></script>
     <script src="hanzi-writer.min.js"></script>
-    <script src="hanzi_data.js?v=eng-tetris-v31"></script>
+    <script src="hanzi_data.js?v=eng-tetris-v32"></script>
 </head>
 <body>
     <div id="loadingScreen">
@@ -954,7 +954,7 @@
     </div>
 
     <!-- 扩展玩法通用视图容器（听力挑战 / 记忆配对 / 未来玩法 / DIY） -->
-    <div id="gameVerBadge" style="position:fixed;left:10px;bottom:8px;z-index:40;font-size:12px;color:rgba(255,255,255,.35);letter-spacing:1px;user-select:none;">v2.1.4</div>
+    <div id="gameVerBadge" style="position:fixed;left:10px;bottom:8px;z-index:40;font-size:12px;color:rgba(255,255,255,.35);letter-spacing:1px;user-select:none;">v2.1.5</div>
     <div id="extra-mode-view"></div>
 
     <!-- 写字学中文模式视图 -->
@@ -1222,6 +1222,7 @@
         // 填词大作战模式状态
         let m3State = 'idle', m3Grid = [], m3Rows = 12, m3Cols = 12, m3CellElements = [];
         let m3SelectedCell = null, m3Score = 0, m3Steps = 0, m3WordMap = {}, m3Cfg = null;
+        let m3LearnPool = null, m3LearnKeys = null; // 非英语学习语言：奖励词池/板面字母与匹配池（学习语言专属，杜绝英文词混入）
         let m3Targets = [], m3ResultEl = null, m3CellSize = 0, m3Locked = false;
         let m3Container = document.getElementById('m3-grid-container');
         let m3ChainCount = 0, m3Busy = false, m3Combo = 0, m3ComboLeft = 0;
@@ -1406,42 +1407,56 @@
         const wordAudioFail = {};
         let activeWordAudios = [];
         function stopAllWordAudio() { activeWordAudios.forEach(a => { try { a.pause(); a.onended = null; } catch (e) {} }); activeWordAudios = []; }
-        function speakWordTTS(word) {
-            if (!('speechSynthesis' in window)) return;
+        function speakWordTTS(word, cb) {
+            if (!('speechSynthesis' in window)) { if (cb) setTimeout(cb, 300); return; }
             try {
                 if (window.speechSynthesis.paused) window.speechSynthesis.resume();
                 window.speechSynthesis.cancel();
-                const speakText = (selectedLanguage === 'zh' && window.ZH_DISPLAY) ? (ZH_DISPLAY[word] || word) : String(word).toLowerCase();
+                const w = String(word || '');
+                /* 学中文：必须把汉字交给中文语音引擎，绝不让拼音被按英文拼读 */
+                const speakText = (selectedLanguage === 'zh')
+                    ? ((window.ZH_DISPLAY && ZH_DISPLAY[w]) || (window.ZH_WORDS && ZH_WORDS[w] && ZH_WORDS[w].hanzi) || w)
+                    : w.toLowerCase();
+                const wantLang = LANG_TTS[selectedLanguage] || 'en-US';
                 const u = new SpeechSynthesisUtterance(speakText);
-                u.lang = LANG_TTS[selectedLanguage] || 'en-US';
-                u.rate = 0.9; u.volume = 1;
-                if (synthVoices.length > 0) {
-                    const langPrefix = (LANG_TTS[selectedLanguage] || 'en-US').split('-')[0];
-                    let v = synthVoices.find(v => v.lang === u.lang);
-                    if (!v) v = synthVoices.find(v => v.lang.startsWith(langPrefix));
-                    if (v) u.voice = v;
-                }
+                u.lang = wantLang;
+                u.rate = selectedLanguage === 'zh' ? 0.8 : 0.9; u.volume = 1;
+                if (synthVoices.length === 0) loadVoices();
+                const langPrefix = wantLang.split('-')[0];
+                let v = synthVoices.find(v => v.lang && v.lang.replace('_', '-') === wantLang);
+                if (!v) v = synthVoices.find(v => v.lang && v.lang.toLowerCase().replace('_', '-').indexOf(langPrefix) === 0);
+                if (v) u.voice = v;
+                let finished = false;
+                const finish = () => { if (finished) return; finished = true; if (cb) setTimeout(cb, 120); };
+                u.onend = finish; u.onerror = finish;
                 setTimeout(function () { window.speechSynthesis.speak(u); }, 60);
-            } catch (e) {}
+                setTimeout(finish, 5200); // 语音引擎无回调时的兜底
+            } catch (e) { if (cb) setTimeout(cb, 200); }
         }
-        function speakWord(word) {
+        /* 朗读单词：本地音频 mp3 → wav → 系统 TTS 单链回退（修复旧实现 mp3 失败后原地重试的递归）；
+           cb 在真正播完后触发，供「词语→释义」连读排队，避免慢网络下语音串序/互相打断 */
+        let wordSpeakGen = 0;
+        function speakWord(word, cb) {
             const w = String(word || '').toLowerCase();
-            if (!w) return;
+            if (!w) { if (cb) cb(); return; }
+            const gen = ++wordSpeakGen;
             stopAllWordAudio();
+            const next = (u) => tryAudio(u.indexOf('.mp3') >= 0 ? u.replace('.mp3', '.wav') : '');
             const tryAudio = (u) => {
-                if (!u) { speakWordTTS(w); return; }
-                if (wordAudioFail[u]) { tryAudio(u.indexOf('.wav') >= 0 ? '' : u.replace('.wav', '.mp3')); return; }
+                if (gen !== wordSpeakGen) return;
+                if (!u) { speakWordTTS(w, finish); return; }
+                if (wordAudioFail[u]) { next(u); return; }
                 const a = new Audio(u);
                 a.volume = 1;
                 let fired = false;
-                const failOnce = () => { if (fired) return; fired = true; wordAudioFail[u] = true; tryAudio(u.indexOf('.wav') >= 0 ? '' : u.replace('.wav', '.mp3')); };
+                const failOnce = () => { if (fired) return; fired = true; wordAudioFail[u] = true; next(u); };
                 a.onerror = failOnce;
-                try { const p = a.play(); if (p && p.catch) p.catch(failOnce); } catch (e) { failOnce(); }
+                try { const p = a.play(); if (p && p.catch) p.catch(failOnce); } catch (e) { failOnce(); return; }
                 activeWordAudios.push(a);
-                a.onended = () => { const i = activeWordAudios.indexOf(a); if (i >= 0) activeWordAudios.splice(i, 1); };
+                a.onended = () => { const i = activeWordAudios.indexOf(a); if (i >= 0) activeWordAudios.splice(i, 1); finish(); };
             };
+            const finish = () => { if (gen === wordSpeakGen && cb) setTimeout(cb, 100); };
             tryAudio('sounds/words/' + encodeURIComponent(w) + '.mp3');
-            tryAudio('sounds/words/' + encodeURIComponent(w) + '.wav');
         }
         function speakLetterTTS(ch) {
             if (!('speechSynthesis' in window)) return;
@@ -1548,7 +1563,7 @@
         const imgUrl2 = wordInfo.img && typeof wordInfo.img === 'string' && /^(blob:|data:|https?:)/.test(wordInfo.img) ? wordInfo.img : null;
         DOM.popupEmoji.innerHTML = imgUrl2 ? '<img src="' + imgUrl2 + '">' : (wordInfo.img || '📝');
         if (wordInfo.audio) { try { new Audio(wordInfo.audio).play(); } catch (e) {} }
-        DOM.popupWord.innerText = _dw(word); DOM.popupMeaning.innerText = _lm(word, wordInfo.mean); DOM.popupScore.innerText = scoreGain > 0 ? ('+' + scoreGain + (statsCurrentCombo > 1 ? '  ' + _t('combo', { n: statsCurrentCombo }) : '')) : ''; DOM.popupScore.classList.toggle('hidden', scoreGain <= 0); if (wordInfo.color) { DOM.wordPopup.style.backgroundColor = wordInfo.color; DOM.wordPopup.style.backgroundImage = 'linear-gradient(135deg, rgba(255,255,255,0.2), rgba(0,0,0,0.5))'; } else { DOM.wordPopup.style.backgroundColor = isTarget ? '#f1c40f' : '#0f3460'; DOM.wordPopup.style.backgroundImage = isTarget ? 'linear-gradient(135deg, #f1c40f, #e94560)' : 'linear-gradient(135deg, #e94560, #0f3460)'; } DOM.wordPopup.classList.remove('hidden'); setTimeout(() => DOM.wordPopup.classList.add('show'), 10); speakWord(word); const myGameId = currentGameId; setTimeout(() => { if (myGameId !== currentGameId) return; DOM.wordPopup.classList.remove('show'); setTimeout(() => { if (myGameId !== currentGameId) return; DOM.wordPopup.classList.add('hidden'); showNextPopup(); }, 250); }, 1500); }
+        DOM.popupWord.innerText = _dw(word); DOM.popupMeaning.innerText = _lm(word, wordInfo.mean); DOM.popupScore.innerText = scoreGain > 0 ? ('+' + scoreGain + (statsCurrentCombo > 1 ? '  ' + _t('combo', { n: statsCurrentCombo }) : '')) : ''; DOM.popupScore.classList.toggle('hidden', scoreGain <= 0); if (wordInfo.color) { DOM.wordPopup.style.backgroundColor = wordInfo.color; DOM.wordPopup.style.backgroundImage = 'linear-gradient(135deg, rgba(255,255,255,0.2), rgba(0,0,0,0.5))'; } else { DOM.wordPopup.style.backgroundColor = isTarget ? '#f1c40f' : '#0f3460'; DOM.wordPopup.style.backgroundImage = isTarget ? 'linear-gradient(135deg, #f1c40f, #e94560)' : 'linear-gradient(135deg, #e94560, #0f3460)'; } DOM.wordPopup.classList.remove('hidden'); setTimeout(() => DOM.wordPopup.classList.add('show'), 10); speakWord(_dw(word)); const myGameId = currentGameId; setTimeout(() => { if (myGameId !== currentGameId) return; DOM.wordPopup.classList.remove('show'); setTimeout(() => { if (myGameId !== currentGameId) return; DOM.wordPopup.classList.add('hidden'); showNextPopup(); }, 250); }, 1500); }
         function spawnNextPiece() { currentPiece = nextPiece; nextPiece = createPiece(); drawNextPiece(); canHold = true; drawHoldPiece(); if (collision(currentPiece)) gameOver(); else state = 'falling'; }
         function updateScoreDisplay() { DOM.scoreValueSide.innerText = score; let level = Math.floor(score / 2000) + 1; DOM.levelValue.textContent = level; DOM.scoreValue.classList.remove('bump'); void DOM.scoreValue.offsetWidth; DOM.scoreValue.classList.add('bump'); setTimeout(() => DOM.scoreValue.classList.remove('bump'), 150); updateGameSpeed(); }
         function animateScore() { if (displayScore < score) { let diff = score - displayScore; displayScore += Math.max(1, Math.ceil(diff * 0.15)); if (displayScore > score) displayScore = score; DOM.scoreValue.innerText = displayScore; } }
@@ -1944,7 +1959,7 @@
             return { rows: 12, cols: 12, steps: 0, targets, maxChain: 4 };
         }
         function shuffle(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); const t = arr[i]; arr[i] = arr[j]; arr[j] = t; } return arr; }
-        function m3RandomLetter() { const pool = []; const cur = m3HotTarget(); if (cur) { for (let i = 0; i < cur.word.length; i++) pool.push(cur.word[i].toLowerCase()); for (let i = 0; i < cur.word.length; i++) pool.push(cur.word[i].toLowerCase()); } if (m3Targets.length > 0) m3Targets.forEach(t => { if (!t.done) { for (let i = 0; i < t.word.length; i++) pool.push(t.word[i].toLowerCase()); } }); const keys = Object.keys(m3WordMap); for (let i = 0; i < 4 && keys.length > 0; i++) { const w = keys[Math.floor(Math.random() * keys.length)]; if (w.length >= 2) pool.push(w[Math.floor(Math.random() * w.length)]); } return pool[Math.floor(Math.random() * pool.length)] || 'e'; }
+        function m3RandomLetter() { const pool = []; const cur = m3HotTarget(); if (cur) { for (let i = 0; i < cur.word.length; i++) pool.push(cur.word[i].toLowerCase()); for (let i = 0; i < cur.word.length; i++) pool.push(cur.word[i].toLowerCase()); } if (m3Targets.length > 0) m3Targets.forEach(t => { if (!t.done) { for (let i = 0; i < t.word.length; i++) pool.push(t.word[i].toLowerCase()); } }); const keys = m3LearnKeys || Object.keys(m3WordMap); for (let i = 0; i < 4 && keys.length > 0; i++) { const w = keys[Math.floor(Math.random() * keys.length)]; if (w.length >= 2) pool.push(w[Math.floor(Math.random() * w.length)]); } return pool[Math.floor(Math.random() * pool.length)] || 'e'; }
         function m3CellPx(r, c) { return { x: c * m3CellSize + M3_GAP, y: r * m3CellSize + M3_GAP }; }
         function m3DoneCount() { return m3Targets.filter(t => t.done).length; }
         function m3AllTargetsDone() { return m3Targets.length > 0 && m3Targets.every(t => t.done); }
@@ -2210,8 +2225,10 @@
         // ===== 奖励单词空洞：eat/apple/fight 等基础词，拼成后把图标砸向怪物 =====
         function m3PlantBonusHoles() {
             m3BonusWords = [];
-            /* 奖励词跟随学习语言：中文给拼音词、俄文给俄语词，英语保留经典奖励词表 */
-            var candidates = Object.keys(m3WordMap).filter(function (w) {
+            /* 奖励词跟随学习语言：非英语只从学习语言奖励池取（中文=拼音词、俄文=俄语词），
+               英语保留经典全词库；池子不足时才回退全词库 */
+            var base = (m3LearnPool && Object.keys(m3LearnPool).length >= 2) ? Object.keys(m3LearnPool) : Object.keys(m3WordMap);
+            var candidates = base.filter(function (w) {
                 return w.length >= 3 && w.length <= 6 && !m3Targets.some(function (t) { return t.word === w; });
             });
             if (candidates.length < 2) {
@@ -2351,7 +2368,7 @@
                 const word = m3HoleWord;
                 const allCells = m3CurtainCells.slice();
 
-                // 1. 音频在学习卡片中按「母语释义→中文」朗读
+                // 1. 音频在学习卡片中按「目标词(中文语音)→母语释义」顺序朗读，词播完才读释义
                 playSoundTarget();
 
                 // 2. 弹出学习卡片（简短，保持节奏）
@@ -2670,6 +2687,21 @@
             m3WordMap = {};
             for (const w in EN_WORDS) { if (!EN_WORDS[w].single && w.length >= 2) m3WordMap[w] = EN_WORDS[w]; }
             Object.assign(m3WordMap, customDict);
+            /* 奖励词/板面词跟随学习语言：学中文给拼音词、学俄文给俄语词，杜绝英文奖励洞（如 idea/fish）；
+               英语保留经典全词库玩法。pool 同时喂给随机字母池与板面匹配池 */
+            m3LearnPool = null; m3LearnKeys = null;
+            if (selectedLanguage === 'zh' || selectedLanguage === 'ru') {
+                m3LearnPool = {};
+                const put = (w, mean) => { if (w && w.length >= 3 && w.length <= 6 && !m3LearnPool[w]) m3LearnPool[w] = { mean: mean || '', img: '📝', audio: null, single: false }; };
+                if (selectedLanguage === 'zh') {
+                    Object.keys(window.ZH_DISPLAY || {}).forEach(k => put(k, ZH_DISPLAY[k]));
+                    Object.keys(window.ZH_WORDS || {}).forEach(k => { const z = ZH_WORDS[k]; if (z) put(k, z.hanzi || z.mean || ''); });
+                } else {
+                    [window.RU_LEVELS, window.RU_LEVELS2, window.RU_LEVELS3].forEach(bank => (bank || []).forEach(lv => (lv.words || []).forEach(x => put(x[0], x[1] || ''))));
+                }
+                Object.assign(m3WordMap, m3LearnPool);
+                m3LearnKeys = Object.keys(m3LearnPool).concat(Object.keys(customDict || {}));
+            }
             m3Cfg = m3BuildConfig(customDict, level);
             m3Rows = m3Cfg.rows; m3Cols = m3Cfg.cols; m3Steps = 0;
             m3Targets = m3Cfg.targets.map(t => Object.assign({}, t));
@@ -2879,7 +2911,7 @@
         function m3RearrangeForNewTarget() { m3EatenRows = 0; m3EatProgress = 0; m3TargetEatCount = 0; for (let r = 0; r < m3Rows; r++) { for (let c = 0; c < m3Cols; c++) { m3Grid[r][c] = { letter: m3RandomLetter() }; } } m3PlantHoles(); renderMatch3Grid(true); updateM3UI(); m3CurtainCells.forEach(([r, c], i) => { setTimeout(() => { const el = m3CellElements[r] && m3CellElements[r][c]; if (el) el.classList.add('curtain-drop'); }, 40 + i * 30); }); m3HoleShapes.forEach((hs, hi) => { hs.cells.forEach((cell, i) => { setTimeout(() => { const el = m3CellElements[cell.r] && m3CellElements[cell.r][cell.c]; if (el) el.classList.add('burst'); }, 150 + hi * 200 + i * 40); }); }); const t = m3HotTarget(); if (t) showM3Toast(_t('m3NewTarget') + t.word + '（' + t.mean + '）'); m3StartFeeder(); m3StartEater(); }
         function m3FinishAfter() { m3ClearHints(); if (m3AllTargetsDone()) { m3Win(); return; } m3RestoreCells(); m3State = 'idle'; m3Busy = false; m3ResetIdle(); }
         function m3RestoreCells() { for (let r = 0; r < m3Rows; r++) for (let c = 0; c < m3Cols; c++) { const cell = m3Grid[r] && m3Grid[r][c]; if (cell) cell.clearing = false; const el = m3CellElements[r] && m3CellElements[r][c]; if (el) { el.classList.remove('clearing', 'crisscross', 'burst', 'rock', 'swapping', 'selected', 'letter-zoom'); el.style.opacity = '1'; el.style.transform = ''; el.style.transition = ''; const vr = r - m3EatenRows; if (vr < 0) { el.style.display = 'none'; } else { el.style.display = ''; const pos = m3CellPx(vr, c); el.style.left = pos.x + 'px'; el.style.top = pos.y + 'px'; } } } }
-        function m3FindWords(onlyAt) { const found = []; const seen = new Set(); const curT = m3HotTarget(); const words = m3Locked ? (curT ? [curT.word] : []).filter(w => w.length >= 2) : Object.keys(m3WordMap).filter(w => w.length >= 2); const isIn = (cells) => { if (!onlyAt) return true; return cells.some(c => onlyAt.some(o => o.r === c.r && o.c === c.c)); }; const addMatch = (word, cells, dir) => { if (!isIn(cells)) return; const key = word + '|' + cells.map(c => c.r + ',' + c.c).join(';'); if (seen.has(key)) return; seen.add(key); found.push({ word, cells, dir: dir || 'H' }); }; for (let k = 0; k < words.length; k++) { const w = words[k]; if (w.length > m3Cols) { m3FindMultiRowWord(w, addMatch); continue; } for (let r = 0; r < m3Rows; r++) { for (let c = 0; c + w.length <= m3Cols; c++) { let ok = true; const cells = []; for (let i = 0; i < w.length; i++) { const cell = m3Grid[r][c + i]; if (!cell || cell.clearing || cell.rock || cell.hole || cell.fixed || cell.letter.toLowerCase() !== w[i]) { ok = false; break; } cells.push({ r, c: c + i }); } if (ok) addMatch(w, cells, 'H'); } } for (let c = 0; c < m3Cols; c++) { for (let r = 0; r + w.length <= m3Rows; r++) { let ok = true; const cells = []; for (let i = 0; i < w.length; i++) { const cell = m3Grid[r + i][c]; if (!cell || cell.clearing || cell.rock || cell.hole || cell.fixed || cell.letter.toLowerCase() !== w[i]) { ok = false; break; } cells.push({ r: r + i, c }); } if (ok) addMatch(w, cells, 'V'); } } } return found; }
+        function m3FindWords(onlyAt) { const found = []; const seen = new Set(); const curT = m3HotTarget(); const words = m3Locked ? (curT ? [curT.word] : []).filter(w => w.length >= 2) : (m3LearnKeys || Object.keys(m3WordMap)).filter(w => w.length >= 2); const isIn = (cells) => { if (!onlyAt) return true; return cells.some(c => onlyAt.some(o => o.r === c.r && o.c === c.c)); }; const addMatch = (word, cells, dir) => { if (!isIn(cells)) return; const key = word + '|' + cells.map(c => c.r + ',' + c.c).join(';'); if (seen.has(key)) return; seen.add(key); found.push({ word, cells, dir: dir || 'H' }); }; for (let k = 0; k < words.length; k++) { const w = words[k]; if (w.length > m3Cols) { m3FindMultiRowWord(w, addMatch); continue; } for (let r = 0; r < m3Rows; r++) { for (let c = 0; c + w.length <= m3Cols; c++) { let ok = true; const cells = []; for (let i = 0; i < w.length; i++) { const cell = m3Grid[r][c + i]; if (!cell || cell.clearing || cell.rock || cell.hole || cell.fixed || cell.letter.toLowerCase() !== w[i]) { ok = false; break; } cells.push({ r, c: c + i }); } if (ok) addMatch(w, cells, 'H'); } } for (let c = 0; c < m3Cols; c++) { for (let r = 0; r + w.length <= m3Rows; r++) { let ok = true; const cells = []; for (let i = 0; i < w.length; i++) { const cell = m3Grid[r + i][c]; if (!cell || cell.clearing || cell.rock || cell.hole || cell.fixed || cell.letter.toLowerCase() !== w[i]) { ok = false; break; } cells.push({ r: r + i, c }); } if (ok) addMatch(w, cells, 'V'); } } } return found; }
         function m3FindMultiRowWord(word, addMatch) { let result = null; const used = new Set(); const search = (idx, prevRow, acc) => { if (result) return true; if (idx >= word.length) { result = acc.slice(); return true; } for (let len = Math.min(word.length - idx, m3Cols); len >= 1; len--) { for (let r = prevRow + 1; r < m3Rows; r++) { for (let c = 0; c + len <= m3Cols; c++) { let ok = true; const cells = []; for (let i = 0; i < len; i++) { const key = r + ',' + (c + i); const cell = m3Grid[r][c + i]; if (!cell || cell.clearing || cell.rock || cell.hole || cell.fixed || cell.letter.toLowerCase() !== word[idx + i] || used.has(key)) { ok = false; break; } cells.push({ r, c: c + i }); } if (ok) { cells.forEach(x => used.add(x.r + ',' + x.c)); if (search(idx + len, r, acc.concat(cells))) return true; cells.forEach(x => used.delete(x.r + ',' + x.c)); } } } } return false; }; search(0, -1, []); if (result) addMatch(word, result, 'M'); }
         
         // 优化：消除逻辑——延长动画时长
@@ -2967,7 +2999,7 @@
         function m3AddLearned(word) { if (m3Learned.some(x => x.word === word)) return; const info = m3WordMap[word] || {}; m3Learned.push({ word, mean: info.mean || '', img: info.img || '📝' }); const countEl = document.getElementById('m3-learned-count'); if (countEl) countEl.innerText = m3Learned.length; const panel = document.getElementById('m3-learned-panel'); if (panel) { const chip = document.createElement('span'); chip.className = 'm3-learned-chip'; chip.style.background = m3ColorOf(word[0]); chip.innerText = word; chip.title = info.mean || ''; panel.appendChild(chip); } }
         function m3QueuePopup(word, pts, isTarget) { if (m3PopupShownWords[word]) return; m3PopupShownWords[word] = true; m3PopupQueue.push({ word, pts, isTarget }); }
         function m3DrainPopupQueue() { if (m3PopupQueue.length === 0) return; const item = m3PopupQueue.shift(); showM3Popup(item.word, item.pts, item.isTarget, () => setTimeout(m3DrainPopupQueue, 220)); }
-        function m3Speak(word) { const info = m3WordMap[word]; if (info && info.audio) { try { const a = new Audio(info.audio); a.play(); return; } catch (e) {} } speakWord(word); }
+        function m3Speak(word) { const info = m3WordMap[word]; if (info && info.audio) { try { const a = new Audio(info.audio); a.play(); return; } catch (e) {} } speakWord(_dw(word)); }
         function showM3Popup(word, score, isTarget, onDone) { const info = m3WordMap[word] || { mean: _t('unknownWord'), img: '📝' }; const imgUrl = info.img && typeof info.img === 'string' && /^(blob:|data:|https?:)/.test(info.img) ? info.img : null; const ipaInfo = (typeof PHONETICS !== 'undefined') ? PHONETICS[String(word).toLowerCase()] : null; DOM.popupEmoji.innerHTML = imgUrl ? '<img src="' + imgUrl + '">' : (info.img || '📝'); DOM.popupWord.innerText = word; DOM.popupMeaning.innerText = info.mean + (ipaInfo && ipaInfo.ipa ? '　/' + ipaInfo.ipa + '/' : ''); DOM.popupScore.innerText = score > 0 ? ('+' + score + (isTarget ? ' 🎯' : '')) : ''; DOM.popupScore.classList.toggle('hidden', score <= 0); if (info.color) DOM.wordPopup.style.background = info.color; else DOM.wordPopup.style.background = isTarget ? 'linear-gradient(135deg,#f1c40f,#e94560)' : 'linear-gradient(135deg,#e94560,#0f3460)'; DOM.wordPopup.classList.remove('hidden'); setTimeout(() => DOM.wordPopup.classList.add('show'), 10); try { m3Speak(word); } catch (e) {} const dur = isTarget ? 3400 : Math.min(3400, 1200 + word.length * 160); setTimeout(() => { DOM.wordPopup.classList.remove('show'); setTimeout(() => { DOM.wordPopup.classList.add('hidden'); if (onDone) onDone(); }, 300); }, dur); }
         function showM3Toast(text) { let toast = document.getElementById('m3-toast'); if (!toast) { toast = document.createElement('div'); toast.id = 'm3-toast'; toast.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(241,196,15,0.95);color:#000;font-weight:bold;font-size:1.2rem;padding:12px 24px;border-radius:10px;z-index:3500;box-shadow:0 0 20px rgba(241,196,15,0.6);transition:opacity .3s;pointer-events:none;white-space:nowrap;'; document.body.appendChild(toast); } toast.innerText = text; toast.style.opacity = '1'; clearTimeout(toast._t); toast._t = setTimeout(() => { toast.style.opacity = '0'; }, 1400); }
         function m3CalcStars(isWin) { if (isWin) { const total = Math.max(10, m3Targets.reduce((a, t) => a + t.word.length, 0)); if (m3Steps <= Math.round(total * 0.6)) return 3; if (m3Steps <= Math.round(total * 1.0)) return 2; return 1; } return m3Score >= 3000 ? 2 : m3Score >= 1000 ? 1 : 0; }
@@ -4029,7 +4061,7 @@
             flash.innerHTML = '✅ ' + word + '　' + mean + (perfect ? '　PERFECT!' : '');
             flash.classList.add('show');
             playSoundClear();
-            speakWord(word);
+            speakWord(_dw(word));
             if (q.cleanStreak >= 3) { q.cleanStreak = 0; q.score += 100; showM3Toast(_t('qCombo3')); }
             qRenderTop();
             setTimeout(() => {
@@ -4398,9 +4430,11 @@
             } catch (e) { if (cb) setTimeout(cb, 200); }
         }
         function wSpeakPair(wordHan, meanText) {
-            /* 先读目标语言词语，再读学习者语言的释义 */
-            speakWord(wordHan);
-            setTimeout(() => wSpeakLocalized(meanText), Math.max(1000, String(wordHan).length * 220));
+            /* 先读目标语言词语（真正播完），再读学习者语言的释义——不再用固定延时，慢网络下也不串序/打断 */
+            let fired = false;
+            const goMeaning = () => { if (fired) return; fired = true; wSpeakLocalized(meanText); };
+            const guard = setTimeout(goMeaning, 4500);
+            speakWord(wordHan, () => { clearTimeout(guard); setTimeout(goMeaning, 150); });
         }
         function wSetMsg(text) { const m = document.getElementById('w-msg'); if (m) m.textContent = text || ''; }
         function wBuildMap() {
@@ -4785,7 +4819,7 @@
     </script>
     <script>
     (function () {
-        var GAME_VER = '2.1.4';
+        var GAME_VER = '2.1.5';
         try {
             var badge = document.getElementById('gameVerBadge');
             if (badge) badge.textContent = '世界语言方块 v' + GAME_VER;

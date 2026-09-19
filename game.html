@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#1a1a2e">
     <link rel="manifest" href="manifest.webmanifest">
-    <script src="i18n.js?v=eng-tetris-v33"></script>
+    <script src="i18n.js?v=eng-tetris-v34"></script>
     <link rel="apple-touch-icon" href="icons/icon-192.png">
     <title>世界语言方块</title>
     <style>
@@ -259,7 +259,7 @@
         .word-keep { box-shadow: 0 0 10px rgba(241,196,15,.55) !important; animation: wordkeep-pop .4s ease; }
         @keyframes wordkeep-pop { 0% { transform: scale(.5); } 70% { transform: scale(1.25); } 100% { transform: scale(1); } }
         #m3-grid-container { position: relative; width: min(92vmin, calc(100vh - 280px), 620px); aspect-ratio: 1/1; flex-shrink: 0; background: radial-gradient(circle at 30% 20%, #1d2b52 0%, #111a35 70%); border: 2px solid rgba(241,196,15,0.3); border-radius: 12px; overflow: hidden; box-shadow: 0 6px 20px rgba(0,0,0,0.55), inset 0 0 24px rgba(0,0,0,0.4); }
-        .m3-cell { position: absolute; display: flex; justify-content: center; align-items: center; font-weight: 900; color: #000; cursor: pointer; border-radius: 6px; transition: top 0.3s cubic-bezier(0.34,1.2,0.64,1), left 0.3s cubic-bezier(0.34,1.2,0.64,1), transform 0.15s, box-shadow 0.15s; box-shadow: inset 0 0 6px rgba(255,255,255,0.4), inset 0 -3px 0 rgba(0,0,0,0.2), 0 2px 4px rgba(0,0,0,0.3); border: 1px solid rgba(0,0,0,0.25); text-transform: lowercase; }
+        .m3-cell { position: absolute; display: flex; justify-content: center; align-items: center; font-weight: 900; color: #000; cursor: pointer; border-radius: 6px; transition: top 0.3s cubic-bezier(0.34,1.2,0.64,1), left 0.3s cubic-bezier(0.34,1.2,0.64,1), transform 0.15s; box-shadow: inset 0 0 6px rgba(255,255,255,0.4), inset 0 -3px 0 rgba(0,0,0,0.2), 0 2px 4px rgba(0,0,0,0.3); border: 1px solid rgba(0,0,0,0.25); text-transform: lowercase; }
         .m3-cell:hover { transform: translateY(-2px); }
         .m3-cell.selected { transform: translateY(-5px) scale(1.08); box-shadow: 0 0 14px rgba(255,255,255,0.6), 0 8px 16px rgba(0,0,0,0.4); border-color: #fff; z-index: 20; }
         .m3-cell.swapping { transform: translateY(-5px) scale(1.1); box-shadow: 0 0 18px #fff, 0 8px 20px rgba(0,0,0,0.5); border-color: #fff; z-index: 20; }
@@ -273,9 +273,10 @@
         .m3-spark { position: fixed; width: 10px; height: 10px; border-radius: 50%; z-index: 4500; pointer-events: none; transition: left 0.6s ease-out, top 0.6s ease-out, opacity 0.6s ease-out, transform 0.6s ease-out; opacity: 1; }
         #m3-target-panel { width: 100%; background: rgba(15,52,96,0.85); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 10px 12px; box-shadow: 0 4px 14px rgba(0,0,0,0.4); }
         .m3-target-head { display: flex; align-items: center; justify-content: center; gap: 10px; color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-bottom: 6px; }
-        #m3-current-target { display: flex; align-items: center; justify-content: center; gap: 14px; padding: 8px 18px; border-radius: 10px; background: rgba(241,196,15,0.12); border: 1px solid rgba(241,196,15,0.4); animation: m3HotPulse 1.6s infinite; }
-        #m3-current-word { font-size: 1.7rem; font-weight: 900; color: var(--target-glow); text-transform: capitalize; letter-spacing: 2px; text-shadow: 0 0 12px rgba(241,196,15,0.6); }
-        #m3-current-mean { font-size: 0.95rem; color: rgba(255,255,255,0.8); }
+        /* flex-wrap：窄屏放不下时整块换行（释义换行），词语本身永不竖排 */
+        #m3-current-target { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px 14px; padding: 8px 18px; border-radius: 10px; background: rgba(241,196,15,0.12); border: 1px solid rgba(241,196,15,0.4); animation: m3HotPulse 1.6s infinite; }
+        #m3-current-word { font-size: 1.7rem; font-weight: 900; color: var(--target-glow); text-transform: capitalize; letter-spacing: 2px; text-shadow: 0 0 12px rgba(241,196,15,0.6); white-space: nowrap; flex-shrink: 0; }
+        #m3-current-mean { font-size: 0.95rem; color: rgba(255,255,255,0.8); white-space: nowrap; }
         .m3-ipa { font-size: 0.82rem; color: #7bed9f; letter-spacing: 0.5px; font-weight: bold; }
         @keyframes m3HotPulse { 0%,100% { box-shadow: 0 0 6px rgba(241,196,15,0.4); } 50% { box-shadow: 0 0 14px rgba(241,196,15,0.8); } }
         .m3-result-title { font-size: 2.2rem; font-weight: 900; margin-bottom: 14px; background: linear-gradient(to right, #e94560, #f1c40f); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
@@ -731,18 +732,20 @@
             #btnPauseIcon { width: 36px; height: 36px; font-size: 1rem; top: 8px; right: 8px; }
         }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script>if (typeof JSZip === 'undefined') document.write('<script src="jszip.min.js"><\/script>');</script>
-    <script src="wordbank_daily.js?v=eng-tetris-v33"></script>
-    <script src="wordbank_cet4.js?v=eng-tetris-v33"></script>
-    <script src="wordbank_cet6.js?v=eng-tetris-v33"></script>
-    <script src="wordbank_phon.js?v=eng-tetris-v33"></script>
-    <script src="wordbank_zh.js?v=eng-tetris-v33"></script>
-    <script src="wordbank_ru.js?v=eng-tetris-v33"></script>
-    <script src="modes_extra.js?v=eng-tetris-v33"></script>
-    <script src="meanings.js?v=eng-tetris-v33"></script>
+    <!-- JSZip 仅 ZIP 关卡上传用：本地加载（cdnjs 外链在国内阻塞首屏可达数秒，已移除） -->
+    <script src="jszip.min.js?v=eng-tetris-v34"></script>
+    <script src="wordbank_daily.js?v=eng-tetris-v34"></script>
+    <script src="wordbank_cet4.js?v=eng-tetris-v34"></script>
+    <script src="wordbank_cet6.js?v=eng-tetris-v34"></script>
+    <script src="wordbank_phon.js?v=eng-tetris-v34"></script>
+    <script src="wordbank_zh.js?v=eng-tetris-v34"></script>
+    <script src="wordbank_ru.js?v=eng-tetris-v34"></script>
+    <script src="word_fx_data.js?v=eng-tetris-v34"></script>
+    <script src="word_fx.js?v=eng-tetris-v34"></script>
+    <script src="modes_extra.js?v=eng-tetris-v34"></script>
+    <script src="meanings.js?v=eng-tetris-v34"></script>
     <script src="hanzi-writer.min.js"></script>
-    <script src="hanzi_data.js?v=eng-tetris-v33"></script>
+    <script src="hanzi_data.js?v=eng-tetris-v34"></script>
 </head>
 <body>
     <div id="loadingScreen">
@@ -956,7 +959,7 @@
     </div>
 
     <!-- 扩展玩法通用视图容器（听力挑战 / 记忆配对 / 未来玩法 / DIY） -->
-    <div id="gameVerBadge" style="position:fixed;left:10px;bottom:8px;z-index:40;font-size:12px;color:rgba(255,255,255,.35);letter-spacing:1px;user-select:none;">v2.1.6</div>
+    <div id="gameVerBadge" style="position:fixed;left:10px;bottom:8px;z-index:40;font-size:12px;color:rgba(255,255,255,.35);letter-spacing:1px;user-select:none;">v2.2.0</div>
     <div id="extra-mode-view"></div>
 
     <!-- 写字学中文模式视图 -->
@@ -1380,9 +1383,10 @@
         function runLoadingSequence() {
             const loadingText = DOM.loadingText, loadingBar = DOM.loadingBar, loadingPercent = DOM.loadingPercent;
             let progress = 0;
-            const pi = setInterval(() => { progress += 1; if (progress >= 100) { progress = 100; clearInterval(pi); loadingBar.style.width = '100%'; loadingPercent.innerText = '100%'; } else { loadingBar.style.width = progress + '%'; loadingPercent.innerText = Math.floor(progress) + '%'; } }, 30);
+            /* 加载屏纯装饰：1.2s 快速过场（原 3s 拖慢进入游戏），进度条同步加速 */
+            const pi = setInterval(() => { progress += 4; if (progress >= 100) { progress = 100; clearInterval(pi); loadingBar.style.width = '100%'; loadingPercent.innerText = '100%'; } else { loadingBar.style.width = progress + '%'; loadingPercent.innerText = Math.floor(progress) + '%'; } }, 12);
             loadingText.innerText = _t('footer'); loadingText.classList.add('show');
-            setTimeout(() => { if(DOM.loadingScreen) DOM.loadingScreen.style.opacity = '0'; setTimeout(() => { if(DOM.loadingScreen) DOM.loadingScreen.style.display = 'none'; if(DOM.gameWrapper) DOM.gameWrapper.style.display = 'flex'; if(DOM.overlay) DOM.overlay.style.display = 'flex'; try { generatePile(); } catch(e) {} if (audioCtx) startBgMusic(); }, 800); }, 3000);
+            setTimeout(() => { if(DOM.loadingScreen) DOM.loadingScreen.style.opacity = '0'; setTimeout(() => { if(DOM.loadingScreen) DOM.loadingScreen.style.display = 'none'; if(DOM.gameWrapper) DOM.gameWrapper.style.display = 'flex'; if(DOM.overlay) DOM.overlay.style.display = 'flex'; try { generatePile(); } catch(e) {} if (audioCtx) startBgMusic(); }, 400); }, 1200);
         }
         function generatePile() { const pile = document.getElementById('tetrisPile'); if (!pile || pile.children.length > 0) return; const COLS = 11, ROWS = 10, CELL = 30; const heights = [3, 5, 4, 7, 10, 6, 9, 4, 6, 3, 4]; const wordCols = { 4: 'book', 6: 'moon', 8: 'star' }; const letters = 'abcdefghijklmnopqrstuvwxyz'; const rnd = (n) => Math.floor(Math.random() * n); for (let c = 0; c < COLS; c++) { const word = wordCols[c] || null; for (let r = 0; r < heights[c]; r++) { if (!word && r > 0 && r < heights[c] - 1 && Math.random() < 0.06) continue; const cell = document.createElement('div'); cell.className = 'pile-cell'; cell.style.left = (c * CELL) + 'px'; cell.style.bottom = (r * CELL) + 'px'; cell.style.background = COLORS[rnd(COLORS.length)]; const fromTop = heights[c] - 1 - r; cell.innerText = word ? (word[fromTop] || letters[rnd(26)]) : letters[rnd(26)]; pile.appendChild(cell); } } }
         function unlockAudio() { if (!audioCtx) { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} } if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); if ('speechSynthesis' in window) { try { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; setTimeout(function () { window.speechSynthesis.speak(u); }, 60); } catch(e) {} } if (audioCtx && !bgMusicTimer && (state === 'ready' || state === 'gameover')) startBgMusic(); }
@@ -2295,7 +2299,19 @@
             updateM3UI(); m3UpdatePKUI();
             playSoundTarget();
             wSpeakPair(_dw(b.word), _lmRaw(b.word, info.mean));
-            m3ThrowIconAtMonster(info.img, b.cells);
+            /* 词义特效：scene=全幕布场景，swarm=大量词义 emoji 砸向怪物；怪物受击扣血 */
+            try {
+                if (window.WORD_FX && window.WORD_FX_DATA) {
+                    var __src = null;
+                    try { var __el = m3CellElements[b.cells[0].r] && m3CellElements[b.cells[0].r][b.cells[0].c]; if (__el) { var __r = __el.getBoundingClientRect(); __src = { x: __r.left + __r.width / 2, y: __r.top + __r.height / 2 }; } } catch (e) {}
+                    WORD_FX.wordEvent(b.word, {
+                        display: _dw(b.word), lang: selectedLanguage, big: true, damage: reclaim,
+                        monsterEl: document.getElementById('m3-mouth'), source: __src
+                    });
+                } else {
+                    m3ThrowIconAtMonster(info.img, b.cells);
+                }
+            } catch (e) { m3ThrowIconAtMonster(info.img, b.cells); }
             showM3Toast(_t('m3BonusHit', { w: _dw(b.word) }));
             // 奖励词格子保留拼好的完整单词（金色高亮，学习强化），直到下次目标刷新
             b.cells.forEach((cell, i) => {
@@ -2372,6 +2388,17 @@
 
                 // 1. 音频在学习卡片中按「目标词(中文语音)→母语释义」顺序朗读，词播完才读释义
                 playSoundTarget();
+                /* 目标词完成：词义特效（中等强度）+ 怪物受击 */
+                try {
+                    if (window.WORD_FX && window.WORD_FX_DATA) {
+                        var __src2 = null;
+                        try { var __el2 = m3CellElements[allCells[0][0]] && m3CellElements[allCells[0][0]][allCells[0][1]]; if (__el2) { var __r2 = __el2.getBoundingClientRect(); __src2 = { x: __r2.left + __r2.width / 2, y: __r2.top + __r2.height / 2 }; } } catch (e) {}
+                        WORD_FX.wordEvent(word, {
+                            display: _dw(word), lang: selectedLanguage, big: false,
+                            monsterEl: document.getElementById('m3-mouth'), source: __src2
+                        });
+                    }
+                } catch (e) {}
 
                 // 2. 弹出学习卡片（简短，保持节奏）
                 await m3ShowLearnCard(word);
@@ -4838,7 +4865,7 @@
     </script>
     <script>
     (function () {
-        var GAME_VER = '2.1.6';
+        var GAME_VER = '2.2.0';
         try {
             var badge = document.getElementById('gameVerBadge');
             if (badge) badge.textContent = '世界语言方块 v' + GAME_VER;

@@ -169,7 +169,7 @@
             learnTimer = setTimeout(function () {
                 pop.classList.remove('show');
                 setTimeout(function () { pop.classList.add('hidden'); }, 300);
-            }, 2600);
+            }, 1700);
         }
 
         /* ================= 居中弹窗 ================= */
@@ -544,7 +544,7 @@
                     if (state.matched >= state.roundTotal) {
                         if (state.offset + CH < words.length) {
                             state.offset += CH;
-                            setTimeout(function () { if (!state.paused) buildGrid(); }, 1000);
+                            setTimeout(function () { if (!state.paused) buildGrid(); }, 600);
                         } else {
                             setTimeout(levelDone, 1000);
                         }

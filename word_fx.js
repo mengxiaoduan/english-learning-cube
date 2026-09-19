@@ -104,7 +104,9 @@
     /* ================= 工具 ================= */
     function rnd(a, b) { return a + Math.random() * (b - a); }
     function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-    function emojiFont(size) { return '900 ' + size + 'px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif'; }
+    /* 注意：不可加 font-weight —— 彩色 emoji 字体没有字重变体，
+       部分安卓内核(X5等)匹配失败会退化成单色符号字体，特效变成黑影 */
+    function emojiFont(size) { return size + 'px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji","EmojiOne Color","Twemoji",sans-serif'; }
     function drawEmoji(p, ctx2) {
         ctx2.save();
         ctx2.globalAlpha = Math.max(0, Math.min(1, p.alpha == null ? 1 : p.alpha));
@@ -154,6 +156,37 @@
         } catch (e) {}
         if (!n) { cx = window.innerWidth / 2; cy = window.innerHeight / 2.6; n = 1; }
         return { x: cx / n, y: cy / n };
+    }
+
+    /* ================= 词义图片库（fx_img/<key>.svg，Twemoji CC-BY 4.0） ================= */
+    var imgCache = {};   // key -> HTMLImageElement(已加载) | null(加载中/失败)
+    var imgMissing = {}; // 无图片的 key
+    function keyImgUrl(key) { return 'fx_img/' + key + '.svg'; }
+    function loadKeyImg(key) {
+        if (imgCache[key] !== undefined || imgMissing[key]) return imgCache[key] || null;
+        var D = window.WORD_FX_DATA || {};
+        if (!D.IMG || !D.IMG[key]) { imgMissing[key] = 1; return null; }
+        imgCache[key] = null;   // 加载中
+        var im = new Image();
+        im.onload = function () { imgCache[key] = im; };
+        im.onerror = function () { imgCache[key] = null; imgMissing[key] = 1; };
+        im.src = keyImgUrl(key);
+        return null;
+    }
+    function drawKeyImgOrEmoji(p, ctx2) {
+        var im = imgCache[p.fxKey];
+        if (im) {
+            ctx2.save();
+            ctx2.globalAlpha = Math.max(0, Math.min(1, p.alpha == null ? 1 : p.alpha));
+            ctx2.translate(p.x, p.y);
+            if (p.rot) ctx2.rotate(p.rot);
+            var s = p.size * 1.35;
+            ctx2.drawImage(im, -s / 2, -s / 2, s, s);
+            ctx2.restore();
+        } else {
+            if (!p.emoji) p.emoji = '⭐';
+            drawEmoji(p, ctx2);
+        }
     }
 
     /* ================= 音效：WebAudio 合成 + 拟声词 wav ================= */
@@ -434,7 +467,7 @@
         for (var warm = 0; warm < 8; warm++) emitter();   // 预热，避免开场空屏
         startLoop(sc.dur || 2400);
         var iv = setInterval(function () {
-            if (Date.now() >= until || document.hidden) { clearInterval(iv); return; }
+            if (Date.now() >= until || document.hidden) { sceneTints = []; clearInterval(iv); return; }
             emitter();
         }, 55);
         if (sc.tint && sceneTints.length === 0) sceneTints.push(sc.tint);
@@ -458,10 +491,12 @@
                 dur = Math.max(dur, delay + flyMs);
                 setTimeout(function () {
                     var startX = sx, startY = sy;
+                    var fxKey = opts.fxKey || null;
+                    if (fxKey) loadKeyImg(fxKey);
                     var ctrlX = (sx + dst.x) / 2 + rnd(-120, 120);
                     var ctrlY = Math.min(sy, dst.y) - rnd(60, 200);
                     var born = Date.now();
-                    spawn({ kind: 'swarm', emoji: emoji, size: rnd(20, opts.big ? 40 : 32), life: flyMs / 1000 + 0.05, alpha: 1, rot: 0, rotv: rnd(-4, 4), ph: rnd(0, 6.28), wave: !!opts.wave,
+                    spawn({ kind: 'swarm', emoji: emoji, fxKey: fxKey, size: rnd(20, opts.big ? 40 : 32), life: flyMs / 1000 + 0.05, alpha: 1, rot: 0, rotv: rnd(-4, 4), ph: rnd(0, 6.28), wave: !!opts.wave,
                         update: function (p, dt) {
                             var t = Math.min(1, (Date.now() - born) / flyMs);
                             var tt = t;
@@ -482,7 +517,7 @@
                                 for (var s = 0; s < 4; s++) spawn({ kind: 'imp', x: dst.x + rnd(-14, 14), y: dst.y + rnd(-14, 14), size: rnd(1.5, 3.4), color: pick(['#ffd04c', '#ffffff', '#ff8c42']), vx: rnd(-90, 90), vy: rnd(-110, -20), life: rnd(0.25, 0.5), alpha: 1, update: function (pp, dt2) { pp.x += pp.vx * dt2; pp.y += pp.vy * dt2; pp.vy += 340 * dt2; pp.alpha = pp.life * 2.4; }, draw: drawDot });
                             }
                         },
-                        draw: drawEmoji });
+                        draw: fxKey ? drawKeyImgOrEmoji : drawEmoji });
                     startLoop((flyMs + delay) / 1000 * 1000 + 700);
                 }, delay);
             })(i);
@@ -503,6 +538,7 @@
         var src = opts.source || { x: window.innerWidth / 2, y: window.innerHeight / 2.6 };
         ensureCanvas();
         SYNTH.sparkle();
+        if (opts.fxKey) loadKeyImg(opts.fxKey);
         for (var i = 0; i < 22; i++) {
             var ang = rnd(0, Math.PI * 2), sp = rnd(70, 260);
             spawn({ kind: 'burst', x: src.x, y: src.y, size: rnd(2, 5), color: pick(['#ffd04c', '#ff8c42', '#ffffff', '#ffe38a']), vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp - 40, life: rnd(0.5, 1.0), alpha: 1,
@@ -512,7 +548,7 @@
         // 一个大 emoji 冲向怪物
         var mEl = opts.monsterEl || document.getElementById('m3-mouth');
         setTimeout(function () {
-            playSwarm(opts.emoji || '⭐', { monsterEl: mEl, source: src, big: false, silent: true, damage: opts.damage, lang: opts.lang, onHit: opts.onHit });
+            playSwarm(opts.emoji || '⭐', { monsterEl: mEl, source: src, big: false, silent: true, damage: opts.damage, lang: opts.lang, onHit: opts.onHit, fxKey: opts.fxKey });
         }, 120);
         startLoop(1600);
     }
@@ -582,16 +618,40 @@
             if (spec && spec.t === 'swarm' && spec.e) {
                 playSwarm(spec.e, {
                     monsterEl: monsterEl, source: source, big: !!opts.big, damage: opts.damage,
-                    lang: opts.lang, sound: spec.s, wave: spec.sc === 'wave', onHit: opts.onHit
+                    lang: opts.lang, sound: spec.s, wave: spec.sc === 'wave', onHit: opts.onHit,
+                    fxKey: spec.key
                 });
                 return spec;
             }
             // burst 兜底
             playBurst({
-                emoji: (spec && spec.e) || '✨', monsterEl: monsterEl, source: source,
+                emoji: (spec && spec.e) || '✨', fxKey: spec ? spec.key : null, monsterEl: monsterEl, source: source,
                 damage: opts.damage, lang: opts.lang, onHit: opts.onHit
             });
             return spec || { t: 'burst' };
+        },
+        /** 词义图片 URL（卡片/弹窗用）；无图片返回 null */
+        imgFor: function (word, lang, display) {
+            var spec = null;
+            try { spec = resolve(word, lang, display); } catch (e) {}
+            if (!spec) return null;
+            var D = window.WORD_FX_DATA || {};
+            if (!D.IMG || !D.IMG[spec.key]) return null;
+            loadKeyImg(spec.key);
+            return keyImgUrl(spec.key);
+        },
+        /** 空闲预加载全部词义图片（后台静默，不阻塞） */
+        preload: function () {
+            var D = window.WORD_FX_DATA || {};
+            if (!D.IMG) return 0;
+            var keys = Object.keys(D.IMG), i = 0, n = 0;
+            var step = function () {
+                var batch = 0;
+                while (i < keys.length && batch < 12) { loadKeyImg(keys[i++]); batch++; }
+                if (i < keys.length) setTimeout(step, 120);
+            };
+            step();
+            return keys.length;
         },
         /** 直接播放场景（供测试/演示） */
         playScene: function (id) { playScene(id, {}); },

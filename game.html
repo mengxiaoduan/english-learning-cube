@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#1a1a2e">
     <link rel="manifest" href="manifest.webmanifest">
-    <script src="i18n.js?v=eng-tetris-v34"></script>
+    <script src="i18n.js?v=eng-tetris-v35"></script>
     <link rel="apple-touch-icon" href="icons/icon-192.png">
     <title>世界语言方块</title>
     <style>
@@ -733,19 +733,19 @@
         }
     </style>
     <!-- JSZip 仅 ZIP 关卡上传用：本地加载（cdnjs 外链在国内阻塞首屏可达数秒，已移除） -->
-    <script src="jszip.min.js?v=eng-tetris-v34"></script>
-    <script src="wordbank_daily.js?v=eng-tetris-v34"></script>
-    <script src="wordbank_cet4.js?v=eng-tetris-v34"></script>
-    <script src="wordbank_cet6.js?v=eng-tetris-v34"></script>
-    <script src="wordbank_phon.js?v=eng-tetris-v34"></script>
-    <script src="wordbank_zh.js?v=eng-tetris-v34"></script>
-    <script src="wordbank_ru.js?v=eng-tetris-v34"></script>
-    <script src="word_fx_data.js?v=eng-tetris-v34"></script>
-    <script src="word_fx.js?v=eng-tetris-v34"></script>
-    <script src="modes_extra.js?v=eng-tetris-v34"></script>
-    <script src="meanings.js?v=eng-tetris-v34"></script>
+    <script src="jszip.min.js?v=eng-tetris-v35"></script>
+    <script src="wordbank_daily.js?v=eng-tetris-v35"></script>
+    <script src="wordbank_cet4.js?v=eng-tetris-v35"></script>
+    <script src="wordbank_cet6.js?v=eng-tetris-v35"></script>
+    <script src="wordbank_phon.js?v=eng-tetris-v35"></script>
+    <script src="wordbank_zh.js?v=eng-tetris-v35"></script>
+    <script src="wordbank_ru.js?v=eng-tetris-v35"></script>
+    <script src="word_fx_data.js?v=eng-tetris-v35"></script>
+    <script src="word_fx.js?v=eng-tetris-v35"></script>
+    <script src="modes_extra.js?v=eng-tetris-v35"></script>
+    <script src="meanings.js?v=eng-tetris-v35"></script>
     <script src="hanzi-writer.min.js"></script>
-    <script src="hanzi_data.js?v=eng-tetris-v34"></script>
+    <script src="hanzi_data.js?v=eng-tetris-v35"></script>
 </head>
 <body>
     <div id="loadingScreen">
@@ -959,7 +959,7 @@
     </div>
 
     <!-- 扩展玩法通用视图容器（听力挑战 / 记忆配对 / 未来玩法 / DIY） -->
-    <div id="gameVerBadge" style="position:fixed;left:10px;bottom:8px;z-index:40;font-size:12px;color:rgba(255,255,255,.35);letter-spacing:1px;user-select:none;">v2.2.0</div>
+    <div id="gameVerBadge" style="position:fixed;left:10px;bottom:8px;z-index:40;font-size:12px;color:rgba(255,255,255,.35);letter-spacing:1px;user-select:none;">v2.2.1</div>
     <div id="extra-mode-view"></div>
 
     <!-- 写字学中文模式视图 -->
@@ -1187,6 +1187,18 @@
         /* 中文词显示：无声调拼音 → 汉字 */
         const _isZhLearn = () => (selectedLanguage === 'zh');
         const _dw = (word) => ((_isZhLearn() && window.ZH_DISPLAY && window.ZH_DISPLAY[word]) ? window.ZH_DISPLAY[word] : word);
+        /* 词义图片：有素材库图返回 <img>，否则回退词库 emoji/📝 */
+        const _imgHtml = (word, fallbackEmoji, style) => {
+            try {
+                const u = (window.WORD_FX && WORD_FX.imgFor) ? WORD_FX.imgFor(word, selectedLanguage, _dw(word)) : null;
+                if (u) return '<img src="' + u + '" alt="" style="' + (style || 'width:110px;height:110px;object-fit:contain;') + '">';
+            } catch (e) {}
+            return fallbackEmoji || '📝';
+        };
+        const _imgUrl = (word) => {
+            try { return (window.WORD_FX && WORD_FX.imgFor) ? WORD_FX.imgFor(word, selectedLanguage, _dw(word)) : null; } catch (e) { return null; }
+        };
+        try { if (window.WORD_FX && WORD_FX.preload) setTimeout(() => { try { WORD_FX.preload(); } catch (e) {} }, 2500); } catch (e) {}
         const COLS = 10, ROWS = 20, BLOCK_SIZE = 30;
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -1567,7 +1579,7 @@
         function finishClearing() { let clearedCells = []; for (let r = 0; r < ROWS; r++) { for (let c = 0; c < COLS; c++) { if (grid[r][c] && grid[r][c].clearing) { clearedCells.push({r, c}); grid[r][c] = null; } } } gravityQueue = []; if (lastClearType === 'target_h') { let allCols = []; for (let c = 0; c < COLS; c++) allCols.push(c); gravityQueue.push({ type: 'normal', cols: allCols, mode: 'preserve', clearedCells }); gravityQueue.push({ type: 'normal', cols: Array.from(lastClearData.targetCols), mode: 'compact' }); } else if (lastClearType === 'target_v') { gravityQueue.push({ type: 'horizontal', rows: Array.from(lastClearData.targetRows), direction: lastClearData.direction }); } else { let allCols = new Set(clearedCells.map(cell => cell.c)); gravityQueue.push({ type: 'normal', cols: Array.from(allCols), mode: 'preserve', clearedCells }); } executeNextGravity(); }
         function showNextPopup() { if (popupQueue.length === 0) { state = 'resolving'; resolveGrid(); return; } const item = popupQueue.shift(); const word = typeof item === 'string' ? item : item.word; const scoreGain = typeof item === 'string' ? 0 : (item.score || 0); const isTarget = typeof item === 'string' ? false : (item.isTarget || false); const wordInfo = ACTIVE_WORDS[word] || { mean: _t('unknownWord'), img: '📝' };
         const imgUrl2 = wordInfo.img && typeof wordInfo.img === 'string' && /^(blob:|data:|https?:)/.test(wordInfo.img) ? wordInfo.img : null;
-        DOM.popupEmoji.innerHTML = imgUrl2 ? '<img src="' + imgUrl2 + '">' : (wordInfo.img || '📝');
+        DOM.popupEmoji.innerHTML = _imgHtml(word, imgUrl2 ? '<img src="' + imgUrl2 + '">' : (wordInfo.img || '📝'));
         if (wordInfo.audio) { try { new Audio(wordInfo.audio).play(); } catch (e) {} }
         DOM.popupWord.innerText = _dw(word); DOM.popupMeaning.innerText = _lm(word, wordInfo.mean); DOM.popupScore.innerText = scoreGain > 0 ? ('+' + scoreGain + (statsCurrentCombo > 1 ? '  ' + _t('combo', { n: statsCurrentCombo }) : '')) : ''; DOM.popupScore.classList.toggle('hidden', scoreGain <= 0); if (wordInfo.color) { DOM.wordPopup.style.backgroundColor = wordInfo.color; DOM.wordPopup.style.backgroundImage = 'linear-gradient(135deg, rgba(255,255,255,0.2), rgba(0,0,0,0.5))'; } else { DOM.wordPopup.style.backgroundColor = isTarget ? '#f1c40f' : '#0f3460'; DOM.wordPopup.style.backgroundImage = isTarget ? 'linear-gradient(135deg, #f1c40f, #e94560)' : 'linear-gradient(135deg, #e94560, #0f3460)'; } DOM.wordPopup.classList.remove('hidden'); setTimeout(() => DOM.wordPopup.classList.add('show'), 10); speakWord(_dw(word)); const myGameId = currentGameId; setTimeout(() => { if (myGameId !== currentGameId) return; DOM.wordPopup.classList.remove('show'); setTimeout(() => { if (myGameId !== currentGameId) return; DOM.wordPopup.classList.add('hidden'); showNextPopup(); }, 250); }, 1500); }
         function spawnNextPiece() { currentPiece = nextPiece; nextPiece = createPiece(); drawNextPiece(); canHold = true; drawHoldPiece(); if (collision(currentPiece)) gameOver(); else state = 'falling'; }
@@ -2309,9 +2321,9 @@
                         monsterEl: document.getElementById('m3-mouth'), source: __src
                     });
                 } else {
-                    m3ThrowIconAtMonster(info.img, b.cells);
+                    m3ThrowIconAtMonster(_imgUrl(b.word) || info.img, b.cells);
                 }
-            } catch (e) { m3ThrowIconAtMonster(info.img, b.cells); }
+            } catch (e) { m3ThrowIconAtMonster(_imgUrl(b.word) || info.img, b.cells); }
             showM3Toast(_t('m3BonusHit', { w: _dw(b.word) }));
             // 奖励词格子保留拼好的完整单词（金色高亮，学习强化），直到下次目标刷新
             b.cells.forEach((cell, i) => {
@@ -2575,7 +2587,7 @@
             return new Promise(resolve => {
                 const info = m3WordMap[word] || { mean: _t('unknownWord'), img: '📝' };
                 const imgUrl = info.img && typeof info.img === 'string' && /^(blob:|data:|https?:)/.test(info.img) ? info.img : null;
-                DOM.popupEmoji.innerHTML = imgUrl ? '<img src="' + imgUrl + '">' : (info.img || '📝');
+                DOM.popupEmoji.innerHTML = _imgHtml(word, imgUrl ? '<img src="' + imgUrl + '">' : (info.img || '📝'));
                 DOM.popupWord.innerText = _dw(word);
                 const ipaInfo = (typeof PHONETICS !== 'undefined') ? PHONETICS[String(word).toLowerCase()] : null;
                 DOM.popupMeaning.innerText = _lm(word, info.mean) + (ipaInfo && ipaInfo.ipa ? '　/' + ipaInfo.ipa + '/' : '');
@@ -3029,7 +3041,7 @@
         function m3QueuePopup(word, pts, isTarget) { if (m3PopupShownWords[word]) return; m3PopupShownWords[word] = true; m3PopupQueue.push({ word, pts, isTarget }); }
         function m3DrainPopupQueue() { if (m3PopupQueue.length === 0) return; const item = m3PopupQueue.shift(); showM3Popup(item.word, item.pts, item.isTarget, () => setTimeout(m3DrainPopupQueue, 220)); }
         function m3Speak(word) { const info = m3WordMap[word]; if (info && info.audio) { try { const a = new Audio(info.audio); a.play(); return; } catch (e) {} } speakWord(_dw(word)); }
-        function showM3Popup(word, score, isTarget, onDone) { const info = m3WordMap[word] || { mean: _t('unknownWord'), img: '📝' }; const imgUrl = info.img && typeof info.img === 'string' && /^(blob:|data:|https?:)/.test(info.img) ? info.img : null; const ipaInfo = (typeof PHONETICS !== 'undefined') ? PHONETICS[String(word).toLowerCase()] : null; DOM.popupEmoji.innerHTML = imgUrl ? '<img src="' + imgUrl + '">' : (info.img || '📝'); DOM.popupWord.innerText = word; DOM.popupMeaning.innerText = info.mean + (ipaInfo && ipaInfo.ipa ? '　/' + ipaInfo.ipa + '/' : ''); DOM.popupScore.innerText = score > 0 ? ('+' + score + (isTarget ? ' 🎯' : '')) : ''; DOM.popupScore.classList.toggle('hidden', score <= 0); if (info.color) DOM.wordPopup.style.background = info.color; else DOM.wordPopup.style.background = isTarget ? 'linear-gradient(135deg,#f1c40f,#e94560)' : 'linear-gradient(135deg,#e94560,#0f3460)'; DOM.wordPopup.classList.remove('hidden'); setTimeout(() => DOM.wordPopup.classList.add('show'), 10); try { m3Speak(word); } catch (e) {} const dur = isTarget ? 3400 : Math.min(3400, 1200 + word.length * 160); setTimeout(() => { DOM.wordPopup.classList.remove('show'); setTimeout(() => { DOM.wordPopup.classList.add('hidden'); if (onDone) onDone(); }, 300); }, dur); }
+        function showM3Popup(word, score, isTarget, onDone) { const info = m3WordMap[word] || { mean: _t('unknownWord'), img: '📝' }; const imgUrl = info.img && typeof info.img === 'string' && /^(blob:|data:|https?:)/.test(info.img) ? info.img : null; const ipaInfo = (typeof PHONETICS !== 'undefined') ? PHONETICS[String(word).toLowerCase()] : null; DOM.popupEmoji.innerHTML = _imgHtml(word, imgUrl ? '<img src="' + imgUrl + '">' : (info.img || '📝')); DOM.popupWord.innerText = _dw(word); DOM.popupMeaning.innerText = info.mean + (ipaInfo && ipaInfo.ipa ? '　/' + ipaInfo.ipa + '/' : ''); DOM.popupScore.innerText = score > 0 ? ('+' + score + (isTarget ? ' 🎯' : '')) : ''; DOM.popupScore.classList.toggle('hidden', score <= 0); if (info.color) DOM.wordPopup.style.background = info.color; else DOM.wordPopup.style.background = isTarget ? 'linear-gradient(135deg,#f1c40f,#e94560)' : 'linear-gradient(135deg,#e94560,#0f3460)'; DOM.wordPopup.classList.remove('hidden'); setTimeout(() => DOM.wordPopup.classList.add('show'), 10); try { m3Speak(word); } catch (e) {} const dur = isTarget ? 3400 : Math.min(3400, 1200 + word.length * 160); setTimeout(() => { DOM.wordPopup.classList.remove('show'); setTimeout(() => { DOM.wordPopup.classList.add('hidden'); if (onDone) onDone(); }, 300); }, dur); }
         function showM3Toast(text) { let toast = document.getElementById('m3-toast'); if (!toast) { toast = document.createElement('div'); toast.id = 'm3-toast'; toast.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(241,196,15,0.95);color:#000;font-weight:bold;font-size:1.2rem;padding:12px 24px;border-radius:10px;z-index:3500;box-shadow:0 0 20px rgba(241,196,15,0.6);transition:opacity .3s;pointer-events:none;white-space:nowrap;'; document.body.appendChild(toast); } toast.innerText = text; toast.style.opacity = '1'; clearTimeout(toast._t); toast._t = setTimeout(() => { toast.style.opacity = '0'; }, 1400); }
         function m3CalcStars(isWin) { if (isWin) { const total = Math.max(10, m3Targets.reduce((a, t) => a + t.word.length, 0)); if (m3Steps <= Math.round(total * 0.6)) return 3; if (m3Steps <= Math.round(total * 1.0)) return 2; return 1; } return m3Score >= 3000 ? 2 : m3Score >= 1000 ? 1 : 0; }
         function showM3Result(title, isWin) { 
@@ -4865,7 +4877,7 @@
     </script>
     <script>
     (function () {
-        var GAME_VER = '2.2.0';
+        var GAME_VER = '2.2.1';
         try {
             var badge = document.getElementById('gameVerBadge');
             if (badge) badge.textContent = '世界语言方块 v' + GAME_VER;

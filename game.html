@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#1a1a2e">
     <link rel="manifest" href="manifest.webmanifest">
-    <script src="i18n.js?v=eng-tetris-v32"></script>
+    <script src="i18n.js?v=eng-tetris-v33"></script>
     <link rel="apple-touch-icon" href="icons/icon-192.png">
     <title>世界语言方块</title>
     <style>
@@ -678,8 +678,10 @@
         #w-pad-wrap .w-dg2 { transform: translate(-50%,-50%) rotate(-45deg); }
         #w-pad { position: absolute; inset: 0; z-index: 2; }
         #w-msg { min-height: 24px; color: var(--text-color); font-size: .95rem; opacity: .88; text-align: center; }
-        #w-slots { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-        .w-slot { width: 56px; height: 52px; border-radius: 10px; border: 2px dashed rgba(255,255,255,.25); display: flex; align-items: center; justify-content: center; font-size: 21px; font-weight: 900; letter-spacing: 1px; color: var(--text-color); background: rgba(15,52,96,.5); transition: all .3s; }
+        #w-slots { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+        /* 词槽=词语盒：宽度随词长自适应（wBuildSlots 动态设置），字横排不挤压 */
+        .w-slot { display: flex; align-items: center; justify-content: center; padding: 3px 9px; border-radius: 10px; border: 2px dashed rgba(255,255,255,.25); font-weight: 900; letter-spacing: 1px; color: var(--text-color); background: rgba(15,52,96,.5); transition: all .3s; white-space: nowrap; }
+        .w-slot.active { border-style: solid; border-color: #f1c40f; box-shadow: 0 0 12px rgba(241,196,15,.35); }
         .w-slot.filled { border-style: solid; border-color: var(--target-glow); box-shadow: 0 0 14px rgba(241,196,15,.45); animation: wpop .45s ease; }
         @keyframes wpop { 0% { transform: scale(.4); } 70% { transform: scale(1.25); } 100% { transform: scale(1); } }
         .w-fly { position: fixed; z-index: 600; font-size: 56px; font-weight: 900; color: #333; pointer-events: none; transition: all .7s cubic-bezier(.45,-0.15,.6,1); }
@@ -702,7 +704,7 @@
         .w-map-item.locked { opacity: .45; cursor: not-allowed; }
         .w-map-item .w-mi-name { font-weight: 700; font-size: .95rem; }
         .w-map-item .w-mi-stars { color: #f1c40f; font-size: .85rem; white-space: nowrap; }
-        @media (max-width: 700px) and (orientation: portrait) { #w-pinyin { font-size: 1.6rem; } .w-slot { width: 44px; height: 44px; font-size: 26px; } }
+        @media (max-width: 700px) and (orientation: portrait) { #w-pinyin { font-size: 1.6rem; } }
         /* ===== 手机竖屏：俄罗斯方块模式一屏完整展示（不滚动） ===== */
         @media (max-width: 700px) and (orientation: portrait) {
             .game-wrapper { padding: 6px; gap: 6px; }
@@ -731,16 +733,16 @@
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script>if (typeof JSZip === 'undefined') document.write('<script src="jszip.min.js"><\/script>');</script>
-    <script src="wordbank_daily.js?v=eng-tetris-v32"></script>
-    <script src="wordbank_cet4.js?v=eng-tetris-v32"></script>
-    <script src="wordbank_cet6.js?v=eng-tetris-v32"></script>
-    <script src="wordbank_phon.js?v=eng-tetris-v32"></script>
-    <script src="wordbank_zh.js?v=eng-tetris-v32"></script>
-    <script src="wordbank_ru.js?v=eng-tetris-v32"></script>
-    <script src="modes_extra.js?v=eng-tetris-v32"></script>
-    <script src="meanings.js?v=eng-tetris-v32"></script>
+    <script src="wordbank_daily.js?v=eng-tetris-v33"></script>
+    <script src="wordbank_cet4.js?v=eng-tetris-v33"></script>
+    <script src="wordbank_cet6.js?v=eng-tetris-v33"></script>
+    <script src="wordbank_phon.js?v=eng-tetris-v33"></script>
+    <script src="wordbank_zh.js?v=eng-tetris-v33"></script>
+    <script src="wordbank_ru.js?v=eng-tetris-v33"></script>
+    <script src="modes_extra.js?v=eng-tetris-v33"></script>
+    <script src="meanings.js?v=eng-tetris-v33"></script>
     <script src="hanzi-writer.min.js"></script>
-    <script src="hanzi_data.js?v=eng-tetris-v32"></script>
+    <script src="hanzi_data.js?v=eng-tetris-v33"></script>
 </head>
 <body>
     <div id="loadingScreen">
@@ -954,7 +956,7 @@
     </div>
 
     <!-- 扩展玩法通用视图容器（听力挑战 / 记忆配对 / 未来玩法 / DIY） -->
-    <div id="gameVerBadge" style="position:fixed;left:10px;bottom:8px;z-index:40;font-size:12px;color:rgba(255,255,255,.35);letter-spacing:1px;user-select:none;">v2.1.5</div>
+    <div id="gameVerBadge" style="position:fixed;left:10px;bottom:8px;z-index:40;font-size:12px;color:rgba(255,255,255,.35);letter-spacing:1px;user-select:none;">v2.1.6</div>
     <div id="extra-mode-view"></div>
 
     <!-- 写字学中文模式视图 -->
@@ -4487,10 +4489,20 @@
             if (!slots) return;
             slots.innerHTML = '';
             const lvl = window.ZH_WRITING_LEVELS[wLevel];
-            lvl.words.forEach((it, i) => {
+            /* 词槽=词语盒：宽度随词长自适应、字横排；整行超宽时按容器宽度缩放字号，手机上也能一行放下 */
+            const words = lvl.words;
+            const totalChars = words.reduce((s, it) => s + Math.max(1, it.chars.length), 0);
+            const boxW = slots.clientWidth || (slots.parentNode && slots.parentNode.clientWidth) || 360;
+            const pad = 18, gap = 8;
+            let charW = Math.floor((boxW - words.length * pad - (words.length - 1) * gap) / Math.max(1, totalChars));
+            charW = Math.max(15, Math.min(26, charW));
+            slots.style.fontSize = charW + 'px';
+            words.forEach((it, i) => {
                 const d = document.createElement('div');
                 d.className = 'w-slot';
                 d.id = 'w-slot-' + i;
+                d.style.minWidth = Math.round(Math.max(1, it.chars.length) * charW + 14) + 'px';
+                d.style.minHeight = Math.round(charW + 24) + 'px';
                 slots.appendChild(d);
             });
         }
@@ -4506,7 +4518,7 @@
             wSetMsg(_t('wWriteHere'));
             for (let i = wWordIdx + 1; i < W_PER_LEVEL; i++) { const s = document.getElementById('w-slot-' + i); if (s) { s.className = 'w-slot'; s.textContent = ''; } }
             const cur = document.getElementById('w-slot-' + wWordIdx);
-            if (cur) { cur.className = 'w-slot'; cur.textContent = wCurWord.chars.slice(0, wCharIdx).join(''); }
+            if (cur) { cur.className = 'w-slot active'; cur.textContent = wCurWord.chars.slice(0, wCharIdx).join(''); }
             const pad = document.getElementById('w-pad');
             if (!pad) return;
             pad.innerHTML = '';
@@ -4619,7 +4631,14 @@
             document.getElementById('mainMenuScreen').classList.add('hidden');
             startBgMusic();
         }
-        document.getElementById('btnModeWrite').addEventListener('click', () => { playSoundClick(); wOpenPack(); });
+        document.getElementById('btnModeWrite').addEventListener('click', () => {
+            playSoundClick();
+            /* 与填词/闯关入口统一：点击直接进入最近解锁的一关（新玩家从第1关开始）；
+               选关面板保留，进游戏后点「关卡」按钮仍可打开 */
+            const prog = wLoadProgress();
+            const total = (window.ZH_WRITING_LEVELS || []).length;
+            wStartLevel(Math.max(0, Math.min(prog.unlocked || 1, total) - 1));
+        });
         document.getElementById('btnWMapClose').addEventListener('click', () => { playSoundClick(); wClosePack(); });
         document.getElementById('w-audio-btn').addEventListener('click', () => { playSoundClick(); if (wCurWord) wSpeakPair(wCurWord.w, wMeaningText(wCurWord.w)); });
         document.getElementById('w-demo-btn').addEventListener('click', () => { playSoundClick(); if (wWriter && wCurWord) { try { const ch = wCurWord.chars[wCharIdx] || wCurWord.chars[0]; if (window.HANZI_DATA && window.HANZI_DATA[ch]) wWriter.animateCharacter(); } catch (e) {} } });
@@ -4642,7 +4661,7 @@
             t: (k, v2) => _t(k, v2),
             lm: (w, f) => _lm(w, f),
             dw: (w) => _dw(w),
-            speak: (w) => speakWord(w),
+            speak: (w, cb) => speakWord(w, cb),
             tts: (text, lang) => {
                 if (!('speechSynthesis' in window) || !text) return;
                 try {
@@ -4819,7 +4838,7 @@
     </script>
     <script>
     (function () {
-        var GAME_VER = '2.1.5';
+        var GAME_VER = '2.1.6';
         try {
             var badge = document.getElementById('gameVerBadge');
             if (badge) badge.textContent = '世界语言方块 v' + GAME_VER;

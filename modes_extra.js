@@ -19,12 +19,13 @@
         /* ================= 样式 ================= */
         var CSS = ''
             + '#extra-mode-view { justify-content: flex-start; gap: 12px; }'
-            + '.ex-top { width: 100%; max-width: 640px; display: flex; align-items: center; gap: 8px; position: relative; }'
-            + '.ex-title { font-size: 1.3rem; font-weight: 900; background: linear-gradient(to right,#e94560,#f1c40f); -webkit-background-clip: text; background-clip: text; color: transparent; flex: 1 1 auto; text-align: center; min-width: 0; overflow: hidden; text-overflow: ellipsis; }'
-            + '.ex-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }'
-            + '.ex-stat { color: #eee; font-size: .95rem; background: rgba(15,52,96,.6); border-radius: 10px; padding: 5px 12px; }'
-            + '.ex-btn { background: rgba(15,52,96,.8); color: #eee; border: 1px solid rgba(255,255,255,.18); border-radius: 10px; padding: 7px 12px; cursor: pointer; font-size: .95rem; white-space: nowrap; }'
+            + '.ex-top { width: 100%; max-width: 640px; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; position: relative; }'
+            + '.ex-spacer { flex: 1 1 auto; min-width: 0; }'
+            + '.ex-title { flex: 1 1 100%; order: 10; font-size: 1.1rem; font-weight: 900; background: linear-gradient(to right,#e94560,#f1c40f); -webkit-background-clip: text; background-clip: text; color: transparent; text-align: center; min-width: 0; }'
+            + '.ex-chip { display: inline-flex; align-items: center; gap: 4px; background: rgba(15,52,96,.7); border: 1px solid rgba(255,255,255,.14); border-radius: 999px; padding: 5px 10px; color: #eee; font-size: .9rem; font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; flex: 0 0 auto; }'
+            + '.ex-btn { background: rgba(15,52,96,.8); color: #eee; border: 1px solid rgba(255,255,255,.18); border-radius: 999px; padding: 6px 12px; cursor: pointer; font-size: .9rem; white-space: nowrap; flex: 0 0 auto; }'
             + '.ex-btn:active { transform: scale(.95); }'
+            + '@media (max-width: 430px) { .ex-btn { padding: 6px 9px; font-size: .84rem; } .ex-chip { padding: 4px 8px; font-size: .84rem; } .ex-title { font-size: 1rem; } }'
             + '.lis-speaker { width: 130px; height: 130px; border-radius: 50%; border: 3px solid #f1c40f; background: radial-gradient(circle at 35% 30%, #2a3f6e, #16213e); color: #f1c40f; font-size: 3.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 26px rgba(241,196,15,.35); margin: 6px 0; }'
             + '.lis-speaker:active { transform: scale(.94); }'
             + '.lis-tip { color: rgba(255,255,255,.65); font-size: .9rem; }'
@@ -77,12 +78,33 @@
         function starStr(n) { return n > 0 ? '★★★'.slice(0, n) + '☆☆☆'.slice(0, 3 - n) : '☆☆☆'; }
         function dw(word) { try { return (ELC.dw && ELC.dw(word)) || word; } catch (e) { return word; } }
         function normWord(w) {
-            /* 统一词对象：{word, display, mean, img, audio, tts} */
+            /* 统一词对象：{word, display, mean, img, audio, tts}
+               tts 保留 ELC.words() 给出的目标语言读法（中文=汉字，避免 TTS 把拼音读成 ni-ha-o） */
             return {
                 word: w.word, display: w.display || dw(w.word) || w.word,
                 mean: w.mean || '', img: w.img || '📝', audio: w.audio || null,
-                tts: w.word
+                tts: w.tts || w.word
             };
+        }
+        /* 朗读词对象：优先自定义音频，其次游戏内 speakWord（离线 mp3/wav→TTS 回退链，
+           中文自动用汉字读音），保证「你好」读 ni-hao 而不是把拼音拆成 ni-ha-o */
+        function speakWordObj(w, cb) {
+            if (w && w.audio) {
+                try {
+                    var a = new Audio(w.audio); a.volume = 1;
+                    if (cb) a.onended = function () { setTimeout(cb, 120); };
+                    var p = a.play(); if (p && p.catch) p.catch(function () { speakFall(w, cb); });
+                    return;
+                } catch (e) { /* 落入回退 */ }
+            }
+            speakFall(w, cb);
+        }
+        function speakFall(w, cb) {
+            var t = (w && w.tts) || (w && w.word) || '';
+            if (!t) { if (cb) setTimeout(cb, 200); return; }
+            if (ELC.speak) { try { ELC.speak(t, cb); return; } catch (e) {} }
+            ELC.tts(t);
+            if (cb) setTimeout(cb, 1400);
         }
         function sampleOthers(pool, not, n) { var o = pool.filter(function (x) { return x.word !== not.word; }); shuffle(o); return o.slice(0, n); }
         function loadProg(key) { try { var p = JSON.parse(localStorage.getItem(key)); if (p && p.unlocked) return p; } catch (e) {} return { unlocked: 1, stars: {} }; }
@@ -137,9 +159,11 @@
                 pop.style.background = 'linear-gradient(135deg,#f1c40f,#e94560)';
                 pop.classList.remove('hidden');
                 setTimeout(function () { pop.classList.add('show'); }, 10);
-                ELC.tts(word.tts || word.word);
                 if (learnTtsTimer) clearTimeout(learnTtsTimer);
-                if (word.mean) learnTtsTimer = setTimeout(function () { try { ELC.tts(word.mean); } catch (e) {} }, 900);
+                speakWordObj(word, function () {
+                    /* 词读完再读释义，不与词音重叠 */
+                    if (word.mean) learnTtsTimer = setTimeout(function () { try { ELC.tts(word.mean); } catch (e) {} }, 250);
+                });
             } catch (e) {}
             if (learnTimer) clearTimeout(learnTimer);
             learnTimer = setTimeout(function () {
@@ -332,11 +356,12 @@
                 '<div class="ex-top">'
                 + '<button class="ex-btn" id="lis-pause">' + ELC.t('qPauseBtn') + '</button>'
                 + '<button class="ex-btn" id="lis-map">' + ELC.t('mapBtn') + '</button>'
-                + '<div class="ex-title">' + ELC.t('mcListenName') + '</div>'
-                + '<div class="ex-right">'
-                + '<div class="ex-stat">⭐ <span id="lis-score">0</span>　❤️ <span id="lis-hearts">3</span>　🔥 <span id="lis-streak">0</span></div>'
+                + '<div class="ex-spacer"></div>'
+                + '<span class="ex-chip">⭐ <span id="lis-score">0</span></span>'
+                + '<span class="ex-chip">❤️ <span id="lis-hearts">3</span></span>'
+                + '<span class="ex-chip">🔥 <span id="lis-streak">0</span></span>'
                 + '<button class="ex-btn" id="lis-exit">' + ELC.t('qHome') + '</button>'
-                + '</div>'
+                + '<div class="ex-title">' + ELC.t('mcListenName') + '</div>'
                 + '</div>'
                 + '<div class="lis-mean" id="lis-mean"></div>'
                 + '<button class="lis-speaker" id="lis-play">🔊</button>'
@@ -368,7 +393,7 @@
                     grid.appendChild(b);
                 });
                 var meanEl = byId('lis-mean'); if (meanEl) meanEl.textContent = '';
-                setTimeout(function () { if (!state.paused && state.cur) ELC.tts(state.cur.tts || state.cur.word); }, 250);
+                setTimeout(function () { if (!state.paused && state.cur) speakWordObj(state.cur); }, 250);
             }
             function answer(o, btn) {
                 if (state.lock) return;
@@ -409,7 +434,7 @@
                 btns.push({ label: ELC.t('qHome'), secondary: true, fn: function () { ELC.closeExtraView(); } });
                 openEndPanel('lis-end', pass ? ELC.t('qWin') : ELC.t('qFail'), stars ? starStr(stars) : '', String(state.score), btns);
             }
-            byId('lis-play').addEventListener('click', function () { if (state.cur) ELC.tts(state.cur.tts || state.cur.word); });
+            byId('lis-play').addEventListener('click', function () { if (state.cur) speakWordObj(state.cur); });
             byId('lis-map').addEventListener('click', function () { openListenMap(levels, srcTag); });
             byId('lis-exit').addEventListener('click', function () { ELC.closeExtraView(); });
             byId('lis-pause').addEventListener('click', function () {
@@ -450,17 +475,21 @@
                 '<div class="ex-top">'
                 + '<button class="ex-btn" id="mem-pause">' + ELC.t('qPauseBtn') + '</button>'
                 + '<button class="ex-btn" id="mem-map">' + ELC.t('mapBtn') + '</button>'
-                + '<div class="ex-title">' + ELC.t('mcMemName') + '</div>'
-                + '<div class="ex-right">'
-                + '<div class="ex-stat" id="mem-stat"></div>'
+                + '<div class="ex-spacer"></div>'
+                + '<span class="ex-chip">📌 <span id="mem-stage"></span></span>'
+                + '<span class="ex-chip">🔄 <span id="mem-moves">0</span></span>'
+                + '<span class="ex-chip">⭐ <span id="mem-score">0</span></span>'
                 + '<button class="ex-btn" id="mem-exit">' + ELC.t('qHome') + '</button>'
-                + '</div>'
+                + '<div class="ex-title">' + ELC.t('mcMemName') + '</div>'
                 + '</div>'
                 + '<div class="ex-round-tip" id="mem-round"></div>'
                 + '<div class="mem-grid" id="mem-grid"></div>');
 
             function updateHUD() {
-                byId('mem-stat').innerHTML = ELC.t('qStage', { n: state.round }) + '　' + ELC.t('m3Steps') + ' ' + state.moves + '　⭐ ' + state.score;
+                var st = byId('mem-stage'), mv = byId('mem-moves'), sc = byId('mem-score');
+                if (st) st.textContent = ELC.t('qStage', { n: state.round });
+                if (mv) mv.textContent = state.moves;
+                if (sc) sc.textContent = state.score;
                 var rt = byId('mem-round');
                 if (rt) {
                     var groups = Math.ceil(words.length / CH);
@@ -510,7 +539,7 @@
                     state.matched++; state.score += 100;
                     ELC.tone(660, 0.1, 'sine', 0.1);
                     showLearnCard(card.word);
-                    ELC.tts(card.word.tts || card.word.word);
+                    speakWordObj(card.word);
                     updateHUD();
                     if (state.matched >= state.roundTotal) {
                         if (state.offset + CH < words.length) {
@@ -584,7 +613,11 @@
             }
         };
 
-        /* ================= 复习提醒 ================= */
+        /* ================= 复习提醒（暂时屏蔽） =================
+         * 复习弹窗会在对局中突然弹出打断玩家，且进入复习后原模式仍在后台运行、
+         * 音效叠加。在重新设计好嵌入方式之前整体关闭（REVIEW_ENABLED=false），
+         * 相关逻辑保留以便日后恢复。 */
+        var REVIEW_ENABLED = false;
         var REVIEW_HOURS = [6, 12, 18, 22];
         function todayStr() { var d = new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
         function currentSlot() { var h = new Date().getHours(); var s = -1; for (var i = 0; i < REVIEW_HOURS.length; i++) { if (h >= REVIEW_HOURS[i]) s = i; } return s; }
@@ -634,7 +667,7 @@
 
         /* ================= 启动 ================= */
         if (ELC.renderModes) ELC.renderModes();
-        startReviewTimer();
+        if (REVIEW_ENABLED) startReviewTimer();
     }
 
     boot();

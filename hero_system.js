@@ -55,6 +55,8 @@
         shopSub: { zh: '拼对目标语言单词即可下单，家具带回家摆进小屋', en: 'Spell a word to buy decorations', ru: 'Напиши слово и купи декор', fr: 'Épellez pour acheter' },
         roomSub: { zh: '你的专属空间：摆家具 · 养宠物 · 打扮主角', en: 'Your space: decorate & dress up', ru: 'Твоё пространство', fr: 'Votre espace' },
         langBuddy: { zh: '选好想学的语言，我陪你一起学！', en: "Pick a language — let's learn together!", ru: 'Выбери язык — учимся вместе!', fr: 'Choisis une langue — apprenons ensemble !' },
+        soloBtn: { zh: '单人游戏 · 赚金币', en: 'Single Player · Earn coins', ru: 'Одиночная игра · Монеты', fr: 'Solo · Gagner des pièces' },
+        vsBtn: { zh: '对战游戏 · 赌金币', en: 'Versus · Bet coins', ru: 'Дуэль · Ставка', fr: 'Duel · Miser' },
         vsTitle: { zh: '对战游戏', en: 'Versus', ru: 'Дуэль', fr: 'Duel' },
         vsSub: { zh: '共用同一组目标单词，谁先拼出谁攻击（每词 10 血，血量 100，奖励词 5 血）', en: 'Same target words — first to spell attacks (10 dmg, 100 HP)', ru: 'Общие слова — кто первый соберёт, тот бьёт (10 урона, 100 HP)', fr: 'Mêmes mots — le premier à épeler attaque (10 dégâts, 100 PV)' },
         vsName: { zh: '昵称', en: 'Name', ru: 'Имя', fr: 'Pseudo' },
@@ -193,11 +195,11 @@
         if (hubAv) hubAv.innerHTML = avatarHtml();
     }
 
-    /* ================= 模式选择页 · 主角信息栏 ================= */
+    /* ================= 语言选择页 · 主角决策中心（头像/金币/商城/小屋都在这里） ================= */
     function buildHub() {
-        var screen = document.getElementById('modeSelectScreen');
-        if (!screen || document.getElementById('heroHub')) return;
-        var grid = screen.querySelector('.mode-grid');
+        var old = document.getElementById('heroHub'); if (old) old.remove();
+        var screen = document.getElementById('langSelectScreen');
+        if (!screen) return;
         var hub = document.createElement('div');
         hub.id = 'heroHub';
         hub.innerHTML =
@@ -207,12 +209,20 @@
             '</div>' +
             '<button class="hh-btn" id="heroHubShop">🛍️ ' + ht('shop') + '</button>' +
             '<button class="hh-btn" id="heroHubRoom">🏠 ' + ht('room') + '</button>';
-        screen.insertBefore(hub, grid);
+        var h1 = screen.querySelector('h1');
+        screen.insertBefore(hub, h1 ? h1.nextSibling : screen.firstChild);
         document.getElementById('heroHubAvatar').addEventListener('click', function () { click(); openRoom(); });
         document.getElementById('heroHubCoinsWrap').addEventListener('click', function () { click(); openShop(); });
         document.getElementById('heroHubShop').addEventListener('click', function () { click(); openShop(); });
         document.getElementById('heroHubRoom').addEventListener('click', function () { click(); openRoom(); });
         refreshHUD();
+    }
+    /* 单人/对战按钮文案（语言页底部，随界面语言刷新） */
+    function applyLangButtons() {
+        var b1 = document.getElementById('btnLangNext');
+        if (b1) b1.textContent = '📗 ' + ht('soloBtn');
+        var b2 = document.getElementById('btnVsGame');
+        if (b2) b2.textContent = '⚔️ ' + ht('vsBtn');
     }
 
     /* ================= 购买词挑战 ================= */
@@ -723,22 +733,24 @@
         });
     }
 
-    /* ================= 语言选择界面：主角陪伴 ================= */
+    /* ================= 语言选择界面：主角陪伴气泡（头像在信息栏） ================= */
     function buildLangBuddy() {
         var scr = document.getElementById('langSelectScreen');
         if (!scr) return;
         var old = document.getElementById('heroLangBuddy');
         if (old) old.remove();
-        var h1 = scr.querySelector('h1');
+        var hub = document.getElementById('heroHub');
+        var anchor = hub ? hub.nextSibling : null;
+        if (!anchor) { var h1 = scr.querySelector('h1'); anchor = h1 ? h1.nextSibling : scr.firstChild; }
         var d = document.createElement('div');
         d.id = 'heroLangBuddy';
-        d.innerHTML = '<span class="hlb-av">' + avatarHtml() + '</span><span class="hlb-bubble">💬 ' + ht('langBuddy') + '</span>';
-        scr.insertBefore(d, h1 ? h1.nextSibling : scr.firstChild);
+        d.innerHTML = '<span class="hlb-bubble">💬 ' + ht('langBuddy') + '</span>';
+        scr.insertBefore(d, anchor);
     }
 
     /* ================= 样式注入 ================= */
     var CSS = ''
-        + '#heroHub{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:2px 0 10px;}'
+        + '#heroHub{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:0 0 4px;}'
         + '#heroHubAvatar{width:52px;height:52px;border-radius:14px;border:2px solid rgba(241,196,15,.75);background:rgba(0,0,0,.35);font-size:26px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;box-shadow:0 0 12px rgba(241,196,15,.25);transition:transform .15s;}'
         + '#heroHubAvatar:hover{transform:scale(1.08);} #heroHubAvatar img{max-width:40px;max-height:40px;border-radius:8px;height:auto!important;}'
         + '#heroHubInfo{background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:4px 12px;font-size:1rem;font-weight:900;color:#ffd700;cursor:pointer;}'
@@ -788,7 +800,7 @@
         + '.pet-anim{animation:hrPet 1.6s ease-in-out infinite;} @keyframes hrPet{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}'
         + '.coin-ic{width:1.05em;height:1.05em;vertical-align:-0.15em;display:inline-block;}'
         /* 语言选择界面主角 */
-        + '#heroLangBuddy{display:flex;align-items:center;justify-content:center;gap:8px;margin:2px 0 8px;flex-wrap:wrap;}'
+        + '#heroLangBuddy{display:flex;align-items:center;justify-content:center;gap:8px;margin:0 0 8px;flex-wrap:wrap;}'
         + '.hlb-av{width:46px;height:46px;border-radius:50%;border:2px solid rgba(241,196,15,.7);background:rgba(0,0,0,.35);font-size:24px;display:flex;align-items:center;justify-content:center;overflow:hidden;}'
         + '.hlb-av img{max-width:38px;max-height:38px;border-radius:50%;} '
         + '.hlb-bubble{background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:.85rem;font-weight:700;border-radius:14px;padding:6px 12px;max-width:min(60vw,300px);}'
@@ -871,11 +883,13 @@
         injectCss();
         buildHub();
         buildLangBuddy();
+        applyLangButtons();
         applyAvatarToModes();
         refreshHUD();
         document.addEventListener('i18n:change', function () {
             buildHub();          /* 重建信息栏文案 */
             buildLangBuddy();    /* 语言界面主角气泡文案 */
+            applyLangButtons();
             refreshHUD();
             if (document.getElementById('heroShop')) { closeShop(); openShop(); }
             if (document.getElementById('heroRoom')) { closeRoom(); openRoom(); }

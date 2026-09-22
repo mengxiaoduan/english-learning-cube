@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#1a1a2e">
     <link rel="manifest" href="manifest.webmanifest">
-    <script src="i18n.js?v=eng-tetris-v39"></script>
+    <script src="i18n.js?v=eng-tetris-v40"></script>
     <link rel="apple-touch-icon" href="icons/icon-192.png">
     <title>世界语言方块</title>
     <style>
@@ -734,20 +734,20 @@
         }
     </style>
     <!-- JSZip 仅 ZIP 关卡上传用：本地加载（cdnjs 外链在国内阻塞首屏可达数秒，已移除） -->
-    <script src="jszip.min.js?v=eng-tetris-v39"></script>
-    <script src="wordbank_daily.js?v=eng-tetris-v39"></script>
-    <script src="wordbank_cet4.js?v=eng-tetris-v39"></script>
-    <script src="wordbank_cet6.js?v=eng-tetris-v39"></script>
-    <script src="wordbank_phon.js?v=eng-tetris-v39"></script>
-    <script src="wordbank_zh.js?v=eng-tetris-v39"></script>
-    <script src="wordbank_ru.js?v=eng-tetris-v39"></script>
-    <script src="word_fx_data.js?v=eng-tetris-v39"></script>
-    <script src="word_fx.js?v=eng-tetris-v39"></script>
-    <script src="modes_extra.js?v=eng-tetris-v39"></script>
-    <script src="hero_system.js?v=eng-tetris-v39"></script>
-    <script src="meanings.js?v=eng-tetris-v39"></script>
+    <script src="jszip.min.js?v=eng-tetris-v40"></script>
+    <script src="wordbank_daily.js?v=eng-tetris-v40"></script>
+    <script src="wordbank_cet4.js?v=eng-tetris-v40"></script>
+    <script src="wordbank_cet6.js?v=eng-tetris-v40"></script>
+    <script src="wordbank_phon.js?v=eng-tetris-v40"></script>
+    <script src="wordbank_zh.js?v=eng-tetris-v40"></script>
+    <script src="wordbank_ru.js?v=eng-tetris-v40"></script>
+    <script src="word_fx_data.js?v=eng-tetris-v40"></script>
+    <script src="word_fx.js?v=eng-tetris-v40"></script>
+    <script src="modes_extra.js?v=eng-tetris-v40"></script>
+    <script src="hero_system.js?v=eng-tetris-v40"></script>
+    <script src="meanings.js?v=eng-tetris-v40"></script>
     <script src="hanzi-writer.min.js"></script>
-    <script src="hanzi_data.js?v=eng-tetris-v39"></script>
+    <script src="hanzi_data.js?v=eng-tetris-v40"></script>
 </head>
 <body>
     <div id="loadingScreen">
@@ -970,7 +970,7 @@
     </div>
 
     <!-- 扩展玩法通用视图容器（听力挑战 / 记忆配对 / 未来玩法 / DIY） -->
-    <div id="gameVerBadge" style="position:fixed;left:10px;bottom:8px;z-index:40;font-size:12px;color:rgba(255,255,255,.35);letter-spacing:1px;user-select:none;">v2.3.2</div>
+    <div id="gameVerBadge" style="position:fixed;left:10px;bottom:8px;z-index:40;font-size:12px;color:rgba(255,255,255,.35);letter-spacing:1px;user-select:none;">v2.4.0</div>
     <div id="extra-mode-view"></div>
 
     <!-- 写字学中文模式视图 -->
@@ -1022,7 +1022,8 @@
             <div class="main-title" data-i18n="title">世界语言方块</div>
             <div class="main-subtitle">World Language Blocks</div>
             <div class="menu-container">
-                <button class="btn-action btn-start-big" id="btnStartMain" data-i18n="startGame">▶ 开 始 游 戏</button>
+                <button class="btn-action btn-start-big" id="btnStartMain" data-i18n="startGame">▶ 单人游戏</button>
+                <button class="btn-action btn-start-big" id="btnVsGame" style="margin-top: 14px; background: linear-gradient(to bottom, #e94560, #b5233a); box-shadow: 0 6px 0 #7d1626, 0 8px 20px rgba(0,0,0,.5);">⚔️ 对战游戏</button>
             </div>
             <div class="menu-footer" data-i18n="footer">梦小段工作室出品</div>
         </div>
@@ -1690,8 +1691,9 @@
         document.querySelectorAll('.lang-card').forEach(card => { card.addEventListener('mouseenter', () => { if (audioCtx) playSoundHover(); }); card.addEventListener('click', () => { unlockAudio(); const i = parseInt(card.dataset.i); if (i === langSelIndex()) { playSoundSelect(); } else { playSoundMove(); setLangIndex(i); } if (LANG_DEV_PENDING.indexOf(LANG_ORDER[i]) >= 0) langDevToast(); }); });
         window.addEventListener('resize', layoutLangWheel);
         document.getElementById('btnStartMain').addEventListener('click', () => { unlockAudio(); playSoundClick(); showMenuScreen('langSelectScreen'); });
+        document.getElementById('btnVsGame').addEventListener('click', () => { unlockAudio(); playSoundClick(); window.__elcVsPending = true; showMenuScreen('langSelectScreen'); });
         document.getElementById('btnBackToMain').addEventListener('click', () => { playSoundClick(); showMenuScreen('mainMenuScreen'); });
-        document.getElementById('btnLangNext').addEventListener('click', () => { unlockAudio(); playSoundClick(); if (LANG_DEV_PENDING.indexOf(selectedLanguage) >= 0) { langDevToast(); return; } showMenuScreen('modeSelectScreen'); });
+        document.getElementById('btnLangNext').addEventListener('click', () => { unlockAudio(); playSoundClick(); if (LANG_DEV_PENDING.indexOf(selectedLanguage) >= 0) { langDevToast(); return; } if (window.__elcVsPending) { window.__elcVsPending = false; try { if (window.HERO && HERO.openBattleLobby) { showMenuScreen('mainMenuScreen'); HERO.openBattleLobby(); return; } } catch (e) {} } showMenuScreen('modeSelectScreen'); });
         document.getElementById('btnBackToLangMode').addEventListener('click', () => { playSoundClick(); showMenuScreen('langSelectScreen'); });
         document.getElementById('btnModeTetris').addEventListener('click', () => { playSoundClick(); showMenuScreen('difficultySelectScreen'); });
         document.getElementById('btnModeFill').addEventListener('click', () => { playSoundClick(); document.getElementById('m3PackModal').style.display = 'flex'; });
@@ -2336,9 +2338,15 @@
                     m3ThrowIconAtMonster(_imgUrl(b.word) || info.img, b.cells);
                 }
             } catch (e) { m3ThrowIconAtMonster(_imgUrl(b.word) || info.img, b.cells); }
-            /* 金币奖励 + 怪物掉血 */
-            try { if (window.HERO) window.HERO.addCoins(3); } catch (e) {}
-            m3MonDamage(m3MonDmg);
+            if (m3VS.on) {
+                /* 对战：奖励词 = 快攻 5 血 */
+                m3VSHit('op', 5, b.word);
+                if (!m3VS.over) m3VSSend({ type: 'attack', dmg: 5, word: b.word });
+            } else {
+                /* 金币奖励 + 怪物掉血 */
+                try { if (window.HERO) window.HERO.addCoins(3); } catch (e) {}
+                m3MonDamage(m3MonDmg);
+            }
             showM3Toast(_t('m3BonusHit', { w: _dw(b.word) }));
             // 奖励词格子保留拼好的完整单词（金色高亮，学习强化），直到下次目标刷新
             b.cells.forEach((cell, i) => {
@@ -2397,9 +2405,15 @@
             m3KMonster -= reclaim;
             m3KPlayer = Math.min(m3KTotal, m3KPlayer + reclaim);
             m3UpdatePKUI();
-            /* 金币奖励 + 怪物重击掉血（拼出目标词是最强攻击） */
-            try { if (window.HERO) window.HERO.addCoins(5); } catch (e) {}
-            m3MonDamage(20 + String(m3HoleWord || '').length * 3);
+            if (m3VS.on) {
+                /* 对战：拼出目标词 = 强攻 10 血，并同步给真人对手 */
+                m3VSHit('op', 10, m3HoleWord);
+                if (!m3VS.over) m3VSSend({ type: 'attack', dmg: 10, word: m3HoleWord });
+            } else {
+                /* 金币奖励 + 怪物重击掉血（拼出目标词是最强攻击） */
+                try { if (window.HERO) window.HERO.addCoins(5); } catch (e) {}
+                m3MonDamage(20 + String(m3HoleWord || '').length * 3);
+            }
             m3RestoreRows(4);
             // 把目标词对应图标砸向怪物脑袋
             const info = m3WordMap[m3HoleWord] || { img: '📝' };
@@ -2547,6 +2561,201 @@
             showM3Toast(_htElc('💥 击败怪物！掉落 ' + reward + ' 金币', '💥 Monster defeated! +' + reward + ' coins', '💥 Монстр побеждён! +' + reward, '💥 Monstre vaincu ! +' + reward));
             m3Mon.tier++;
             setTimeout(() => { if (state === 'match3' && m3State !== 'gameover') m3MonSpawn(); }, 900);
+        }
+
+        /* ==================== ⚔️ 填词对战系统：共用词序 · 抢词攻击 · 血量100 · 押注金币 ==================== */
+        let m3VS = { on: false, mode: 'ai', hpMe: 100, hpOp: 100, bet: 0, aiLevel: 1, aiTimer: 0, opName: '', opAvatar: null, over: false, net: null };
+        let m3LastVsDict = null;
+        function m3VsAiLevel() {
+            let lv = 1; try { lv = parseInt(localStorage.getItem('elc_vs_ai_level') || '1', 10) || 1; } catch (e) {}
+            return Math.max(1, Math.min(10, lv));
+        }
+        /* 网络对局收到的词字典必须消毒：只留合法词条，img 强制书本（防注入） */
+        function m3VsSanitizeDict(dict) {
+            const out = {};
+            try {
+                let n = 0;
+                for (const w in dict) {
+                    if (n >= 12) break;
+                    const k = String(w);
+                    if (!/^[a-zà-ÿāáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜа-яё]{1,12}$/i.test(k)) continue;
+                    const d = dict[w];
+                    out[k] = { mean: String((d && d.mean) || '').slice(0, 40), img: '📝', single: false };
+                    n++;
+                }
+            } catch (e) {}
+            return Object.keys(out).length >= 3 ? out : null;
+        }
+        function m3LaunchVS(dict, vsCfg) {
+            dict = m3VsSanitizeDict(dict) || dict;
+            m3LastVsDict = dict;
+            m3VS = Object.assign({ on: true, mode: 'ai', hpMe: 100, hpOp: 100, bet: 0, aiLevel: m3VsAiLevel(), aiTimer: 0, opName: '', opAvatar: null, over: false, net: null }, vsCfg || {});
+            if (m3VS.bet > 0) {
+                let ok = true;
+                try { if (window.HERO) ok = window.HERO.spendCoins(m3VS.bet); } catch (e) {}
+                if (!ok) { m3VS.bet = 0; }
+            }
+            m3LevelMode = false; m3FillPackKey = null;
+            DOM.customSelectScreen.classList.add('hidden'); DOM.overlay.style.display = 'none';
+            if (DOM.gameWrapper) DOM.gameWrapper.style.display = 'none';
+            if (DOM.btnPauseIcon) DOM.btnPauseIcon.style.display = 'none';
+            document.getElementById('quest-view').style.display = 'none';
+            document.getElementById('match3-view').style.display = 'flex';
+            state = 'match3';
+            startMatch3Game(dict);
+            m3VSApplyUI();
+            if (m3VS.mode === 'ai') m3VSScheduleAi();
+            if (m3VS.net) m3VSNetBind(m3VS.net);
+        }
+        /* 对战 UI：怪物位 → 对手头像；PK 条 → 双方血量 */
+        function m3VSApplyUI() {
+            const mouth = document.getElementById('m3-mouth');
+            if (mouth) mouth.innerHTML = m3VS.opAvatar
+                ? '<img src="' + m3VS.opAvatar + '" style="height:1.15em;width:auto;vertical-align:-0.18em;border-radius:6px;object-fit:contain;">'
+                : (m3VS.mode === 'ai' ? '🤖' : '🧑');
+            const tagM = document.querySelector('#m3-mouth-bar .pk-monster .m3-pk-tag');
+            if (tagM) tagM.textContent = m3VS.opName || (m3VS.mode === 'ai' ? ('电脑 Lv.' + m3VS.aiLevel) : '对手');
+            const tagH = document.querySelector('#m3-mouth-bar .pk-hero .m3-pk-tag');
+            if (tagH) tagH.textContent = _htElc('我', 'Me', 'Я', 'Moi');
+            const title = document.querySelector('#match3-view .m3-title');
+            if (title) title.textContent = '⚔️ ' + _htElc('填词对战 · 谁先拼出谁攻击', 'Word Duel', 'Дуэль слов', 'Duel de mots');
+            const monBar = document.getElementById('m3-mon-bar');
+            if (monBar) monBar.style.display = 'none';
+            const eat = document.getElementById('m3-eat-track');
+            if (eat) eat.style.display = 'none';
+            const mapBtn = document.getElementById('m3-map-btn');
+            if (mapBtn) mapBtn.style.display = 'none';
+            m3VSUpdateUI();
+        }
+        function m3VSUpdateUI() {
+            if (!m3VS.on) return;
+            /* 复用知识 PK 条：数字/填充条即双方血量 */
+            m3KPlayer = m3VS.hpMe; m3KMonster = m3VS.hpOp;
+            m3UpdatePKUI();
+            const bar = document.getElementById('m3-mouth-bar');
+            if (bar) bar.classList.toggle('danger', m3VS.hpMe <= 30);
+        }
+        function m3VSResetUI() {
+            const tagM = document.querySelector('#m3-mouth-bar .pk-monster .m3-pk-tag');
+            if (tagM) tagM.textContent = _t('m3Swallow');
+            const tagH = document.querySelector('#m3-mouth-bar .pk-hero .m3-pk-tag');
+            if (tagH) tagH.textContent = _t('m3Reclaim');
+            const title = document.querySelector('#match3-view .m3-title');
+            if (title) title.textContent = _t('m3Title');
+            const monBar = document.getElementById('m3-mon-bar');
+            if (monBar) monBar.style.display = '';
+            const eat = document.getElementById('m3-eat-track');
+            if (eat) eat.style.display = '';
+            const mapBtn = document.getElementById('m3-map-btn');
+            if (mapBtn) mapBtn.style.display = '';
+        }
+        function m3VSTeardown(silent) {
+            clearTimeout(m3VS.aiTimer);
+            if (m3VS.net) { try { m3VS.net.close(); } catch (e) {} }
+            const wasOn = m3VS.on;
+            m3VS = { on: false, mode: 'ai', hpMe: 100, hpOp: 100, bet: 0, aiLevel: 1, aiTimer: 0, opName: '', opAvatar: null, over: false, net: null };
+            if (wasOn) m3VSResetUI();
+        }
+        /* 攻击结算：who='me' 打我方血量 / 'op' 打对方 */
+        function m3VSHit(who, dmg, word) {
+            if (!m3VS.on || m3VS.over) return;
+            if (who === 'op') {
+                m3VS.hpOp = Math.max(0, m3VS.hpOp - dmg);
+                showM3Toast('⚔️ ' + _dw(word) + _htElc(' 命中！对方 -', ' hit! Foe -', ' попадание! −', ' touché ! −') + dmg);
+            } else {
+                m3VS.hpMe = Math.max(0, m3VS.hpMe - dmg);
+                playSoundBomb(); m3ShakeGrid();
+                showM3Toast('💥 ' + _htElc('对手拼出了', 'Foe spelled', 'Соперник собрал', "L'adversaire a épelle") + ' ' + _dw(word) + _htElc('！你 -', '! You -', '! Ты −', ' ! Vous −') + dmg);
+            }
+            m3VSUpdateUI();
+            if (m3VS.hpOp <= 0 && m3VS.hpMe <= 0) { m3VSEnd(m3VS.hpMe >= m3VS.hpOp); return; }
+            if (m3VS.hpOp <= 0) { m3VSEnd(true); return; }
+            if (m3VS.hpMe <= 0) { m3VSEnd(false); return; }
+        }
+        function m3VSSend(msg) {
+            if (m3VS.net) { try { m3VS.net.send(msg); } catch (e) {} }
+        }
+        function m3VSNetBind(conn) {
+            if (!conn) return;
+            conn.on('data', (d) => {
+                if (!m3VS.on || m3VS.over) return;
+                try {
+                    if (d && d.type === 'attack') m3VSHit('me', Math.max(0, Math.min(20, parseInt(d.dmg, 10) || 10)), String(d.word || '').slice(0, 16));
+                    else if (d && d.type === 'end') m3VSEnd(!d.win, true);
+                    else if (d && d.type === 'bye') m3VSEnd(true, true, _htElc('对方退出了对局', 'Opponent left', 'Соперник вышел', "L'adversaire est parti"));
+                } catch (e) {}
+            });
+            conn.on('close', () => { if (m3VS.on && !m3VS.over) m3VSEnd(true, true, _htElc('对方掉线，判你获胜', 'Opponent disconnected — you win', 'Соперник отключился — победа', 'Adversaire déconnecté — victoire')); });
+            conn.on('error', () => {});
+        }
+        function m3VSEnd(iWin, fromNet, reasonText) {
+            if (!m3VS.on || m3VS.over) return;
+            m3VS.over = true;
+            clearTimeout(m3VS.aiTimer);
+            if (m3VS.net && !fromNet) m3VSSend({ type: 'end', win: !iWin });
+            let coinDelta = 0;
+            if (m3VS.bet > 0) {
+                if (iWin) { try { if (window.HERO) window.HERO.addCoins(m3VS.bet * 2); } catch (e) {} coinDelta = m3VS.bet; }
+                else coinDelta = -m3VS.bet;
+            }
+            if (m3VS.mode === 'ai') {
+                try {
+                    const lv = iWin ? Math.min(10, m3VS.aiLevel + 1) : Math.max(1, m3VS.aiLevel - 1);
+                    localStorage.setItem('elc_vs_ai_level', String(lv));
+                } catch (e) {}
+            }
+            m3StopEater(); m3StopFeeder();
+            m3VSShowResult(iWin, coinDelta, reasonText);
+        }
+        function m3VSShowResult(iWin, coinDelta, reasonText) {
+            if (!m3ResultEl) return;
+            const coinHtml = window.HERO && window.HERO.coinIcon ? window.HERO.coinIcon() : '';
+            m3ResultEl.innerHTML =
+                '<div style="font-size:2.6rem;">' + (iWin ? '🏆' : '💀') + '</div>' +
+                '<div style="font-size:2rem;font-weight:900;margin:6px 0;color:' + (iWin ? '#53d769' : '#ff6b6b') + ';">' +
+                    (iWin ? _htElc('对战胜利！', 'Victory!', 'Победа!', 'Victoire !') : _htElc('对战失败', 'Defeat', 'Поражение', 'Défaite')) + '</div>' +
+                (reasonText ? '<div style="color:rgba(255,255,255,.7);margin-bottom:6px;">' + reasonText + '</div>' : '') +
+                '<div style="color:#fff;font-weight:900;font-size:1.1rem;">❤️ ' + m3VS.hpMe + ' : ' + m3VS.hpOp + ' ' + (m3VS.opName || '') + '</div>' +
+                (coinDelta !== 0 ? '<div style="color:#ffd700;font-weight:900;font-size:1.3rem;margin:8px 0;">' + coinHtml + ' ' + (coinDelta > 0 ? '+' + coinDelta : coinDelta) + '</div>' : '') +
+                '<div style="display:flex;gap:12px;justify-content:center;margin-top:18px;flex-wrap:wrap;">' +
+                    (m3VS.mode === 'ai'
+                        ? '<button class="m3-btn" style="font-size:1.05rem;padding:10px 22px;" onclick="window.__m3vsAgain()">' + _htElc('🔁 再来一局', '🔁 Rematch', '🔁 Ещё раз', '🔁 Revanche') + '</button>' : '') +
+                    (window.HERO && HERO.openBattleLobby
+                        ? '<button class="m3-btn" style="font-size:1.05rem;padding:10px 22px;" onclick="window.__m3vsLobby()">' + _htElc('⚔️ 对战场', '⚔️ Lobby', '⚔️ Арена', '⚔️ Lobby') + '</button>' : '') +
+                    '<button class="m3-btn" style="font-size:1.05rem;padding:10px 22px;" onclick="m3ExitToMenu()">' + _htElc('🏠 返回菜单', '🏠 Menu', '🏠 Меню', '🏠 Menu') + '</button>' +
+                '</div>';
+            m3ResultEl.style.display = 'flex';
+        }
+        window.__m3vsAgain = function () {
+            if (m3ResultEl) m3ResultEl.style.display = 'none';
+            m3VSTeardown();
+            if (m3LastVsDict) m3LaunchVS(m3LastVsDict, { mode: 'ai', bet: window.__m3vsBet || 0, aiLevel: m3VsAiLevel(), opName: '电脑 Lv.' + m3VsAiLevel(), opAvatar: null });
+        };
+        window.__m3vsBet = 0;
+        window.__m3vsLobby = function () {
+            if (m3ResultEl) m3ResultEl.style.display = 'none';
+            m3VSTeardown();
+            try { m3ExitToMenu(); } catch (e) {}
+            try { if (window.HERO && HERO.openBattleLobby) HERO.openBattleLobby(); } catch (e) {}
+        };
+        /* 电脑对手：定时抢走当前目标词并发起攻击；等级越高抢得越快 */
+        function m3VSScheduleAi() {
+            if (!m3VS.on || m3VS.mode !== 'ai' || m3VS.over) return;
+            clearTimeout(m3VS.aiTimer);
+            const base = Math.max(6500, 24000 - m3VS.aiLevel * 2000);
+            m3VS.aiTimer = setTimeout(m3VSAiTick, base + Math.random() * 2500);
+        }
+        function m3VSAiTick() {
+            if (!m3VS.on || m3VS.mode !== 'ai' || m3VS.over) return;
+            if (m3Paused) { m3VS.aiTimer = setTimeout(m3VSAiTick, 800); return; }
+            if (m3Busy || (m3State !== 'idle' && m3State !== 'selecting')) { m3VS.aiTimer = setTimeout(m3VSAiTick, 600); return; }
+            const t = m3HotTarget();
+            if (!t) { m3VSEnd(m3VS.hpMe >= m3VS.hpOp); return; }   // 词全部拼完：血量定胜负
+            t.done = true;
+            m3VSHit('me', 10, t.word);
+            if (m3VS.over) return;
+            m3RearrangeForNewTarget();
+            m3VSScheduleAi();
         }
 
         /* ==================== 语音识别战斗：按住说话，读对单词自动拼词 ==================== */
@@ -2703,6 +2912,7 @@
 
         function m3StartEater() {
             if (state !== 'match3') return;
+            if (m3VS.on) return;   // 对战模式：无吞噬怪，胜负靠抢词攻击
             m3EatProgress = 0;
             // 每隔 3 秒吞掉一行幕布（上移一行），紧张感适中
             m3EatTime = 3;
@@ -2948,6 +3158,10 @@
                 monDamage: function (d) { m3MonDamage(d); },
                 micMatch: function (t) { return m3MicMatch(t); },
                 micSupported: function () { return !!SR_cls; },
+                vsState: function () { return { on: m3VS.on, mode: m3VS.mode, hpMe: m3VS.hpMe, hpOp: m3VS.hpOp, bet: m3VS.bet, over: m3VS.over, opName: m3VS.opName }; },
+                vsAiNow: function () { m3VSAiTick(); },
+                vsHit: function (who, d, w) { m3VSHit(who, d, w || 'test'); },
+                vsSpell: function () { return m3VS.on && !m3VS.over ? m3SpeechFillTarget() : false; },
                 state: function () {
                     return {
                         eaten: m3EatenRows, busy: m3Busy, st: m3State, paused: m3Paused,
@@ -3310,7 +3524,7 @@
             } 
         }
 
-        function m3TogglePause() { if (m3State === 'gameover') return; m3Paused = !m3Paused; if (m3Paused) { m3StopEater(); m3StopFeeder(); if (m3IdleTimer) clearTimeout(m3IdleTimer); showM3PausePanel(); } else { if (state === 'match3') { m3StartEater(); m3StartFeeder(); m3ResetIdle(); } hideM3PausePanel(); } }
+        function m3TogglePause() { if (m3State === 'gameover') return; m3Paused = !m3Paused; if (m3Paused) { m3StopEater(); m3StopFeeder(); if (m3VS.on) clearTimeout(m3VS.aiTimer); if (m3IdleTimer) clearTimeout(m3IdleTimer); showM3PausePanel(); } else { if (state === 'match3') { m3StartEater(); m3StartFeeder(); m3ResetIdle(); if (m3VS.on && m3VS.mode === 'ai') m3VSScheduleAi(); } hideM3PausePanel(); } }
         function showM3PausePanel() { 
             if (!m3PausePanel) { 
                 m3PausePanel = document.createElement('div'); 
@@ -3331,6 +3545,7 @@
         window.m3TogglePause = m3TogglePause;
         function m3GameOver() { m3StopEater(); m3StopFeeder(); m3ResetPause(); m3CleanupTransientFx(); const baG = document.getElementById('battle-area'); if (baG) baG.style.display = 'none'; m3State = 'gameover'; m3ClearHints(); showM3Result(_t('m3FailTitle'), false); }
         function m3Win() {
+            if (m3VS.on) { m3VSEnd(m3VS.hpMe >= m3VS.hpOp, false, _htElc('目标词全部拼完，按血量判定', 'All words done — higher HP wins', 'Все слова собраны — побеждает HP', 'Tous les mots faits — PV décident')); return; }
             m3StopEater(); m3StopFeeder(); m3ResetPause();
             m3CleanupTransientFx();
             m3EatenRows = 0; m3EatProgress = 0; m3KMonster = 0; m3KPlayer = m3KTotal; m3UpdatePKUI();
@@ -3398,6 +3613,7 @@
             modal.style.display = 'flex';
         };
         window.m3Restart = function() {
+            if (m3VS.on) { window.__m3vsAgain(); return; }
             if (m3ResultEl) m3ResultEl.style.display = 'none';
             m3ResetPause();
             m3CleanupTransientFx();
@@ -3414,6 +3630,8 @@
             try { DOM.wordPopup.classList.add('hidden'); DOM.wordPopup.classList.remove('show'); } catch (e) {}
             m3StopEater(); m3StopFeeder(); m3ResetPause();
             m3CleanupTransientFx();
+            if (m3VS.on && !m3VS.over) { try { m3VSSend({ type: 'bye' }); } catch (e) {} }
+            m3VSTeardown();
             const ba = document.getElementById('battle-area'); if (ba) ba.style.display = 'none'; 
             if (m3ResultEl) m3ResultEl.style.display = 'none'; 
             document.getElementById('match3-view').style.display = 'none'; 
@@ -5056,6 +5274,9 @@
             setCustomPack: (list) => { try { localStorage.setItem('elc_custom_pack', JSON.stringify(list || [])); } catch (e) {} },
             rewardCoins: (n, opts) => { if (window.HERO) window.HERO.addCoins(n, opts); },
             coins: () => (window.HERO ? window.HERO.getCoins() : 0),
+            goMenu: (id) => { try { showMenuScreen(id || 'modeSelectScreen'); } catch (e) {} },
+            startVsBattle: (dict, vsCfg) => { try { m3LaunchVS(dict, vsCfg); } catch (e) {} },
+            attachVsNet: (conn, dict, vsCfg) => { try { m3LaunchVS(dict, Object.assign({ mode: 'net', net: conn }, vsCfg || {})); } catch (e) {} },
             registerMode: (m) => { if (m && m.id && m.start) window.ELC.modes.push(m); },
             openExtraView: (html) => {
                 const v = document.getElementById('extra-mode-view');
@@ -5135,7 +5356,7 @@
     </script>
     <script>
     (function () {
-        var GAME_VER = '2.3.2';
+        var GAME_VER = '2.4.0';
         try {
             var badge = document.getElementById('gameVerBadge');
             if (badge) badge.textContent = '世界语言方块 v' + GAME_VER;

@@ -30,6 +30,9 @@
         placeIt: { zh: '去小屋摆放', en: 'Place in room', ru: 'Поставить', fr: 'Placer' },
         buyTitle: { zh: '拼对单词才能购买', en: 'Spell the word to buy', ru: 'Напиши слово, чтобы купить', fr: 'Épellez le mot pour acheter' },
         wordMeaning: { zh: '释义', en: 'Meaning', ru: 'Значение', fr: 'Sens' },
+        quizItem: { zh: '想买【', en: 'To buy [', ru: 'Чтобы купить [', fr: 'Pour acheter [' },
+        quizItemEnd: { zh: '】？拼出它在你学的语言里的说法！', en: ']? Spell it in the language you learn!', ru: ']? Напиши это на изучаемом языке!', fr: '] ? Épellez-le dans votre langue !' },
+        hintFirst: { zh: '💡 首字母提示', en: '💡 First letter', ru: '💡 Первая буква', fr: '💡 Première lettre' },
         wordHint: { zh: '个字母', en: ' letters', ru: ' букв', fr: ' lettres' },
         wordHintZh: { zh: '个汉字（可输汉字或无声调拼音）', en: ' characters (hanzi or plain pinyin)', ru: ' иероглифов', fr: ' caractères' },
         changeWord: { zh: '换一个词', en: 'New word', ru: 'Другое слово', fr: 'Autre mot' },
@@ -50,7 +53,25 @@
         close: { zh: '关闭', en: 'Close', ru: 'Закрыть', fr: 'Fermer' },
         earnCoin: { zh: '金币 +', en: 'Coins +', ru: 'Монеты +', fr: 'Pièces +' },
         shopSub: { zh: '拼对目标语言单词即可下单，家具带回家摆进小屋', en: 'Spell a word to buy decorations', ru: 'Напиши слово и купи декор', fr: 'Épellez pour acheter' },
-        roomSub: { zh: '你的专属空间：摆家具 · 养宠物 · 打扮主角', en: 'Your space: decorate & dress up', ru: 'Твоё пространство', fr: 'Votre espace' }
+        roomSub: { zh: '你的专属空间：摆家具 · 养宠物 · 打扮主角', en: 'Your space: decorate & dress up', ru: 'Твоё пространство', fr: 'Votre espace' },
+        langBuddy: { zh: '选好想学的语言，我陪你一起学！', en: "Pick a language — let's learn together!", ru: 'Выбери язык — учимся вместе!', fr: 'Choisis une langue — apprenons ensemble !' },
+        vsTitle: { zh: '对战游戏', en: 'Versus', ru: 'Дуэль', fr: 'Duel' },
+        vsSub: { zh: '共用同一组目标单词，谁先拼出谁攻击（每词 10 血，血量 100，奖励词 5 血）', en: 'Same target words — first to spell attacks (10 dmg, 100 HP)', ru: 'Общие слова — кто первый соберёт, тот бьёт (10 урона, 100 HP)', fr: 'Mêmes mots — le premier à épeler attaque (10 dégâts, 100 PV)' },
+        vsName: { zh: '昵称', en: 'Name', ru: 'Имя', fr: 'Pseudo' },
+        vsBet: { zh: '押注（赢了翻倍，输了失去）', en: 'Bet (win = x2, lose = gone)', ru: 'Ставка (выигрыш ×2)', fr: 'Mise (gain ×2)' },
+        vsBetNone: { zh: '不押', en: 'None', ru: 'Без', fr: 'Aucune' },
+        vsAi: { zh: '人机对战', en: 'vs Computer', ru: 'Против ПК', fr: 'vs Ordi' },
+        vsAiSub: { zh: '电脑等级随你的胜负自动升降（Lv.1~10）', en: 'AI level rises/falls with your results', ru: 'Уровень ИИ растёт с победами', fr: 'Le niveau IA évolue' },
+        vsMatch: { zh: '匹配对战', en: 'Online Match', ru: 'Онлайн-матч', fr: 'Match en ligne' },
+        vsMatchSub: { zh: '搜索全网同时匹配的玩家真人对战（需网络）', en: 'Match with real players online', ru: 'Поиск реальных игроков', fr: 'Affrontez de vrais joueurs' },
+        mmConnect: { zh: '正在连接匹配服务器…', en: 'Connecting to match server…', ru: 'Подключение к серверу…', fr: 'Connexion au serveur…' },
+        mmWait: { zh: '🎯 已就位，等待挑战者进入大厅…', en: '🎯 Ready — waiting for a challenger…', ru: '🎯 Жду соперника…', fr: '🎯 En attente…' },
+        mmHand: { zh: '🤝 找到对手，握手中…', en: '🤝 Opponent found, handshaking…', ru: '🤝 Соперник найден…', fr: '🤝 Adversaire trouvé…' },
+        mmFail: { zh: '无法连接匹配服务器（网络受限时建议人机对战）', en: 'Cannot reach match server — try vs Computer', ru: 'Сервер недоступен — сыграйте с ПК', fr: 'Serveur inaccessible' },
+        mmTimeout: { zh: '30 秒内没有找到对手，稍后再试试', en: 'No opponent in 30s — try again later', ru: 'За 30 секунд соперник не найден', fr: 'Aucun adversaire en 30s' },
+        mmFull: { zh: '匹配已满，正在重试…', en: 'Room full, retrying…', ru: 'Комната заполнена…', fr: 'Complet…' },
+        mmCancel: { zh: '取消', en: 'Cancel', ru: 'Отмена', fr: 'Annuler' },
+        mmRetry: { zh: '重试', en: 'Retry', ru: 'Повтор', fr: 'Réessayer' }
     };
     function uiLang() {
         try { return ((window.I18N && window.I18N.lang) || 'zh-CN'); } catch (e) { return 'zh-CN'; }
@@ -79,35 +100,35 @@
     function setWorn(a) { lsSet(K.worn, JSON.stringify(a)); }
     function getAvatar() { return lsGet(K.avatar, null); }
 
-    /* ================= 商品目录 ================= */
+    /* ================= 商品目录（w=购买时要拼的词：en/ru/zh拼音，hw=中文字） ================= */
     var SHOP_ITEMS = [
-        { id: 'bed', e: '🛏️', cat: 'floor', p: 60, n: { zh: '小床', en: 'Cozy Bed', ru: 'Кровать', fr: 'Lit' } },
-        { id: 'sofa', e: '🛋️', cat: 'floor', p: 80, n: { zh: '沙发', en: 'Sofa', ru: 'Диван', fr: 'Canapé' } },
-        { id: 'desk', e: '🪑', cat: 'floor', p: 50, n: { zh: '书桌椅', en: 'Desk & Chair', ru: 'Парта', fr: 'Bureau' } },
-        { id: 'tv', e: '📺', cat: 'floor', p: 90, n: { zh: '电视机', en: 'TV', ru: 'Телевизор', fr: 'Télévision' } },
-        { id: 'piano', e: '🎹', cat: 'floor', p: 160, n: { zh: '钢琴', en: 'Piano', ru: 'Пианино', fr: 'Piano' } },
-        { id: 'shelf', e: '📚', cat: 'floor', p: 75, n: { zh: '大书架', en: 'Bookshelf', ru: 'Полка книг', fr: 'Bibliothèque' } },
-        { id: 'toy', e: '🧸', cat: 'floor', p: 55, n: { zh: '玩偶熊', en: 'Teddy Bear', ru: 'Мишка', fr: 'Peluche' } },
-        { id: 'rug', e: '🧶', cat: 'floor', p: 35, n: { zh: '圆地毯', en: 'Rug', ru: 'Коврик', fr: 'Tapis' } },
-        { id: 'painting', e: '🖼️', cat: 'wall', p: 70, n: { zh: '名画', en: 'Painting', ru: 'Картина', fr: 'Tableau' } },
-        { id: 'mirror', e: '🪞', cat: 'wall', p: 65, n: { zh: '穿衣镜', en: 'Mirror', ru: 'Зеркало', fr: 'Miroir' } },
-        { id: 'plant', e: '🌿', cat: 'wall', p: 40, n: { zh: '绿盆栽', en: 'Potted Plant', ru: 'Растение', fr: 'Plante' } },
-        { id: 'lantern', e: '🏮', cat: 'wall', p: 55, n: { zh: '红灯笼', en: 'Lantern', ru: 'Фонарь', fr: 'Lanterne' } },
-        { id: 'map', e: '🗺️', cat: 'wall', p: 85, n: { zh: '世界地图', en: 'World Map', ru: 'Карта мира', fr: 'Carte' } },
-        { id: 'clock', e: '🕰️', cat: 'wall', p: 45, n: { zh: '挂钟', en: 'Wall Clock', ru: 'Часы', fr: 'Horloge' } },
-        { id: 'dog', e: '🐕', cat: 'pet', p: 120, n: { zh: '小狗', en: 'Puppy', ru: 'Щенок', fr: 'Chien' } },
-        { id: 'cat', e: '🐈', cat: 'pet', p: 110, n: { zh: '小猫', en: 'Kitten', ru: 'Котёнок', fr: 'Chat' } },
-        { id: 'fish', e: '🐠', cat: 'pet', p: 100, n: { zh: '小鱼', en: 'Fish', ru: 'Рыбка', fr: 'Poisson' } },
-        { id: 'bird', e: '🐦', cat: 'pet', p: 90, n: { zh: '小鸟', en: 'Bird', ru: 'Птичка', fr: 'Oiseau' } },
-        { id: 'hamster', e: '🐹', cat: 'pet', p: 95, n: { zh: '仓鼠', en: 'Hamster', ru: 'Хомяк', fr: 'Hamster' } },
-        { id: 'crown', e: '👑', cat: 'wear', p: 150, n: { zh: '皇冠', en: 'Crown', ru: 'Корона', fr: 'Couronne' } },
-        { id: 'hat', e: '🎩', cat: 'wear', p: 80, n: { zh: '绅士帽', en: 'Top Hat', ru: 'Шляпа', fr: 'Chapeau' } },
-        { id: 'sunglasses', e: '🕶️', cat: 'wear', p: 60, n: { zh: '墨镜', en: 'Sunglasses', ru: 'Очки', fr: 'Lunettes' } },
-        { id: 'bow', e: '🎀', cat: 'wear', p: 45, n: { zh: '蝴蝶结', en: 'Ribbon Bow', ru: 'Бант', fr: 'Nœud' } },
-        { id: 'scarf', e: '🧣', cat: 'wear', p: 50, n: { zh: '围巾', en: 'Scarf', ru: 'Шарф', fr: 'Écharpe' } },
-        { id: 'sword', e: '⚔️', cat: 'wear', p: 130, n: { zh: '宝剑', en: 'Sword', ru: 'Меч', fr: 'Épée' } },
-        { id: 'shield', e: '🛡️', cat: 'wear', p: 120, n: { zh: '盾牌', en: 'Shield', ru: 'Щит', fr: 'Bouclier' } },
-        { id: 'wand', e: '✨', cat: 'wear', p: 110, n: { zh: '魔法杖', en: 'Magic Wand', ru: 'Волшебная палочка', fr: 'Baguette' } }
+        { id: 'bed', e: '🛏️', cat: 'floor', p: 60, w: { en: 'bed', ru: 'кровать', zh: 'chuang' }, hw: '床', n: { zh: '小床', en: 'Cozy Bed', ru: 'Кровать', fr: 'Lit' } },
+        { id: 'sofa', e: '🛋️', cat: 'floor', p: 80, w: { en: 'sofa', ru: 'divan', zh: 'shafa' }, hw: '沙发', n: { zh: '沙发', en: 'Sofa', ru: 'Диван', fr: 'Canapé' } },
+        { id: 'desk', e: '🪑', cat: 'floor', p: 50, w: { en: 'desk', ru: 'parta', zh: 'zhuo' }, hw: '桌', n: { zh: '书桌椅', en: 'Desk & Chair', ru: 'Парта', fr: 'Bureau' } },
+        { id: 'tv', e: '📺', cat: 'floor', p: 90, w: { en: 'tv', ru: 'televisor', zh: 'dianshi' }, hw: '电视', n: { zh: '电视机', en: 'TV', ru: 'Телевизор', fr: 'Télévision' } },
+        { id: 'piano', e: '🎹', cat: 'floor', p: 160, w: { en: 'piano', ru: 'piano', zh: 'gangqin' }, hw: '钢琴', n: { zh: '钢琴', en: 'Piano', ru: 'Пианино', fr: 'Piano' } },
+        { id: 'shelf', e: '📚', cat: 'floor', p: 75, w: { en: 'shelf', ru: 'polka', zh: 'shujia' }, hw: '书架', n: { zh: '大书架', en: 'Bookshelf', ru: 'Полка книг', fr: 'Bibliothèque' } },
+        { id: 'toy', e: '🧸', cat: 'floor', p: 55, w: { en: 'toy', ru: 'igrushka', zh: 'wanju' }, hw: '玩具', n: { zh: '玩偶熊', en: 'Teddy Bear', ru: 'Мишка', fr: 'Peluche' } },
+        { id: 'rug', e: '🧶', cat: 'floor', p: 35, w: { en: 'rug', ru: 'kovyor', zh: 'ditan' }, hw: '地毯', n: { zh: '圆地毯', en: 'Rug', ru: 'Коврик', fr: 'Tapis' } },
+        { id: 'painting', e: '🖼️', cat: 'wall', p: 70, w: { en: 'painting', ru: 'kartina', zh: 'hua' }, hw: '画', n: { zh: '名画', en: 'Painting', ru: 'Картина', fr: 'Tableau' } },
+        { id: 'mirror', e: '🪞', cat: 'wall', p: 65, w: { en: 'mirror', ru: 'zerkalo', zh: 'jingzi' }, hw: '镜子', n: { zh: '穿衣镜', en: 'Mirror', ru: 'Зеркало', fr: 'Miroir' } },
+        { id: 'plant', e: '🌿', cat: 'wall', p: 40, w: { en: 'plant', ru: 'rastenie', zh: 'hua' }, hw: '花', n: { zh: '绿盆栽', en: 'Potted Plant', ru: 'Растение', fr: 'Plante' } },
+        { id: 'lantern', e: '🏮', cat: 'wall', p: 55, w: { en: 'lantern', ru: 'fonar', zh: 'deng' }, hw: '灯', n: { zh: '红灯笼', en: 'Lantern', ru: 'Фонарь', fr: 'Lanterne' } },
+        { id: 'map', e: '🗺️', cat: 'wall', p: 85, w: { en: 'map', ru: 'karta', zh: 'ditu' }, hw: '地图', n: { zh: '世界地图', en: 'World Map', ru: 'Карта мира', fr: 'Carte' } },
+        { id: 'clock', e: '🕰️', cat: 'wall', p: 45, w: { en: 'clock', ru: 'chasy', zh: 'zhong' }, hw: '钟', n: { zh: '挂钟', en: 'Wall Clock', ru: 'Часы', fr: 'Horloge' } },
+        { id: 'dog', e: '🐕', cat: 'pet', p: 120, w: { en: 'dog', ru: 'sobaka', zh: 'gou' }, hw: '狗', n: { zh: '小狗', en: 'Puppy', ru: 'Щенок', fr: 'Chien' } },
+        { id: 'cat', e: '🐈', cat: 'pet', p: 110, w: { en: 'cat', ru: 'koshka', zh: 'mao' }, hw: '猫', n: { zh: '小猫', en: 'Kitten', ru: 'Котёнок', fr: 'Chat' } },
+        { id: 'fish', e: '🐠', cat: 'pet', p: 100, w: { en: 'fish', ru: 'ryba', zh: 'yu' }, hw: '鱼', n: { zh: '小鱼', en: 'Fish', ru: 'Рыбка', fr: 'Poisson' } },
+        { id: 'bird', e: '🐦', cat: 'pet', p: 90, w: { en: 'bird', ru: 'ptitsa', zh: 'niao' }, hw: '鸟', n: { zh: '小鸟', en: 'Bird', ru: 'Птичка', fr: 'Oiseau' } },
+        { id: 'hamster', e: '🐹', cat: 'pet', p: 95, w: { en: 'hamster', ru: 'homyak', zh: 'shu' }, hw: '鼠', n: { zh: '仓鼠', en: 'Hamster', ru: 'Хомяк', fr: 'Hamster' } },
+        { id: 'crown', e: '👑', cat: 'wear', p: 150, w: { en: 'crown', ru: 'korona', zh: 'guan' }, hw: '冠', n: { zh: '皇冠', en: 'Crown', ru: 'Корона', fr: 'Couronne' } },
+        { id: 'hat', e: '🎩', cat: 'wear', p: 80, w: { en: 'hat', ru: 'shlyapa', zh: 'mao' }, hw: '帽', n: { zh: '绅士帽', en: 'Top Hat', ru: 'Шляпа', fr: 'Chapeau' } },
+        { id: 'sunglasses', e: '🕶️', cat: 'wear', p: 60, w: { en: 'glasses', ru: 'ochki', zh: 'yanjing' }, hw: '眼镜', n: { zh: '墨镜', en: 'Sunglasses', ru: 'Очки', fr: 'Lunettes' } },
+        { id: 'bow', e: '🎀', cat: 'wear', p: 45, w: { en: 'bow', ru: 'bant', zh: 'jie' }, hw: '结', n: { zh: '蝴蝶结', en: 'Ribbon Bow', ru: 'Бант', fr: 'Nœud' } },
+        { id: 'scarf', e: '🧣', cat: 'wear', p: 50, w: { en: 'scarf', ru: 'sharf', zh: 'weijin' }, hw: '围巾', n: { zh: '围巾', en: 'Scarf', ru: 'Шарф', fr: 'Écharpe' } },
+        { id: 'sword', e: '⚔️', cat: 'wear', p: 130, w: { en: 'sword', ru: 'mech', zh: 'jian' }, hw: '剑', n: { zh: '宝剑', en: 'Sword', ru: 'Меч', fr: 'Épée' } },
+        { id: 'shield', e: '🛡️', cat: 'wear', p: 120, w: { en: 'shield', ru: 'shit', zh: 'dun' }, hw: '盾', n: { zh: '盾牌', en: 'Shield', ru: 'Щит', fr: 'Bouclier' } },
+        { id: 'wand', e: '✨', cat: 'wear', p: 110, w: { en: 'wand', ru: 'palochka', zh: 'bang' }, hw: '棒', n: { zh: '魔法杖', en: 'Magic Wand', ru: 'Волшебная палочка', fr: 'Baguette' } }
     ];
     var CATS = [{ k: 'floor', t: 'catFloor', e: '🛋️' }, { k: 'wall', t: 'catWall', e: '🖼️' }, { k: 'pet', t: 'catPet', e: '🐾' }, { k: 'wear', t: 'catWear', e: '👑' }];
     function itemName(it) { var l = uiLang().slice(0, 2); return (it.n && (it.n[l] || it.n.en || it.n.zh)) || it.id; }
@@ -313,10 +334,17 @@
             '<div class="hsd-quiz-box" id="hsdQuizBox"></div>' +
             '<div class="hsd-actions">' +
                 '<button class="hh-btn big ok" id="hsdBuy">' + ht('confirmBuy') + '</button>' +
-                '<button class="hh-btn" id="hsdNewWord">🎲 ' + ht('changeWord') + '</button>' +
+                '<button class="hh-btn" id="hsdNewWord">' + ht('hintFirst') + '</button>' +
             '</div>';
         wireClose('hsdX2');
-        document.getElementById('hsdNewWord').addEventListener('click', function () { click(); renderQuiz(it); });
+        document.getElementById('hsdNewWord').addEventListener('click', function () {
+            click();
+            var box2 = document.getElementById('hsdQuizBox');
+            var inp = document.getElementById('hsdInput');
+            if (!box2 || !box2._word || !inp) return;
+            inp.placeholder = String(box2._word.isZh ? (box2._word.display || box2._word.word) : box2._word.word).charAt(0) + '…';
+            inp.focus();
+        });
         document.getElementById('hsdBuy').addEventListener('click', function () { tryBuy(it); });
         renderQuiz(it);
         function wireClose(cid) {
@@ -324,19 +352,24 @@
             if (x) x.addEventListener('click', function () { det.style.display = 'none'; });
         }
     }
+    /* 商品关联挑战词：买床拼 bed——学习语言决定答案语言（zh=拼音/汉字，ru=俄语，其余=英语） */
+    function itemChallenge(it) {
+        var lang = learningLangSafe();
+        var w = (it && it.w) || {};
+        var word = (lang === 'zh' || lang === 'ru') ? (w[lang] || w.en) : (w.en || w.zh);
+        if (!word) word = 'star';
+        var display = (lang === 'zh' && it.hw) ? it.hw : word;
+        return { word: word, display: display, mean: itemName(it), isZh: lang === 'zh', emoji: it.e };
+    }
     function renderQuiz(it) {
         var box = document.getElementById('hsdQuizBox'); if (!box) return;
-        var w = pickChallenge();
-        if (!w) {
-            box.innerHTML = '<div class="hsd-mean">' + ht('noCoins') + '</div>';
-            return;
-        }
+        var w = itemChallenge(it);
         box._word = w; box._item = it;
-        var isZh = learningLangSafe() === 'zh';
-        var lenHint = isZh ? ((w.display || w.word).length + ht('wordHintZh')) : (String(w.word).length + ht('wordHint'));
+        var lenHint = w.isZh ? ((w.display || w.word).length + ht('wordHintZh')) : (String(w.word).length + ht('wordHint'));
         box.innerHTML =
-            '<div class="hsd-hint">' + wordImgHtml(w) + '</div>' +
-            '<div class="hsd-mean">' + ht('wordMeaning') + '：<b>' + (w.mean || '…') + '</b>　<span class="hsd-len">' + lenHint + '</span></div>' +
+            '<div class="hsd-hint"><span style="font-size:52px;line-height:1;">' + w.emoji + '</span></div>' +
+            '<div class="hsd-mean">' + ht('quizItem') + '<b>' + w.mean + '</b>' + ht('quizItemEnd') + '</div>' +
+            '<div class="hsd-len" style="margin:-4px 0 2px;">' + lenHint + '</div>' +
             '<input id="hsdInput" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="?">';
         var input = document.getElementById('hsdInput');
         input.focus();
@@ -515,6 +548,194 @@
         img.src = dataUrl;
     }
 
+    /* ================= ⚔️ 对战场：人机对战 / 全网匹配（押金币 · 抢词攻击） ================= */
+    var vsState = { bet: 0, peer: null, peer2: null, conn: null, timer: 0 };
+    function vsAiLevel() { try { return Math.max(1, Math.min(10, parseInt(localStorage.getItem('elc_vs_ai_level') || '1', 10) || 1)); } catch (e) { return 1; } }
+    function vsName() {
+        var n = lsGet('elc_vs_name', '');
+        if (!n) { n = 'P' + Math.floor(1000 + Math.random() * 9000); lsSet('elc_vs_name', n); }
+        return n;
+    }
+    function buildVsDict() {
+        var ws = [];
+        try { ws = (window.ELC && ELC.packWords && ELC.packWords('daily')) || []; } catch (e) {}
+        if (!ws.length) { try { ws = (window.ELC && ELC.words && ELC.words()) || []; } catch (e) {} }
+        var pool = [];
+        for (var i = 0; i < ws.length; i++) { var L = String(ws[i].word || '').length; if (L >= 2 && L <= 10) pool.push(ws[i]); }
+        for (var k = pool.length - 1; k > 0; k--) { var r = Math.floor(Math.random() * (k + 1)); var tmp = pool[k]; pool[k] = pool[r]; pool[r] = tmp; }
+        var dict = {};
+        pool.slice(0, 10).forEach(function (w) { dict[w.word] = { mean: w.mean || '', single: false }; });
+        return dict;
+    }
+    function openBattleLobby() {
+        closeShop(); closeRoom(); closeMatch();
+        vsState.bet = 0;
+        var lv = vsAiLevel();
+        var root = document.createElement('div');
+        root.id = 'heroBattle';
+        root.innerHTML =
+            '<div class="hs-panel">' +
+                '<div class="hs-head">' +
+                    '<div class="hs-title">⚔️ ' + ht('vsTitle') + '</div>' +
+                    '<div class="hs-coins">' + COIN_SVG + ' <b>' + getCoins() + '</b></div>' +
+                    '<button class="hs-x" id="hbClose">✕</button>' +
+                '</div>' +
+                '<div class="hs-sub">' + ht('vsSub') + '</div>' +
+                '<div class="hb-row"><span class="hb-label">🪞 ' + ht('vsName') + '</span><input id="hbName" maxlength="10" value="' + vsName() + '"></div>' +
+                '<div class="hb-row"><span class="hb-label">' + COIN_SVG + ' ' + ht('vsBet') + '</span><div class="hb-bets" id="hbBets"></div></div>' +
+                '<button class="hh-btn big" id="hbAi">🤖 ' + ht('vsAi') + ' Lv.' + lv + '</button>' +
+                '<div class="hb-tip">' + ht('vsAiSub') + '</div>' +
+                '<button class="hh-btn big net" id="hbNet">🌐 ' + ht('vsMatch') + '</button>' +
+                '<div class="hb-tip">' + ht('vsMatchSub') + '</div>' +
+            '</div>';
+        document.body.appendChild(root);
+        document.getElementById('hbClose').addEventListener('click', function () { click(); closeBattle(); try { ELC.goMenu && ELC.goMenu('mainMenuScreen'); } catch (e) {} });
+        document.getElementById('hbName').addEventListener('change', function () { lsSet('elc_vs_name', this.value.trim().slice(0, 10) || vsName()); });
+        renderBetChips();
+        document.getElementById('hbAi').addEventListener('click', function () { click(); startAiBattle(); });
+        document.getElementById('hbNet').addEventListener('click', function () { click(); startMatch(); });
+    }
+    function closeBattle() { var el = document.getElementById('heroBattle'); if (el) el.remove(); }
+    function renderBetChips() {
+        var host = document.getElementById('hbBets'); if (!host) return;
+        var opts = [0, 10, 30, 50, 100];
+        var c = getCoins();
+        var html = '';
+        opts.forEach(function (v) {
+            var dis = v > c ? ' disabled' : '';
+            html += '<button data-bet="' + v + '" class="' + (vsState.bet === v ? 'on' : '') + '"' + dis + '>' + (v === 0 ? ht('vsBetNone') : v) + '</button>';
+        });
+        host.innerHTML = html;
+        host.querySelectorAll('button').forEach(function (b) {
+            b.addEventListener('click', function () { if (b.disabled) return; click(); vsState.bet = parseInt(b.dataset.bet, 10) || 0; renderBetChips(); });
+        });
+    }
+    function startAiBattle() {
+        var bet = vsState.bet;
+        if (bet > 0 && getCoins() < bet) { toast(ht('noCoins')); return; }
+        var lv = vsAiLevel();
+        window.__m3vsBet = bet;
+        closeBattle();
+        try {
+            if (window.ELC && ELC.startVsBattle) ELC.startVsBattle(buildVsDict(), { mode: 'ai', bet: bet, aiLevel: lv, opName: '🤖 Lv.' + lv, opAvatar: null });
+            else toast('ERR: no ELC');
+        } catch (e) { toast('ERR: ' + (e.message || e)); }
+    }
+    /* ---- 全网匹配（PeerJS：同语言大厅，先到者当庄等待，后到者挑战） ---- */
+    function closeMatch() { var el = document.getElementById('heroMatch'); if (el) el.remove(); }
+    function setMmStatus(t) { var el = document.getElementById('hmStatus'); if (el) el.textContent = t; }
+    function openMatchUI() {
+        closeMatch();
+        var root = document.createElement('div');
+        root.id = 'heroMatch';
+        root.innerHTML =
+            '<div class="hs-panel" style="text-align:center;">' +
+                '<div class="hs-title" style="text-align:center;">🌐 ' + ht('vsMatch') + '</div>' +
+                '<div class="mm-radar"><span class="mm-dot"></span><span class="mm-ring"></span><span class="mm-ring r2"></span></div>' +
+                '<div id="hmStatus" class="hs-sub">…</div>' +
+                '<div style="display:flex;gap:10px;justify-content:center;margin-top:10px;">' +
+                    '<button class="hh-btn" id="hmRetry" style="display:none;">🔄 ' + ht('mmRetry') + '</button>' +
+                    '<button class="hh-btn" id="hmCancel">' + ht('mmCancel') + '</button>' +
+                '</div>' +
+            '</div>';
+        document.body.appendChild(root);
+        document.getElementById('hmCancel').addEventListener('click', function () { click(); vsCleanupNet(); closeMatch(); openBattleLobby(); });
+        document.getElementById('hmRetry').addEventListener('click', function () { click(); startMatch(); });
+    }
+    function mmFail(msg) {
+        setMmStatus(msg);
+        vsCleanupNet();
+        var r = document.getElementById('hmRetry'); if (r) r.style.display = '';
+    }
+    function loadPeerJs(cb) {
+        if (window.Peer) return cb(true);
+        var s = document.createElement('script');
+        s.src = 'peerjs.min.js';
+        s.onload = function () { cb(true); };
+        s.onerror = function () { cb(false); };
+        document.head.appendChild(s);
+    }
+    function vsCleanupNet() {
+        clearTimeout(vsState.timer);
+        try { if (vsState.conn) vsState.conn.close(); } catch (e) {}
+        try { if (vsState.peer) vsState.peer.destroy(); } catch (e) {}
+        try { if (vsState.peer2) vsState.peer2.destroy(); } catch (e) {}
+        vsState.conn = null; vsState.peer = null; vsState.peer2 = null;
+    }
+    function startMatch() {
+        var bet = vsState.bet;
+        if (bet > 0 && getCoins() < bet) { toast(ht('noCoins')); return; }
+        closeBattle();
+        openMatchUI();
+        setMmStatus(ht('mmConnect'));
+        loadPeerJs(function (ok) {
+            if (!ok) { mmFail(ht('mmFail')); return; }
+            var lobbyId = 'elcvs2-' + (learningLangSafe() || 'en');
+            var my = { name: vsName(), avatar: getAvatar(), bet: bet };
+            var done = false;
+            vsCleanupNet();
+            var p = new Peer(lobbyId, { debug: 0 });
+            vsState.peer = p;
+            vsState.timer = setTimeout(function () { if (!done) mmFail(ht('mmTimeout')); }, 30000);
+            function launch(conn, dict, bet2, op) {
+                done = true;
+                clearTimeout(vsState.timer);
+                closeMatch();
+                window.__m3vsBet = bet2;
+                try { ELC.attachVsNet(conn, dict, { mode: 'net', bet: bet2, opName: op.name || 'Player', opAvatar: op.avatar || null }); }
+                catch (e) { toast('ERR: ' + (e.message || e)); }
+            }
+            p.on('open', function () {
+                setMmStatus(ht('mmWait'));
+                p.on('connection', function (conn) {
+                    conn.on('data', function (d) {
+                        if (!d) return;
+                        if (d.type === 'join' && !done) {
+                            var bet2 = Math.min(my.bet, parseInt(d.bet, 10) || 0);
+                            var dict = buildVsDict();
+                            try { conn.send({ type: 'start', dict: dict, bet: bet2, name: my.name, avatar: my.avatar }); } catch (e) {}
+                            launch(conn, dict, bet2, d);
+                        } else if (d.type === 'join' && done) { try { conn.send({ type: 'full' }); } catch (e) {} }
+                    });
+                });
+            });
+            p.on('error', function (e) {
+                if (done) return;
+                if (e && e.type === 'unavailable-id') {
+                    setMmStatus(ht('mmHand'));
+                    var g = new Peer({ debug: 0 });
+                    vsState.peer2 = g;
+                    g.on('open', function () {
+                        var conn = g.connect(lobbyId, { reliable: true });
+                        vsState.conn = conn;
+                        conn.on('open', function () {
+                            try { conn.send({ type: 'join', name: my.name, avatar: my.avatar, bet: my.bet }); } catch (e2) {}
+                        });
+                        conn.on('data', function (d) {
+                            if (done || !d) return;
+                            if (d.type === 'start') launch(conn, d.dict, parseInt(d.bet, 10) || 0, d);
+                            else if (d.type === 'full') mmFail(ht('mmFull'));
+                        });
+                    });
+                    g.on('error', function () { if (!done) mmFail(ht('mmFail')); });
+                } else { mmFail(ht('mmFail')); }
+            });
+        });
+    }
+
+    /* ================= 语言选择界面：主角陪伴 ================= */
+    function buildLangBuddy() {
+        var scr = document.getElementById('langSelectScreen');
+        if (!scr) return;
+        var old = document.getElementById('heroLangBuddy');
+        if (old) old.remove();
+        var h1 = scr.querySelector('h1');
+        var d = document.createElement('div');
+        d.id = 'heroLangBuddy';
+        d.innerHTML = '<span class="hlb-av">' + avatarHtml() + '</span><span class="hlb-bubble">💬 ' + ht('langBuddy') + '</span>';
+        scr.insertBefore(d, h1 ? h1.nextSibling : scr.firstChild);
+    }
+
     /* ================= 样式注入 ================= */
     var CSS = ''
         + '#heroHub{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:2px 0 10px;}'
@@ -566,6 +787,30 @@
         + '.hr-slot .hr-item:hover{transform:scale(1.15);} .hr-slot.s-p1 .hr-item{font-size:1.9rem;}'
         + '.pet-anim{animation:hrPet 1.6s ease-in-out infinite;} @keyframes hrPet{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}'
         + '.coin-ic{width:1.05em;height:1.05em;vertical-align:-0.15em;display:inline-block;}'
+        /* 语言选择界面主角 */
+        + '#heroLangBuddy{display:flex;align-items:center;justify-content:center;gap:8px;margin:2px 0 8px;flex-wrap:wrap;}'
+        + '.hlb-av{width:46px;height:46px;border-radius:50%;border:2px solid rgba(241,196,15,.7);background:rgba(0,0,0,.35);font-size:24px;display:flex;align-items:center;justify-content:center;overflow:hidden;}'
+        + '.hlb-av img{max-width:38px;max-height:38px;border-radius:50%;} '
+        + '.hlb-bubble{background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:.85rem;font-weight:700;border-radius:14px;padding:6px 12px;max-width:min(60vw,300px);}'
+        /* 对战场大厅 */
+        + '#heroBattle,#heroMatch{position:fixed;inset:0;background:rgba(8,8,18,.96);z-index:4600;display:flex;align-items:center;justify-content:center;padding:12px;box-sizing:border-box;backdrop-filter:blur(6px);}'
+        + '.hb-row{display:flex;align-items:center;gap:10px;margin:8px 0;flex-wrap:wrap;}'
+        + '.hb-label{color:rgba(255,255,255,.8);font-size:.9rem;font-weight:900;min-width:5.5em;}'
+        + '#hbName{flex:1;min-width:120px;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:10px;padding:8px 12px;font-size:1rem;font-weight:700;outline:none;}'
+        + '#hbName:focus{border-color:#f1c40f;}'
+        + '.hb-bets{display:flex;gap:6px;flex-wrap:wrap;}'
+        + '.hb-bets button{border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.07);color:#fff;border-radius:14px;padding:6px 14px;font-weight:900;cursor:pointer;}'
+        + '.hb-bets button.on{background:linear-gradient(to bottom,#f1c40f,#d48806);color:#3a2400;border-color:#f1c40f;}'
+        + '.hb-bets button:disabled{opacity:.3;cursor:not-allowed;}'
+        + '#heroBattle .hh-btn.big{width:100%;margin-top:12px;box-sizing:border-box;}'
+        + '#heroBattle .hh-btn.big.net{background:linear-gradient(to bottom,#53a6ff,#1e60c8);border-color:rgba(83,166,255,.8);color:#031b3d;box-shadow:0 3px 0 #14479c,0 4px 10px rgba(0,0,0,.4);}'
+        + '.hb-tip{color:rgba(255,255,255,.5);font-size:.75rem;text-align:center;margin-top:4px;}'
+        /* 匹配雷达 */
+        + '.mm-radar{position:relative;width:110px;height:110px;margin:14px auto;}'
+        + '.mm-dot{position:absolute;left:50%;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:#53d769;box-shadow:0 0 14px rgba(83,215,105,.9);}'
+        + '.mm-ring{position:absolute;inset:0;border:2px solid rgba(83,215,105,.5);border-radius:50%;animation:mmPing 1.6s ease-out infinite;}'
+        + '.mm-ring.r2{animation-delay:.8s;}'
+        + '@keyframes mmPing{0%{transform:scale(.3);opacity:1}100%{transform:scale(1.15);opacity:0}}'
         + '.hr-hero{position:absolute;left:50%;bottom:34%;transform:translateX(-50%);font-size:4.6rem;line-height:1;z-index:8;display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 6px 8px rgba(0,0,0,.45));}'
         + '.hr-hero img{max-width:96px;max-height:96px;border-radius:14px;border:2px solid rgba(255,255,255,.5);height:auto!important;}'
         + '.hr-wear{display:flex;gap:2px;margin-bottom:-8px;} .hr-wear-chip{font-size:1.3rem;filter:drop-shadow(0 0 6px rgba(241,196,15,.8));}'
@@ -612,6 +857,7 @@
         openShop: openShop,
         coinIcon: coinIcon,
         openRoom: openRoom,
+        openBattleLobby: openBattleLobby,
         avatarHtml: avatarHtml,
         applyAvatarToModes: applyAvatarToModes,
         normAns: normAns,
@@ -624,10 +870,12 @@
     function init() {
         injectCss();
         buildHub();
+        buildLangBuddy();
         applyAvatarToModes();
         refreshHUD();
         document.addEventListener('i18n:change', function () {
             buildHub();          /* 重建信息栏文案 */
+            buildLangBuddy();    /* 语言界面主角气泡文案 */
             refreshHUD();
             if (document.getElementById('heroShop')) { closeShop(); openShop(); }
             if (document.getElementById('heroRoom')) { closeRoom(); openRoom(); }

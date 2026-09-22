@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#1a1a2e">
     <link rel="manifest" href="manifest.webmanifest">
-    <script src="i18n.js?v=eng-tetris-v37"></script>
+    <script src="i18n.js?v=eng-tetris-v38"></script>
     <link rel="apple-touch-icon" href="icons/icon-192.png">
     <title>世界语言方块</title>
     <style>
@@ -258,7 +258,7 @@
         .m3-btn.m3-btn-refresh:disabled { opacity: 0.4; cursor: not-allowed; }
         .word-keep { box-shadow: 0 0 10px rgba(241,196,15,.55) !important; animation: wordkeep-pop .4s ease; }
         @keyframes wordkeep-pop { 0% { transform: scale(.5); } 70% { transform: scale(1.25); } 100% { transform: scale(1); } }
-        #m3-grid-container { position: relative; width: min(92vmin, calc(100vh - 280px), 620px); aspect-ratio: 1/1; flex-shrink: 0; background: radial-gradient(circle at 30% 20%, #1d2b52 0%, #111a35 70%); border: 2px solid rgba(241,196,15,0.3); border-radius: 12px; overflow: hidden; box-shadow: 0 6px 20px rgba(0,0,0,0.55), inset 0 0 24px rgba(0,0,0,0.4); }
+        #m3-grid-container { position: relative; width: min(92vmin, max(230px, calc(100vh - 368px)), 620px); aspect-ratio: 1/1; flex-shrink: 0; background: radial-gradient(circle at 30% 20%, #1d2b52 0%, #111a35 70%); border: 2px solid rgba(241,196,15,0.3); border-radius: 12px; overflow: hidden; box-shadow: 0 6px 20px rgba(0,0,0,0.55), inset 0 0 24px rgba(0,0,0,0.4); }
         .m3-cell { position: absolute; display: flex; justify-content: center; align-items: center; font-weight: 900; color: #000; cursor: pointer; border-radius: 6px; transition: top 0.3s cubic-bezier(0.34,1.2,0.64,1), left 0.3s cubic-bezier(0.34,1.2,0.64,1), transform 0.15s; box-shadow: inset 0 0 6px rgba(255,255,255,0.4), inset 0 -3px 0 rgba(0,0,0,0.2), 0 2px 4px rgba(0,0,0,0.3); border: 1px solid rgba(0,0,0,0.25); text-transform: lowercase; }
         .m3-cell:hover { transform: translateY(-2px); }
         .m3-cell.selected { transform: translateY(-5px) scale(1.08); box-shadow: 0 0 14px rgba(255,255,255,0.6), 0 8px 16px rgba(0,0,0,0.4); border-color: #fff; z-index: 20; }
@@ -320,8 +320,8 @@
 
         /* ===== 优化：下方生成带 ===== */
         #m3-feeder-box {
-            position: relative; width: 100%; max-width: min(92vmin, calc(100vh - 280px), 620px);
-            box-sizing: border-box; height: 96px; min-height: 96px; max-height: 96px; flex-shrink: 0;
+            position: relative; width: 100%; max-width: min(92vmin, max(230px, calc(100vh - 368px)), 620px);
+            box-sizing: border-box; height: 76px; min-height: 76px; max-height: 76px; flex-shrink: 0;
             border: 3px solid rgba(241,196,15,0.5); border-radius: 14px; background: rgba(15,52,96,0.5);
             overflow: hidden; box-shadow: 0 6px 18px rgba(0,0,0,0.5), inset 0 0 16px rgba(0,0,0,0.35);
             display: flex; align-items: center; justify-content: center;
@@ -330,7 +330,7 @@
             display: flex; justify-content: center; gap: 10px; padding: 8px 10px; height: 100%;
             box-sizing: border-box; align-items: center; overflow: hidden; white-space: nowrap; width: 100%;
         }
-        #m3-meaning-bar { width: 100%; max-width: min(92vmin, calc(100vh - 280px), 620px); box-sizing: border-box; min-height: 24px; text-align: center; color: rgba(255,255,255,0.9); font-size: 1rem; font-weight: bold; padding: 4px 10px; word-break: break-all; background: rgba(15,52,96,0.4); border-radius: 10px; border: 1px solid rgba(255,255,255,0.08); }
+        #m3-meaning-bar { width: 100%; max-width: min(92vmin, max(230px, calc(100vh - 368px)), 620px); box-sizing: border-box; min-height: 20px; text-align: center; color: rgba(255,255,255,0.9); font-size: 0.9rem; font-weight: bold; padding: 3px 10px; word-break: break-all; background: rgba(15,52,96,0.4); border-radius: 10px; border: 1px solid rgba(255,255,255,0.08); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
         #m3-meaning-bar b { color: var(--target-glow); }
         .m3-feeder-block { cursor: grab; user-select: none; -webkit-user-select: none; touch-action: none; -webkit-touch-callout: none; transition: transform 0.15s, opacity 0.2s; opacity: 1; animation: m3SlideIn 0.55s ease-out; flex-shrink: 0; }
         .m3-feeder-block:hover { transform: scale(1.1); }
@@ -461,7 +461,7 @@
         .qpm-btns .btn-action { padding: 14px 0; }
         .qpm-tip { margin-top: 18px; color: rgba(255,255,255,0.65); font-size: 0.85rem; line-height: 1.8; text-align: center; }
         /* ===== 知识抢夺：PK 吞噬幕布机制 ===== */
-        #m3-mouth-bar { position: relative; width: 100%; max-width: min(92vmin, calc(100vh - 240px), 620px); display: flex; align-items: center; gap: 10px; box-sizing: border-box; padding: 2px 6px; }
+        #m3-mouth-bar { position: relative; width: 100%; max-width: min(92vmin, max(230px, calc(100vh - 368px)), 620px); display: flex; align-items: center; gap: 10px; box-sizing: border-box; padding: 2px 6px; }
         .m3-pk-side { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
         .m3-pk-side .m3-pk-num { font-size: 1.25rem; font-weight: 900; min-width: 2.2em; text-align: center; }
         .m3-pk-side .m3-pk-tag { font-size: 0.72rem; color: rgba(255,255,255,0.65); }
@@ -475,7 +475,7 @@
         #m3-pk-vs { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); font-size: 0.7rem; font-weight: 900; color: rgba(255,255,255,0.7); pointer-events: none; }
         #m3-mouth-bar.danger #m3-pk-fill { background: linear-gradient(90deg, #ff4757, #ff6b6b); }
         #m3-mouth-bar.danger #m3-mouth { animation: m3HotPulse 0.6s infinite; }
-        #m3-eat-track { width: 100%; max-width: min(92vmin, calc(100vh - 240px), 620px); height: 5px; background: rgba(0,0,0,0.5); border-radius: 3px; overflow: hidden; }
+        #m3-eat-track { width: 100%; max-width: min(92vmin, max(230px, calc(100vh - 368px)), 620px); height: 5px; background: rgba(0,0,0,0.5); border-radius: 3px; overflow: hidden; }
         #m3-eat-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #ff4757, #ff6b6b); transition: width 0.2s linear; }
         .m3-cell.eaten { animation: m3Eaten 0.6s forwards; z-index: 30; }
         @keyframes m3Eaten { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-80px) scale(0.6); opacity: 0; } }
@@ -568,7 +568,7 @@
             .m3-main { flex-direction: column; align-items: center; gap: 8px; }
             .m3-side { width: min(96vw, 420px); }
             .m3-top-bar { font-size: 0.85rem; gap: 6px; }
-            #m3-grid-container { width: min(94vw, calc(100vh - 300px)); }
+            #m3-grid-container { width: min(94vw, max(210px, calc(100dvh - 380px))); }
             #m3-target-panel { width: 100%; }
             #battle-log-panel { min-height: 80px; max-height: 120px; }
         }
@@ -632,6 +632,7 @@
             .m3-head .m3-level-badge { right: 40px; font-size: 0.72rem; padding: 1px 8px; border-radius: 9px; }
             .m3-top-bar { gap: 3px; }
             .m3-stat { padding: 2px 9px; font-size: 0.78rem; border-radius: 8px; }
+            .m3-top-stats { gap: 4px; }
             .m3-top-btns { gap: 5px; }
             .m3-top-btns .m3-btn { padding: 4px 9px; font-size: 0.76rem; border-radius: 12px; }
             #m3-mouth-bar { gap: 5px; padding: 1px 4px; }
@@ -639,7 +640,7 @@
             .m3-pk-side .m3-pk-num { font-size: 0.92rem; }
             #m3-pk-track { height: 10px; }
             #m3-eat-track { height: 4px; }
-            #m3-grid-container { width: min(92vw, calc(100dvh - 300px)); }
+            #m3-grid-container { width: min(92vw, max(200px, calc(100dvh - 348px))); }
             #m3-feeder-box { height: 56px; min-height: 56px; max-height: 56px; }
             .m3-feeder-block .fb-cell { width: 15px; height: 15px; font-size: 10px; }
             #m3-meaning-bar { display: none; }
@@ -660,7 +661,7 @@
             .m3-learned-panel { display: none; }
             #m3-current-target { padding: 3px 8px; }
             #m3-current-word { font-size: 0.95rem; }
-            #m3-grid-container { width: min(90vw, calc(100dvh - 252px)); }
+            #m3-grid-container { width: min(90vw, max(190px, calc(100dvh - 344px))); }
             #m3-feeder-box { height: 48px; min-height: 48px; max-height: 48px; }
             .m3-feeder-block .fb-cell { width: 13px; height: 13px; font-size: 9px; }
         }
@@ -733,20 +734,20 @@
         }
     </style>
     <!-- JSZip 仅 ZIP 关卡上传用：本地加载（cdnjs 外链在国内阻塞首屏可达数秒，已移除） -->
-    <script src="jszip.min.js?v=eng-tetris-v37"></script>
-    <script src="wordbank_daily.js?v=eng-tetris-v37"></script>
-    <script src="wordbank_cet4.js?v=eng-tetris-v37"></script>
-    <script src="wordbank_cet6.js?v=eng-tetris-v37"></script>
-    <script src="wordbank_phon.js?v=eng-tetris-v37"></script>
-    <script src="wordbank_zh.js?v=eng-tetris-v37"></script>
-    <script src="wordbank_ru.js?v=eng-tetris-v37"></script>
-    <script src="word_fx_data.js?v=eng-tetris-v37"></script>
-    <script src="word_fx.js?v=eng-tetris-v37"></script>
-    <script src="modes_extra.js?v=eng-tetris-v37"></script>
-    <script src="hero_system.js?v=eng-tetris-v37"></script>
-    <script src="meanings.js?v=eng-tetris-v37"></script>
+    <script src="jszip.min.js?v=eng-tetris-v38"></script>
+    <script src="wordbank_daily.js?v=eng-tetris-v38"></script>
+    <script src="wordbank_cet4.js?v=eng-tetris-v38"></script>
+    <script src="wordbank_cet6.js?v=eng-tetris-v38"></script>
+    <script src="wordbank_phon.js?v=eng-tetris-v38"></script>
+    <script src="wordbank_zh.js?v=eng-tetris-v38"></script>
+    <script src="wordbank_ru.js?v=eng-tetris-v38"></script>
+    <script src="word_fx_data.js?v=eng-tetris-v38"></script>
+    <script src="word_fx.js?v=eng-tetris-v38"></script>
+    <script src="modes_extra.js?v=eng-tetris-v38"></script>
+    <script src="hero_system.js?v=eng-tetris-v38"></script>
+    <script src="meanings.js?v=eng-tetris-v38"></script>
     <script src="hanzi-writer.min.js"></script>
-    <script src="hanzi_data.js?v=eng-tetris-v37"></script>
+    <script src="hanzi_data.js?v=eng-tetris-v38"></script>
 </head>
 <body>
     <div id="loadingScreen">
@@ -969,7 +970,7 @@
     </div>
 
     <!-- 扩展玩法通用视图容器（听力挑战 / 记忆配对 / 未来玩法 / DIY） -->
-    <div id="gameVerBadge" style="position:fixed;left:10px;bottom:8px;z-index:40;font-size:12px;color:rgba(255,255,255,.35);letter-spacing:1px;user-select:none;">v2.3.0</div>
+    <div id="gameVerBadge" style="position:fixed;left:10px;bottom:8px;z-index:40;font-size:12px;color:rgba(255,255,255,.35);letter-spacing:1px;user-select:none;">v2.3.1</div>
     <div id="extra-mode-view"></div>
 
     <!-- 写字学中文模式视图 -->
@@ -2597,7 +2598,7 @@
                     m3MicTip(null);
                     if (wasDone) return;              // 实时命中已处理
                     if (text && m3MicMatch(text)) return;
-                    showM3Toast(_htElc('没听清，再读一次试试～', "Didn't catch that — try again", 'Не расслышал, попробуй ещё', "Je n'ai pas compris, réessayez"));
+                    if (state === 'match3') showM3Toast(_htElc('没听清，再读一次试试～', "Didn't catch that — try again", 'Не расслышал, попробуй ещё', "Je n'ai pas compris, réessayez"));
                 };
                 m3Rec.start();
                 m3RecOn = true;
@@ -2610,6 +2611,28 @@
         function m3MicStop() {
             clearTimeout(m3RecTimer);
             try { m3Rec && m3Rec.stop(); } catch (e) {}
+            /* 兜底：部分浏览器 stop() 后不触发 onend——800ms 强制收尾，
+               否则红点按钮与🎙提示气泡会残留到其他界面 */
+            setTimeout(() => {
+                if (m3RecOn) {
+                    m3RecOn = false; m3RecDone = false; m3Rec = null;
+                    const btn = document.getElementById('m3-mic-btn'); if (btn) btn.classList.remove('listening');
+                    m3MicTip(null);
+                }
+            }, 800);
+        }
+        /* 立即丢弃识别会话并清理全部语音 UI（退出填词/结算时调用） */
+        function m3MicAbort() {
+            clearTimeout(m3RecTimer);
+            try { if (m3Rec) { m3Rec.onend = null; m3Rec.onresult = null; m3Rec.onerror = null; if (m3Rec.abort) m3Rec.abort(); } } catch (e) {}
+            m3Rec = null; m3RecOn = false; m3RecDone = false;
+            const btn = document.getElementById('m3-mic-btn'); if (btn) btn.classList.remove('listening');
+            m3MicTip(null);
+        }
+        /* 退出/重开对局时清掉所有"跨界面"的瞬时元素：特效画布、语音气泡 */
+        function m3CleanupTransientFx() {
+            try { if (window.WORD_FX && WORD_FX.stopAll) WORD_FX.stopAll(); } catch (e) {}
+            m3MicAbort();
         }
         /* 把听到的文本与目标词/奖励词匹配；命中则自动填洞 */
         function m3MicMatch(text) {
@@ -3306,9 +3329,10 @@
         function hideM3PausePanel() { if (m3PausePanel) m3PausePanel.style.display = 'none'; }
         function m3ResetPause() { m3Paused = false; hideM3PausePanel(); }
         window.m3TogglePause = m3TogglePause;
-        function m3GameOver() { m3StopEater(); m3StopFeeder(); m3ResetPause(); const baG = document.getElementById('battle-area'); if (baG) baG.style.display = 'none'; m3State = 'gameover'; m3ClearHints(); showM3Result(_t('m3FailTitle'), false); }
-        function m3Win() { 
-            m3StopEater(); m3StopFeeder(); m3ResetPause(); 
+        function m3GameOver() { m3StopEater(); m3StopFeeder(); m3ResetPause(); m3CleanupTransientFx(); const baG = document.getElementById('battle-area'); if (baG) baG.style.display = 'none'; m3State = 'gameover'; m3ClearHints(); showM3Result(_t('m3FailTitle'), false); }
+        function m3Win() {
+            m3StopEater(); m3StopFeeder(); m3ResetPause();
+            m3CleanupTransientFx();
             m3EatenRows = 0; m3EatProgress = 0; m3KMonster = 0; m3KPlayer = m3KTotal; m3UpdatePKUI();
             const baW = document.getElementById('battle-area'); if (baW) baW.style.display = 'none'; m3State = 'gameover'; m3ClearHints(); 
             try { const k = 'tetris_m3_highscore'; const hs = parseInt(localStorage.getItem(k)) || 0; if (m3Score > hs) localStorage.setItem(k, m3Score); } catch (e) {} 
@@ -3373,9 +3397,10 @@
             });
             modal.style.display = 'flex';
         };
-        window.m3Restart = function() { 
-            if (m3ResultEl) m3ResultEl.style.display = 'none'; 
-            m3ResetPause(); 
+        window.m3Restart = function() {
+            if (m3ResultEl) m3ResultEl.style.display = 'none';
+            m3ResetPause();
+            m3CleanupTransientFx();
             m3Score = 0; m3Steps = 0; m3SelectedCell = null; m3Locked = false; m3State = 'idle'; m3Busy = false; m3ChainCount = 0; m3PopupQueue = []; m3PopupShownWords = {}; m3Combo = 0; m3ComboLeft = 0; m3Learned = []; m3RefreshCount = 3; 
             const lpR = document.getElementById('m3-learned-panel'); if (lpR) lpR.querySelectorAll('.m3-learned-chip').forEach(x => x.remove()); 
             const lcR = document.getElementById('m3-learned-count'); if (lcR) lcR.innerText = '0'; 
@@ -3385,9 +3410,10 @@
             const blR = document.getElementById('battle-log-panel'); if (blR) blR.style.display = 'none'; 
             m3StartFeeder(); m3StartEater(); 
         };
-        window.m3ExitToMenu = function() { 
+        window.m3ExitToMenu = function() {
             try { DOM.wordPopup.classList.add('hidden'); DOM.wordPopup.classList.remove('show'); } catch (e) {}
-            m3StopEater(); m3StopFeeder(); m3ResetPause(); 
+            m3StopEater(); m3StopFeeder(); m3ResetPause();
+            m3CleanupTransientFx();
             const ba = document.getElementById('battle-area'); if (ba) ba.style.display = 'none'; 
             if (m3ResultEl) m3ResultEl.style.display = 'none'; 
             document.getElementById('match3-view').style.display = 'none'; 
@@ -5109,7 +5135,7 @@
     </script>
     <script>
     (function () {
-        var GAME_VER = '2.3.0';
+        var GAME_VER = '2.3.1';
         try {
             var badge = document.getElementById('gameVerBadge');
             if (badge) badge.textContent = '世界语言方块 v' + GAME_VER;

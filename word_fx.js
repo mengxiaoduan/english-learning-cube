@@ -30,6 +30,7 @@
 
     /* ================= 画布层 ================= */
     var canvas = null, ctx = null, particles = [], rafId = 0, running = false, dpr = 1;
+    var gen = 0;   /* 会话代数号：stopAll 递增，使所有挂起的延迟回调（粒子启动器/场景interval）失效 */
     var MAX_PARTICLES = 260;
 
     function ensureCanvas() {
@@ -71,8 +72,14 @@
                 var p = particles[j];
                 p.life -= dt;
                 if (p.life <= 0 || p.dead) { particles.splice(j, 1); continue; }
-                if (p.update) p.update(p, dt, now / 1000);
-                if (p.draw) p.draw(p, ctx);
+                /* 单粒子异常不得中断 rAF 链——一旦抛错最后一帧会永久冻结成"残留/灰遮罩" */
+                try {
+                    if (p.update) p.update(p, dt, now / 1000);
+                } catch (e) { p.dead = true; }
+                if (p.dead) { particles.splice(j, 1); continue; }
+                try {
+                    if (p.draw) p.draw(p, ctx);
+                } catch (e) { p.dead = true; }
             }
             if (Date.now() > stopAt && particles.length === 0) {
                 running = false; sceneTints = [];
@@ -84,6 +91,7 @@
         rafId = requestAnimationFrame(frame);
     }
     function stopAll() {
+        gen++;   /* 旧会话的 setTimeout/setInterval 回调检测到代数变化即静默退出，防止画布复活 */
         running = false;
         if (rafId) cancelAnimationFrame(rafId);
         particles = []; sceneTints = [];
@@ -444,6 +452,7 @@
         var sc = SCENES[sceneId];
         if (!sc) return;
         opts = opts || {};
+        var myGen = gen;
         sceneTints = [];
         if (sc.tint) sceneTints.push(sc.tint);
         ensureCanvas();
@@ -467,6 +476,7 @@
         for (var warm = 0; warm < 8; warm++) emitter();   // 预热，避免开场空屏
         startLoop(sc.dur || 2400);
         var iv = setInterval(function () {
+            if (gen !== myGen) { clearInterval(iv); return; }
             if (Date.now() >= until || document.hidden) { sceneTints = []; clearInterval(iv); return; }
             emitter();
         }, 55);
@@ -475,6 +485,7 @@
 
     function playSwarm(emoji, opts) {
         opts = opts || {};
+        var myGen = gen;
         var src = opts.source || { x: window.innerWidth / 2, y: window.innerHeight / 2.6 };
         var mEl = opts.monsterEl || document.getElementById('m3-mouth');
         var dst = { x: window.innerWidth * 0.5, y: 90 };
@@ -490,6 +501,7 @@
                 var flyMs = rnd(650, 1000);
                 dur = Math.max(dur, delay + flyMs);
                 setTimeout(function () {
+                    if (gen !== myGen) return;   /* 会话已被 stopAll 终止：不再启动粒子 */
                     var startX = sx, startY = sy;
                     var fxKey = opts.fxKey || null;
                     if (fxKey) loadKeyImg(fxKey);
@@ -498,6 +510,8 @@
                     var born = Date.now();
                     spawn({ kind: 'swarm', emoji: emoji, fxKey: fxKey, size: rnd(20, opts.big ? 40 : 32), life: flyMs / 1000 + 0.05, alpha: 1, rot: 0, rotv: rnd(-4, 4), ph: rnd(0, 6.28), wave: !!opts.wave,
                         update: function (p, dt) {
+                            /* 实时追踪怪物：页面滚动/布局变化后依然命中，不做一次性快照 */
+                            if (mEl) { try { var rr = mEl.getBoundingClientRect(); if (rr.width > 0) { dst.x = rr.left + rr.width / 2; dst.y = rr.top + rr.height / 2; } } catch (e) {} }
                             var t = Math.min(1, (Date.now() - born) / flyMs);
                             var tt = t;
                             var x = (1 - tt) * (1 - tt) * startX + 2 * (1 - tt) * tt * ctrlX + tt * tt * dst.x;
@@ -529,7 +543,7 @@
         }
         if (!hitDone) {
             // 兜底：即使粒子被清理也要有受击表现
-            setTimeout(function () { if (!hitDone) { hitDone = true; monsterHit(opts.monsterEl, opts.damage, opts); if (opts.onHit) { try { opts.onHit(); } catch (e) {} } } }, dur + 120);
+            setTimeout(function () { if (!hitDone && gen === myGen) { hitDone = true; monsterHit(opts.monsterEl, opts.damage, opts); if (opts.onHit) { try { opts.onHit(); } catch (e) {} } } }, dur + 120);
         }
     }
 
@@ -547,7 +561,9 @@
         }
         // 一个大 emoji 冲向怪物
         var mEl = opts.monsterEl || document.getElementById('m3-mouth');
+        var myGen = gen;
         setTimeout(function () {
+            if (gen !== myGen) return;
             playSwarm(opts.emoji || '⭐', { monsterEl: mEl, source: src, big: false, silent: true, damage: opts.damage, lang: opts.lang, onHit: opts.onHit, fxKey: opts.fxKey });
         }, 120);
         startLoop(1600);

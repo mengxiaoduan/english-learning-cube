@@ -61,6 +61,10 @@
         return d[l] || d.en || d.zh;
     }
 
+    /* 金币图标：自绘 SVG（🪙 是 Unicode 13 新表情，Win10 等系统无此字形会显示成方框） */
+    var COIN_SVG = '<svg class="coin-ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10.5" fill="#f5b301" stroke="#b97a00" stroke-width="1.5"/><circle cx="12" cy="12" r="7" fill="none" stroke="#ffe27a" stroke-width="1.5" opacity=".9"/><path d="M12 6.4l1.55 3.1 3.4.5-2.45 2.4.55 3.4-3.05-1.6-3.05 1.6.55-3.4-2.45-2.4 3.4-.5z" fill="#fff8d6"/></svg>';
+    function coinIcon() { return COIN_SVG; }
+
     /* ================= 存档 ================= */
     var K = { coins: 'elc_coins', owned: 'elc_owned', room: 'elc_room', worn: 'elc_worn', avatar: 'elc_avatar' };
     function lsGet(k, def) { try { var v = localStorage.getItem(k); return v === null ? def : v; } catch (e) { return def; } }
@@ -87,7 +91,7 @@
         { id: 'rug', e: '🧶', cat: 'floor', p: 35, n: { zh: '圆地毯', en: 'Rug', ru: 'Коврик', fr: 'Tapis' } },
         { id: 'painting', e: '🖼️', cat: 'wall', p: 70, n: { zh: '名画', en: 'Painting', ru: 'Картина', fr: 'Tableau' } },
         { id: 'mirror', e: '🪞', cat: 'wall', p: 65, n: { zh: '穿衣镜', en: 'Mirror', ru: 'Зеркало', fr: 'Miroir' } },
-        { id: 'plant', e: '🪴', cat: 'wall', p: 40, n: { zh: '绿盆栽', en: 'Potted Plant', ru: 'Растение', fr: 'Plante' } },
+        { id: 'plant', e: '🌿', cat: 'wall', p: 40, n: { zh: '绿盆栽', en: 'Potted Plant', ru: 'Растение', fr: 'Plante' } },
         { id: 'lantern', e: '🏮', cat: 'wall', p: 55, n: { zh: '红灯笼', en: 'Lantern', ru: 'Фонарь', fr: 'Lanterne' } },
         { id: 'map', e: '🗺️', cat: 'wall', p: 85, n: { zh: '世界地图', en: 'World Map', ru: 'Карта мира', fr: 'Carte' } },
         { id: 'clock', e: '🕰️', cat: 'wall', p: 45, n: { zh: '挂钟', en: 'Wall Clock', ru: 'Часы', fr: 'Horloge' } },
@@ -140,7 +144,7 @@
     function addCoins(n, opts) {
         n = Math.round(n); if (!n) return;
         setCoins(getCoins() + n);
-        floatCoin('+' + n + ' 🪙', opts);
+        floatCoin(COIN_SVG + ' +' + n, opts);
     }
     function spendCoins(n) {
         if (getCoins() < n) return false;
@@ -149,7 +153,7 @@
     function floatCoin(text, opts) {
         try {
             var d = document.createElement('div');
-            d.textContent = text;
+            d.innerHTML = text;
             var x = (opts && typeof opts.x === 'number') ? opts.x : null;
             var y = (opts && typeof opts.y === 'number') ? opts.y : null;
             if (x === null) { x = window.innerWidth - 90; y = 70; }
@@ -178,7 +182,7 @@
         hub.innerHTML =
             '<button id="heroHubAvatar" title="' + ht('hubTapRoom') + '">' + avatarHtml() + '</button>' +
             '<div id="heroHubInfo">' +
-                '<div id="heroHubCoinsWrap" title="' + ht('hubTapCoins') + '">🪙 <b id="heroHubCoins">' + getCoins() + '</b></div>' +
+                '<div id="heroHubCoinsWrap" title="' + ht('hubTapCoins') + '">' + COIN_SVG + ' <b id="heroHubCoins">' + getCoins() + '</b></div>' +
             '</div>' +
             '<button class="hh-btn" id="heroHubShop">🛍️ ' + ht('shop') + '</button>' +
             '<button class="hh-btn" id="heroHubRoom">🏠 ' + ht('room') + '</button>';
@@ -238,7 +242,7 @@
             '<div class="hs-panel">' +
                 '<div class="hs-head">' +
                     '<div class="hs-title">🛍️ ' + ht('shop') + '</div>' +
-                    '<div class="hs-coins">🪙 <b id="heroShopCoins">' + getCoins() + '</b></div>' +
+                    '<div class="hs-coins">' + COIN_SVG + ' <b id="heroShopCoins">' + getCoins() + '</b></div>' +
                     '<button class="hs-x" id="hsClose">✕</button>' +
                 '</div>' +
                 '<div class="hs-sub">' + ht('shopSub') + '</div>' +
@@ -275,7 +279,7 @@
             html += '<button class="hs-item' + (has ? ' owned' : '') + '" data-id="' + it.id + '">' +
                 '<span class="hs-emoji">' + it.e + '</span>' +
                 '<span class="hs-name">' + itemName(it) + '</span>' +
-                '<span class="hs-price">' + (has ? '✓ ' + ht('owned') : '🪙 ' + it.p) + '</span>' +
+                '<span class="hs-price">' + (has ? '✓ ' + ht('owned') : COIN_SVG + ' ' + it.p) + '</span>' +
             '</button>';
         });
         host.innerHTML = html;
@@ -303,7 +307,7 @@
         det.innerHTML =
             '<div class="hsd-top"><span class="hsd-emoji">' + it.e + '</span>' +
             '<div><div class="hsd-name">' + itemName(it) + '</div>' +
-            '<div class="hsd-cat">🪙 ' + it.p + '</div></div>' +
+            '<div class="hsd-cat">' + COIN_SVG + ' ' + it.p + '</div></div>' +
             '<button class="hs-x" id="hsdX2">✕</button></div>' +
             '<div class="hsd-quiz">' + ht('buyTitle') + '</div>' +
             '<div class="hsd-quiz-box" id="hsdQuizBox"></div>' +
@@ -371,7 +375,7 @@
             '<div class="hr-panel">' +
                 '<div class="hs-head">' +
                     '<div class="hs-title">🏠 ' + ht('room') + '</div>' +
-                    '<div class="hs-coins">🪙 <b id="heroRoomCoins">' + getCoins() + '</b></div>' +
+                    '<div class="hs-coins">' + COIN_SVG + ' <b id="heroRoomCoins">' + getCoins() + '</b></div>' +
                     '<button class="hs-x" id="hrClose">✕</button>' +
                 '</div>' +
                 '<div class="hs-sub">' + ht('roomSub') + '</div>' +
@@ -561,6 +565,7 @@
         + '.hr-slot .hr-item{font-size:2.1rem;line-height:1;filter:drop-shadow(0 4px 6px rgba(0,0,0,.5));transition:transform .15s;}'
         + '.hr-slot .hr-item:hover{transform:scale(1.15);} .hr-slot.s-p1 .hr-item{font-size:1.9rem;}'
         + '.pet-anim{animation:hrPet 1.6s ease-in-out infinite;} @keyframes hrPet{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}'
+        + '.coin-ic{width:1.05em;height:1.05em;vertical-align:-0.15em;display:inline-block;}'
         + '.hr-hero{position:absolute;left:50%;bottom:34%;transform:translateX(-50%);font-size:4.6rem;line-height:1;z-index:8;display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 6px 8px rgba(0,0,0,.45));}'
         + '.hr-hero img{max-width:96px;max-height:96px;border-radius:14px;border:2px solid rgba(255,255,255,.5);height:auto!important;}'
         + '.hr-wear{display:flex;gap:2px;margin-bottom:-8px;} .hr-wear-chip{font-size:1.3rem;filter:drop-shadow(0 0 6px rgba(241,196,15,.8));}'
@@ -605,6 +610,7 @@
         spendCoins: spendCoins,
         refreshHUD: refreshHUD,
         openShop: openShop,
+        coinIcon: coinIcon,
         openRoom: openRoom,
         avatarHtml: avatarHtml,
         applyAvatarToModes: applyAvatarToModes,

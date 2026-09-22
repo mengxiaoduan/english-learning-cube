@@ -404,6 +404,7 @@
                     state.streak++;
                     state.score += 50 + Math.min(state.streak, 10) * 10;
                     ELC.tone(880, 0.08, 'sine', 0.1);
+                    try { ELC.rewardCoins && ELC.rewardCoins(2); } catch (e) {}   /* 听对得金币 */
                 } else {
                     btn.classList.add('bad');
                     state.hearts--; state.streak = 0;
@@ -538,6 +539,7 @@
                     });
                     state.matched++; state.score += 100;
                     ELC.tone(660, 0.1, 'sine', 0.1);
+                    try { ELC.rewardCoins && ELC.rewardCoins(2); } catch (e) {}   /* 配对成功得金币 */
                     showLearnCard(card.word);
                     speakWordObj(card.word);
                     updateHUD();

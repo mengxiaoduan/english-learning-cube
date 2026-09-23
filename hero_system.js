@@ -75,7 +75,20 @@
         mmTimeout: { zh: '30 秒内没有找到对手，稍后再试试', en: 'No opponent in 30s — try again later', ru: 'За 30 секунд соперник не найден', fr: 'Aucun adversaire en 30s' },
         mmFull: { zh: '匹配已满，正在重试…', en: 'Room full, retrying…', ru: 'Комната заполнена…', fr: 'Complet…' },
         mmCancel: { zh: '取消', en: 'Cancel', ru: 'Отмена', fr: 'Annuler' },
-        mmRetry: { zh: '重试', en: 'Retry', ru: 'Повтор', fr: 'Réessayer' }
+        mmRetry: { zh: '重试', en: 'Retry', ru: 'Повтор', fr: 'Réessayer' },
+        shareTitle: { zh: '共享这一关', en: 'Share this level', ru: 'Поделиться уровнем', fr: 'Partager' },
+        shareTip: { zh: '把分享码发给朋友（微信群/QQ均可），对方在"🌐 他人共享的关卡"里粘贴导入即可游玩', en: 'Send the code to friends; they import it in "Shared Levels"', ru: 'Отправьте код другу — он импортирует его', fr: 'Envoyez le code à un ami' },
+        shareGen: { zh: '正在生成分享码…', en: 'Generating code…', ru: 'Генерация кода…', fr: 'Génération…' },
+        copyCode: { zh: '复制分享码', en: 'Copy code', ru: 'Копировать код', fr: 'Copier' },
+        copyOk: { zh: '✅ 已复制，快去发给朋友吧！', en: '✅ Copied!', ru: '✅ Скопировано!', fr: '✅ Copié !' },
+        shareSize: { zh: '分享码大小：{n} KB（越少图片越小）', en: 'Code size: {n} KB', ru: 'Размер кода: {n} КБ', fr: 'Taille : {n} Ko' },
+        shareLib: { zh: '他人共享的关卡', en: 'Shared Levels', ru: 'Общие уровни', fr: 'Niveaux partagés' },
+        libTip: { zh: '粘贴朋友发来的分享码导入；列表里的关卡可游玩 / 再共享 / 删除', en: 'Paste a friend\'s code to import; play / re-share / delete below', ru: 'Вставьте код друга; играйте / делитесь / удаляйте', fr: 'Collez un code ; jouez / partagez / supprimez' },
+        importPh: { zh: '粘贴分享码（ELCS1.…）', en: 'Paste share code (ELCS1.…)', ru: 'Вставьте код (ELCS1.…)', fr: 'Collez le code (ELCS1.…)' },
+        importBtn: { zh: '导入', en: 'Import', ru: 'Импорт', fr: 'Importer' },
+        importOk: { zh: '✅ 导入成功，开始游玩吧！', en: '✅ Imported!', ru: '✅ Импортировано!', fr: '✅ Importé !' },
+        importBad: { zh: '分享码无效，请检查是否复制完整', en: 'Invalid code — check if fully copied', ru: 'Неверный код', fr: 'Code invalide' },
+        libEmpty: { zh: '还没有共享关卡——去找朋友要分享码吧！', en: 'No shared levels yet — get a code from a friend!', ru: 'Пока пусто — попросите код у друга', fr: 'Vide — demandez un code !' }
     };
     function uiLang() {
         try { return ((window.I18N && window.I18N.lang) || 'zh-CN'); } catch (e) { return 'zh-CN'; }
@@ -743,6 +756,189 @@
         });
     }
 
+    /* ================= 🌐 关卡共享：分享码（生成 / 复制 / 导入 / 游玩） =================
+       异步社区方案：玩家生成"分享码"发到群/好友 → 对方在"他人共享的关卡"粘贴导入。
+       图片自动压缩至 96px JPEG 内嵌；音频体积过大不随码传输。 */
+    function getSharedIn() { try { return JSON.parse(lsGet('elc_shared_in', '[]')); } catch (e) { return []; } }
+    function setSharedIn(a) { try { lsSet('elc_shared_in', JSON.stringify(a.slice(0, 60))); } catch (e) { toast('storage full'); } }
+    function shrinkImg(dataUrl, cb) {
+        if (!dataUrl || dataUrl.indexOf('data:') !== 0) return cb(null);
+        var im = new Image();
+        im.onload = function () {
+            try {
+                var S = 96, cv = document.createElement('canvas'); cv.width = S; cv.height = S;
+                var x = cv.getContext('2d');
+                var r = Math.min(im.width, im.height);
+                x.drawImage(im, (im.width - r) / 2, (im.height - r) / 2, r, r, 0, 0, S, S);
+                cb(cv.toDataURL('image/jpeg', 0.55));
+            } catch (e) { cb(null); }
+        };
+        im.onerror = function () { cb(null); };
+        im.src = dataUrl;
+    }
+    function encodeShareLevel(lvl, cb) {
+        var dict = (lvl && lvl.dict) || {};
+        var words = Object.keys(dict);
+        var out = [];
+        var i = 0;
+        function next() {
+            if (i >= words.length) {
+                var payload = { v: 1, n: String(lvl.name || 'Shared').slice(0, 30), w: out };
+                try { cb('ELCS1.' + btoa(unescape(encodeURIComponent(JSON.stringify(payload))))); }
+                catch (e) { cb(null); }
+                return;
+            }
+            var w = words[i++];
+            var d = dict[w] || {};
+            var img = null;
+            if (typeof d.img === 'string') {
+                if (d.img.indexOf('data:') === 0) img = d.img;                       /* 自定义图片：压缩后内嵌 */
+                else if (d.img.length <= 4 && !/^(blob:|https?:)/.test(d.img)) img = d.img;  /* emoji：直接随码 */
+            }
+            if (!img) { out.push([w, String(d.mean || '').slice(0, 60), null]); next(); return; }
+            if (img.indexOf('data:') !== 0) { out.push([w, String(d.mean || '').slice(0, 60), img]); next(); return; }  /* emoji 直接随码 */
+            shrinkImg(img, function (sm) { out.push([w, String(d.mean || '').slice(0, 60), sm]); next(); });
+        }
+        next();
+    }
+    function decodeShareCode(code) {
+        try {
+            code = String(code || '').trim();
+            if (code.indexOf('ELCS1.') !== 0) return null;
+            var json = decodeURIComponent(escape(atob(code.slice(6))));
+            var payload = JSON.parse(json);
+            if (!payload || !payload.w || payload.w.length < 3) return null;
+            var dict = {};
+            var ok = 0;
+            payload.w.forEach(function (row) {
+                if (!row || !row[0]) return;
+                var w = String(row[0]).slice(0, 12);
+                if (!/^[a-zà-ÿāáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜа-яё0-9]{1,12}$/i.test(w)) return;
+                var mean = String(row[1] || '').slice(0, 60);
+                var img = null;
+                if (typeof row[2] === 'string') {
+                    if (/^data:image\/(png|jpeg|gif|webp);base64,/.test(row[2])) img = row[2];
+                    else if (row[2].length <= 4) img = row[2];   /* emoji 词图 */
+                }
+                dict[w] = { mean: mean, img: img || '📝', audio: null, single: w.length === 1 };
+                ok++;
+            });
+            if (ok < 3) return null;
+            return { name: String(payload.n || 'Shared'), dict: dict };
+        } catch (e) { return null; }
+    }
+    function openShareLevel(lvl) {
+        closeSharePanel();
+        var root = document.createElement('div');
+        root.id = 'heroShare';
+        root.innerHTML =
+            '<div class="hs-panel">' +
+                '<div class="hs-head"><div class="hs-title">🔗 ' + ht('shareTitle') + '</div>' +
+                '<button class="hs-x" id="hsShareClose">✕</button></div>' +
+                '<div class="hs-sub">' + ht('shareTip') + '</div>' +
+                '<div id="hsShareBody" class="hs-sub">⏳ ' + ht('shareGen') + '</div>' +
+            '</div>';
+        document.body.appendChild(root);
+        document.getElementById('hsShareClose').addEventListener('click', function () { click(); closeSharePanel(); });
+        encodeShareLevel(lvl, function (code) {
+            var body = document.getElementById('hsShareBody');
+            if (!body) return;
+            if (!code) { body.innerHTML = '❌ ' + ht('shareGen'); return; }
+            var kb = Math.round(code.length / 1024);
+            body.innerHTML =
+                '<textarea id="hsShareCode" readonly style="width:100%;height:120px;background:rgba(0,0,0,.5);color:#9fe8b0;font-size:.72rem;border:1px solid rgba(83,215,105,.4);border-radius:10px;padding:8px;box-sizing:border-box;word-break:break-all;">' + code + '</textarea>' +
+                '<div style="display:flex;gap:8px;justify-content:center;margin-top:8px;">' +
+                    '<button class="hh-btn big ok" id="hsShareCopy">📋 ' + ht('copyCode') + '</button>' +
+                '</div>' +
+                '<div class="hs-sub" style="margin-top:6px;">' + ht('shareSize').replace('{n}', kb) + '</div>';
+            document.getElementById('hsShareCopy').addEventListener('click', function () {
+                click();
+                var ta = document.getElementById('hsShareCode');
+                ta.select();
+                var done = function () { toast(ht('copyOk')); };
+                try {
+                    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(code).then(done, function () { document.execCommand('copy'); done(); });
+                    else { document.execCommand('copy'); done(); }
+                } catch (e) { toast(ht('copyOk')); }
+            });
+        });
+    }
+    function closeSharePanel() { var el = document.getElementById('heroShare'); if (el) el.remove(); }
+    function openSharedLib() {
+        closeLib();
+        var root = document.createElement('div');
+        root.id = 'heroSharedLib';
+        root.innerHTML =
+            '<div class="hs-panel">' +
+                '<div class="hs-head"><div class="hs-title">🌐 ' + ht('shareLib') + '</div>' +
+                '<button class="hs-x" id="hsLibClose">✕</button></div>' +
+                '<div class="hs-sub">' + ht('libTip') + '</div>' +
+                '<div style="display:flex;gap:8px;margin-bottom:10px;">' +
+                    '<textarea id="hsImportCode" placeholder="' + ht('importPh') + '" style="flex:1;height:54px;background:rgba(0,0,0,.5);color:#fff;font-size:.78rem;border:1px solid rgba(255,255,255,.25);border-radius:10px;padding:8px;box-sizing:border-box;"></textarea>' +
+                    '<button class="hh-btn ok" id="hsImportBtn" style="align-self:flex-end;">📥 ' + ht('importBtn') + '</button>' +
+                '</div>' +
+                '<div id="hsLibList"></div>' +
+            '</div>';
+        document.body.appendChild(root);
+        document.getElementById('hsLibClose').addEventListener('click', function () { click(); closeLib(); });
+        document.getElementById('hsImportBtn').addEventListener('click', function () {
+            click();
+            var code = document.getElementById('hsImportCode').value;
+            var lvl = decodeShareCode(code);
+            if (!lvl) { toast(ht('importBad')); return; }
+            var list = getSharedIn();
+            lvl.id = 's' + Date.now();
+            lvl.at = Date.now();
+            list.unshift(lvl);
+            setSharedIn(list);
+            toast(ht('importOk'));
+            document.getElementById('hsImportCode').value = '';
+            renderLibList();
+        });
+        renderLibList();
+    }
+    function closeLib() { var el = document.getElementById('heroSharedLib'); if (el) el.remove(); }
+    function renderLibList() {
+        var host = document.getElementById('hsLibList'); if (!host) return;
+        var list = getSharedIn();
+        if (!list.length) { host.innerHTML = '<div class="hs-sub">' + ht('libEmpty') + '</div>'; return; }
+        var html = '';
+        list.forEach(function (lvl, i) {
+            var n = Object.keys(lvl.dict).length;
+            html += '<div class="sl-item" data-i="' + i + '">' +
+                '<div class="sl-info"><div class="sl-name">📗 ' + String(lvl.name).slice(0, 24) + '</div>' +
+                '<div class="sl-meta">' + n + ht('wordsUnit') + ' · ' + new Date(lvl.at || Date.now()).toLocaleDateString() + '</div></div>' +
+                '<button class="hh-btn ok mini" data-play="' + i + '">▶</button>' +
+                '<button class="hh-btn mini" data-share="' + i + '">🔗</button>' +
+                '<button class="hh-btn mini" data-del="' + i + '" style="background:rgba(255,71,87,.25);border-color:rgba(255,71,87,.6);color:#ff8a8a;">✖</button>' +
+            '</div>';
+        });
+        host.innerHTML = html;
+        host.querySelectorAll('[data-play]').forEach(function (b) {
+            b.addEventListener('click', function () {
+                click();
+                var lvl = getSharedIn()[parseInt(b.dataset.play, 10)];
+                if (!lvl) return;
+                closeLib();
+                var dict = {};
+                for (var w in lvl.dict) dict[w] = { mean: lvl.dict[w].mean, img: lvl.dict[w].img, single: w.length === 1 };
+                try { ELC.startFillDict(dict); } catch (e) { toast('ERR'); }
+            });
+        });
+        host.querySelectorAll('[data-share]').forEach(function (b) {
+            b.addEventListener('click', function () { click(); var lvl = getSharedIn()[parseInt(b.dataset.share, 10)]; if (lvl) { closeLib(); openShareLevel(lvl); } });
+        });
+        host.querySelectorAll('[data-del]').forEach(function (b) {
+            b.addEventListener('click', function () {
+                click();
+                var list2 = getSharedIn();
+                list2.splice(parseInt(b.dataset.del, 10), 1);
+                setSharedIn(list2);
+                renderLibList();
+            });
+        });
+    }
+
     /* ================= 语言选择界面：主角陪伴气泡（头像在信息栏） ================= */
     function buildLangBuddy() {
         var scr = document.getElementById('langSelectScreen');
@@ -843,6 +1039,11 @@
         + '.mm-ring{position:absolute;inset:0;border:2px solid rgba(83,215,105,.5);border-radius:50%;animation:mmPing 1.6s ease-out infinite;}'
         + '.mm-ring.r2{animation-delay:.8s;}'
         + '@keyframes mmPing{0%{transform:scale(.3);opacity:1}100%{transform:scale(1.15);opacity:0}}'
+        /* 关卡共享 */
+        + '#heroShare,#heroSharedLib{position:fixed;inset:0;background:rgba(8,8,18,.96);z-index:4600;display:flex;align-items:center;justify-content:center;padding:12px;box-sizing:border-box;backdrop-filter:blur(6px);}'
+        + '.sl-item{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:8px 10px;margin-bottom:8px;}'
+        + '.sl-info{flex:1;min-width:0;} .sl-name{color:#fff;font-weight:900;font-size:.92rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}'
+        + '.sl-meta{color:rgba(255,255,255,.55);font-size:.72rem;}'
         + '.hr-hero{position:absolute;left:50%;bottom:34%;transform:translateX(-50%);font-size:4.6rem;line-height:1;z-index:8;display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 6px 8px rgba(0,0,0,.45));}'
         + '.hr-hero img{max-width:96px;max-height:96px;border-radius:14px;border:2px solid rgba(255,255,255,.5);height:auto!important;}'
         + '.hr-wear{display:flex;gap:2px;margin-bottom:-8px;} .hr-wear-chip{font-size:1.3rem;filter:drop-shadow(0 0 6px rgba(241,196,15,.8));}'
@@ -892,6 +1093,8 @@
         deltaCoins: deltaCoins,
         openRoom: openRoom,
         openBattleLobby: openBattleLobby,
+        openShareLevel: openShareLevel,
+        openSharedLib: openSharedLib,
         avatarHtml: avatarHtml,
         applyAvatarToModes: applyAvatarToModes,
         normAns: normAns,

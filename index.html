@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#1a1a2e">
     <link rel="manifest" href="manifest.webmanifest">
-    <script src="i18n.js?v=eng-tetris-v45"></script>
+    <script src="i18n.js?v=eng-tetris-v46"></script>
     <link rel="apple-touch-icon" href="icons/icon-192.png">
     <link rel="icon" type="image/png" href="icons/icon-192.png">
     <title>世界语言方块</title>
@@ -367,7 +367,6 @@
             40% { transform: scale(2.2); filter: brightness(2.5); box-shadow: 0 0 30px rgba(241,196,15,0.9); z-index: 50; }
             100% { transform: scale(1); filter: brightness(1); }
         }
-        #m3-grid-container.m3-drop-active { outline: 2px dashed rgba(241,196,15,0.6); outline-offset: 3px; }
 
         /* ===== 战斗冒险日志面板 ===== */
         #battle-log-panel {
@@ -549,6 +548,8 @@
         .uploaded-level-item .uli-progress { width: 80px; height: 6px; background: rgba(0,0,0,0.4); border-radius: 3px; overflow: hidden; flex-shrink: 0; }
         .uploaded-level-item .uli-progress-bar { height: 100%; background: linear-gradient(90deg, #53d769, #f1c40f); width: 0%; transition: width 0.3s; }
         .uploaded-level-item .uli-del { background: rgba(255,71,87,0.3); border: none; color: #ff4757; width: 28px; height: 28px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; flex-shrink: 0; }
+        .uploaded-level-item .uli-share { background: rgba(83,215,105,0.22); border: 1px solid rgba(83,215,105,0.5); color: #53d769; width: 28px; height: 28px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; flex-shrink: 0; }
+        .uploaded-level-item .uli-share:hover { background: rgba(83,215,105,0.4); }
         .uploaded-level-item .uli-del:hover { background: rgba(255,71,87,0.6); color: #fff; }
         .upload-bottom-btns { display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap; justify-content: center; }
         .upload-bottom-btns .btn-action { width: auto; padding: 12px 30px; }
@@ -736,20 +737,20 @@
         }
     </style>
     <!-- JSZip 仅 ZIP 关卡上传用：本地加载（cdnjs 外链在国内阻塞首屏可达数秒，已移除） -->
-    <script src="jszip.min.js?v=eng-tetris-v45"></script>
-    <script src="wordbank_daily.js?v=eng-tetris-v45"></script>
-    <script src="wordbank_cet4.js?v=eng-tetris-v45"></script>
-    <script src="wordbank_cet6.js?v=eng-tetris-v45"></script>
-    <script src="wordbank_phon.js?v=eng-tetris-v45"></script>
-    <script src="wordbank_zh.js?v=eng-tetris-v45"></script>
-    <script src="wordbank_ru.js?v=eng-tetris-v45"></script>
-    <script src="word_fx_data.js?v=eng-tetris-v45"></script>
-    <script src="word_fx.js?v=eng-tetris-v45"></script>
-    <script src="modes_extra.js?v=eng-tetris-v45"></script>
-    <script src="hero_system.js?v=eng-tetris-v45"></script>
-    <script src="meanings.js?v=eng-tetris-v45"></script>
+    <script src="jszip.min.js?v=eng-tetris-v46"></script>
+    <script src="wordbank_daily.js?v=eng-tetris-v46"></script>
+    <script src="wordbank_cet4.js?v=eng-tetris-v46"></script>
+    <script src="wordbank_cet6.js?v=eng-tetris-v46"></script>
+    <script src="wordbank_phon.js?v=eng-tetris-v46"></script>
+    <script src="wordbank_zh.js?v=eng-tetris-v46"></script>
+    <script src="wordbank_ru.js?v=eng-tetris-v46"></script>
+    <script src="word_fx_data.js?v=eng-tetris-v46"></script>
+    <script src="word_fx.js?v=eng-tetris-v46"></script>
+    <script src="modes_extra.js?v=eng-tetris-v46"></script>
+    <script src="hero_system.js?v=eng-tetris-v46"></script>
+    <script src="meanings.js?v=eng-tetris-v46"></script>
     <script src="hanzi-writer.min.js"></script>
-    <script src="hanzi_data.js?v=eng-tetris-v45"></script>
+    <script src="hanzi_data.js?v=eng-tetris-v46"></script>
 </head>
 <body>
     <div id="loadingScreen">
@@ -946,6 +947,7 @@
         <div id="uploadedLevels"></div>
         <div class="upload-bottom-btns">
             <button class="btn-action" id="btnStartUploadedGame" data-i18n="uploadStart">🎮 开始游戏</button>
+            <button class="btn-action btn-secondary" id="btnSharedLib" style="border: 2px solid #53d769;">🌐 他人共享的关卡</button>
             <button class="btn-action btn-secondary" id="btnCloseUploadModal" data-i18n="back">返回</button>
         </div>
     </div>
@@ -972,7 +974,7 @@
     </div>
 
     <!-- 扩展玩法通用视图容器（听力挑战 / 记忆配对 / 未来玩法 / DIY） -->
-    <div id="gameVerBadge" style="position:fixed;left:10px;bottom:8px;z-index:40;font-size:12px;color:rgba(255,255,255,.35);letter-spacing:1px;user-select:none;">v2.4.5</div>
+    <div id="gameVerBadge" style="position:fixed;left:10px;bottom:8px;z-index:40;font-size:12px;color:rgba(255,255,255,.35);letter-spacing:1px;user-select:none;">v2.5.0</div>
     <div id="extra-mode-view"></div>
 
     <!-- 写字学中文模式视图 -->
@@ -3212,7 +3214,15 @@
                 html += '<div class="fb-cell' + (ch ? '' : ' empty') + '" style="background:' + (ch ? m3ColorOf(ch) : 'rgba(255,255,255,0.06)') + ';grid-column:' + (dc + 1) + ';grid-row:' + (dr + 1) + ';">' + ch + '</div>';
             }
             block.innerHTML = '<div style="display:grid;grid-template-columns:repeat(4,20px);grid-auto-rows:20px;gap:2px;">' + html + '</div>';
-            block.addEventListener('dragstart', (e) => { if (block.classList.contains('used')) { e.preventDefault(); return; } e.dataTransfer.setData('text/plain', letters.join('')); e.dataTransfer.setData('text/cells', block.dataset.cells); block.classList.add('dragging'); });
+            block.addEventListener('dragstart', (e) => {
+                if (block.classList.contains('used')) { e.preventDefault(); return; }
+                e.dataTransfer.setData('text/plain', letters.join(''));
+                e.dataTransfer.setData('text/cells', block.dataset.cells);
+                const br0 = block.getBoundingClientRect();
+                block.dataset.grabDX = String(Math.round(e.clientX - br0.left));
+                block.dataset.grabDY = String(Math.round(e.clientY - br0.top));
+                block.classList.add('dragging');
+            });
             block.addEventListener('dragend', () => block.classList.remove('dragging'));
             block.addEventListener('click', () => { if (Date.now() - m3PointerAt < 400) return; m3TapFeederBlock(block); });
             m3BindTouchDrag(block, letters);
@@ -3848,19 +3858,18 @@
                 const dist = (cx - c) * (cx - c) + (cy - r) * (cy - r);
                 if (dist < bestDist) { bestDist = dist; best = hs; }
             }
-            /* 只有落在空洞附近（约2.5格内）才吸附——拖到幕布任意位置不再自动拼上 */
-            if (bestDist > 6) return null;
+            /* 按"块形状中心"判定：距洞中心约3.5格内吸附——形状对准即成功，
+               指针抓在块上任何位置都不影响判定；远离所有空洞才拒绝 */
+            if (bestDist > 12) return null;
             return best;
         }
         function m3SetupDrop() {
             if (m3DropSetupDone) return;
             m3DropSetupDone = true;
             const gridEl = document.getElementById('m3-grid-container');
-            gridEl.addEventListener('dragover', (e) => { e.preventDefault(); gridEl.classList.add('m3-drop-active'); });
-            gridEl.addEventListener('dragleave', () => gridEl.classList.remove('m3-drop-active'));
+            gridEl.addEventListener('dragover', (e) => { e.preventDefault(); });
             gridEl.addEventListener('drop', (e) => {
                 e.preventDefault();
-                gridEl.classList.remove('m3-drop-active');
                 if (m3Busy || (m3State !== 'idle' && m3State !== 'selecting')) return;
                 let lettersStr = e.dataTransfer ? e.dataTransfer.getData('text/plain') : '';
                 let cellsStr = e.dataTransfer ? e.dataTransfer.getData('text/cells') : '';
@@ -3873,7 +3882,13 @@
                 const letters = lettersStr.split('');
                 let blockCells;
                 try { blockCells = JSON.parse(cellsStr); } catch (_) { return; }
-                const targetHoleShape = m3FindDropTarget(e.clientX, e.clientY, blockCells);
+                let dropCX = e.clientX, dropCY = e.clientY;
+                if (dragging) {
+                    const br = dragging.getBoundingClientRect();
+                    dropCX = e.clientX - parseFloat(dragging.dataset.grabDX || '0') + br.width / 2;
+                    dropCY = e.clientY - parseFloat(dragging.dataset.grabDY || '0') + br.height / 2;
+                }
+                const targetHoleShape = m3FindDropTarget(dropCX, dropCY, blockCells);
                 if (targetHoleShape) {
                     m3DoFillHole(dragging, targetHoleShape, letters);
                 } else {
@@ -3921,13 +3936,16 @@
                     document.removeEventListener('pointerup', onUp, true);
                     document.removeEventListener('pointercancel', onUp, true);
                     m3PointerAt = Date.now();
+                    /* ghost 中心恒等于手指坐标（onMove 里 ghost 以指针为中心定位），
+                       直接用松手坐标即"块形状中心"，无 ghostRect 滞后问题 */
+                    let dropCX = ev.clientX, dropCY = ev.clientY;
                     if (ghost) { ghost.remove(); ghost = null; }
                     block.style.opacity = '';
                     block.classList.remove('dragging');
                     m3ClearHints();
                     if (!moved) { m3TapFeederBlock(block); return; } // 未移动=点按选块
                     if (m3Busy || (m3State !== 'idle' && m3State !== 'selecting')) return;
-                    const target = m3FindDropTarget(ev.clientX, ev.clientY, cells);
+                    const target = m3FindDropTarget(dropCX, dropCY, cells);
                     if (target) m3DoFillHole(block, target, letters);
                     else {
                         showM3Toast(_t('m3DropSameShape'));
@@ -4033,6 +4051,11 @@
             DOM.overlay.style.display = 'none';
             document.getElementById('uploadLevelModal').style.display = 'flex';
             renderUploadedLevels();
+        });
+        document.getElementById('btnSharedLib').addEventListener('click', () => {
+            playSoundClick();
+            document.getElementById('uploadLevelModal').style.display = 'none';
+            try { if (window.HERO && HERO.openSharedLib) HERO.openSharedLib(); else showM3Toast('ERR'); } catch (e) {}
         });
         document.getElementById('btnCloseUploadModal').addEventListener('click', () => { 
             playSoundClick(); 
@@ -4164,9 +4187,17 @@
                         <div class="uli-count">${wordCount} 个单词${typeChip}</div>
                     </div>
                     <div class="uli-progress"><div class="uli-progress-bar" style="width: 100%;"></div></div>
+                    <button class="uli-share" data-idx="${idx}" title="Share">🔗</button>
                     <button class="uli-del" data-idx="${idx}">✖</button>
                 `;
                 container.appendChild(item);
+            });
+            container.querySelectorAll('.uli-share').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const idx = parseInt(btn.dataset.idx);
+                    try { if (window.HERO && HERO.openShareLevel) HERO.openShareLevel(m3Levels[idx]); } catch (err) {}
+                });
             });
             container.querySelectorAll('.uli-del').forEach(btn => {
                 btn.addEventListener('click', (e) => {
@@ -5391,6 +5422,19 @@
             goMenu: (id) => { try { showMenuScreen(id || 'modeSelectScreen'); } catch (e) {} },
             startVsBattle: (dict, vsCfg) => { try { m3LaunchVS(dict, vsCfg); } catch (e) {} },
             attachVsNet: (conn, dict, vsCfg) => { try { m3LaunchVS(dict, Object.assign({ mode: 'net', net: conn }, vsCfg || {})); } catch (e) {} },
+            startFillDict: (dict) => {
+                try {
+                    m3FillPackKey = null; m3LevelMode = false;
+                    ['uploadLevelModal', 'uploadModeModal', 'levelSelectModal'].forEach(id => { const m = document.getElementById(id); if (m) m.style.display = 'none'; });
+                    DOM.customSelectScreen.classList.add('hidden'); DOM.overlay.style.display = 'none';
+                    if (DOM.gameWrapper) DOM.gameWrapper.style.display = 'none';
+                    if (DOM.btnPauseIcon) DOM.btnPauseIcon.style.display = 'none';
+                    document.getElementById('quest-view').style.display = 'none';
+                    document.getElementById('match3-view').style.display = 'flex';
+                    state = 'match3';
+                    startMatch3Game(dict);
+                } catch (e) {}
+            },
             registerMode: (m) => { if (m && m.id && m.start) window.ELC.modes.push(m); },
             openExtraView: (html) => {
                 const v = document.getElementById('extra-mode-view');
@@ -5470,7 +5514,7 @@
     </script>
     <script>
     (function () {
-        var GAME_VER = '2.4.5';
+        var GAME_VER = '2.5.0';
         try {
             var badge = document.getElementById('gameVerBadge');
             if (badge) badge.textContent = '世界语言方块 v' + GAME_VER;

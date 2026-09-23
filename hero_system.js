@@ -89,7 +89,24 @@
         importBtn: { zh: '导入', en: 'Import', ru: 'Импорт', fr: 'Importer' },
         importOk: { zh: '✅ 导入成功，开始游玩吧！', en: '✅ Imported!', ru: '✅ Импортировано!', fr: '✅ Importé !' },
         importBad: { zh: '分享码无效，请检查是否复制完整', en: 'Invalid code — check if fully copied', ru: 'Неверный код', fr: 'Code invalide' },
-        libEmpty: { zh: '还没有共享关卡——去找朋友要分享码吧！', en: 'No shared levels yet — get a code from a friend!', ru: 'Пока пусто — попросите код у друга', fr: 'Vide — demandez un code !' }
+        libEmpty: { zh: '还没有共享关卡——去找朋友要分享码吧！', en: 'No shared levels yet — get a code from a friend!', ru: 'Пока пусто — попросите код у друга', fr: 'Vide — demandez un code !' },
+        snSharing: { zh: '在线共享中：{n} 个关卡（保持页面打开，等朋友下载）', en: 'Sharing {n} levels online (keep page open)', ru: 'Онлайн: {n} уровней', fr: '{n} niveaux en ligne' },
+        snStop: { zh: '停止', en: 'Stop', ru: 'Стоп', fr: 'Stop' },
+        snNoLevels: { zh: '请先上传自定义关卡，再开启在线共享', en: 'Upload custom levels first', ru: 'Сначала загрузите уровни', fr: 'Chargez des niveaux' },
+        snReq: { zh: '请求下载关卡【{w}】', en: 'requests level [{w}]', ru: 'просит уровень [{w}]', fr: 'demande [{w}]' },
+        snAgree: { zh: '同意', en: 'Accept', ru: 'Принять', fr: 'Accepter' },
+        snDeny: { zh: '拒绝', en: 'Deny', ru: 'Отклонить', fr: 'Refuser' },
+        snSent: { zh: '✅ 关卡已发送！', en: '✅ Level sent!', ru: '✅ Отправлено!', fr: '✅ Envoyé !' },
+        snConnecting: { zh: '正在搜索在线分享者…', en: 'Searching online sharers…', ru: 'Поиск…', fr: 'Recherche…' },
+        snNoHost: { zh: '当前没有在线分享者（分享者需在上传界面点"📡 在线共享"）', en: 'No online sharers right now', ru: 'Сейчас никого нет', fr: 'Personne en ligne' },
+        snNobody: { zh: '当前没有在线分享者', en: 'No online sharers right now', ru: 'Никого нет', fr: 'Personne' },
+        snOnline: { zh: '在线分享', en: 'Online sharers', ru: 'Онлайн', fr: 'En ligne' },
+        snLocal: { zh: '📥 我的共享关卡库（分享码导入 / 在线下载）', en: 'My library', ru: 'Моя библиотека', fr: 'Ma bibliothèque' },
+        snDl: { zh: '下载', en: 'Get', ru: 'Скачать', fr: 'Prendre' },
+        snWait: { zh: '等待对方同意…', en: 'Waiting for approval…', ru: 'Ожидание…', fr: 'Attente…' },
+        snTimeout: { zh: '对方未响应，稍后再试', en: 'No response — try later', ru: 'Нет ответа', fr: 'Pas de réponse' },
+        snDenied: { zh: '对方拒绝了本次下载申请', en: 'Request denied', ru: 'Отказано', fr: 'Refusé' },
+        snStorage: { zh: '存储空间不足，先删除一些旧关卡', en: 'Storage full — delete old levels', ru: 'Память заполнена', fr: 'Stockage plein' }
     };
     function uiLang() {
         try { return ((window.I18N && window.I18N.lang) || 'zh-CN'); } catch (e) { return 'zh-CN'; }
@@ -899,14 +916,17 @@
                 '<div class="hs-head"><div class="hs-title">🌐 ' + ht('shareLib') + '</div>' +
                 '<button class="hs-x" id="hsLibClose">✕</button></div>' +
                 '<div class="hs-sub">' + ht('libTip') + '</div>' +
+                '<div id="hsOnline" style="margin-bottom:10px;"></div>' +
                 '<div style="display:flex;gap:8px;margin-bottom:10px;">' +
                     '<textarea id="hsImportCode" placeholder="' + ht('importPh') + '" style="flex:1;height:54px;background:rgba(0,0,0,.5);color:#fff;font-size:.78rem;border:1px solid rgba(255,255,255,.25);border-radius:10px;padding:8px;box-sizing:border-box;"></textarea>' +
                     '<button class="hh-btn ok" id="hsImportBtn" style="align-self:flex-end;">📥 ' + ht('importBtn') + '</button>' +
                 '</div>' +
+                '<div class="sn-head">' + ht('snLocal') + '</div>' +
                 '<div id="hsLibList"></div>' +
             '</div>';
         document.body.appendChild(root);
         document.getElementById('hsLibClose').addEventListener('click', function () { click(); closeLib(); });
+        startBrowse();   /* 打开页签即自动发现在线分享者 */
         document.getElementById('hsImportBtn').addEventListener('click', function () {
             click();
             var code = document.getElementById('hsImportCode').value;
@@ -923,7 +943,7 @@
         });
         renderLibList();
     }
-    function closeLib() { var el = document.getElementById('heroSharedLib'); if (el) el.remove(); }
+    function closeLib() { var el = document.getElementById('heroSharedLib'); if (el) el.remove(); stopBrowse(); }
     function renderLibList() {
         var host = document.getElementById('hsLibList'); if (!host) return;
         var list = getSharedIn();
@@ -963,6 +983,246 @@
                 renderLibList();
             });
         });
+    }
+
+    /* ================= 📡 P2P 在线关卡共享（图+音频完整包 · 申请-同意制） =================
+       协议：大厅 elcshr1-<lang>（先到者当庄维护注册表）；
+       分享者挂机发布关卡列表 → 浏览者在"他人共享的关卡"页签自动发现 →
+       点下载发申请 → 分享者确认 → 点对点直传完整关卡（原图原音频 dataURL）。 */
+    var SN = { sharing: false, peer: null, isHost: false, lobbyConn: null, lobbyPeer2: null, registry: {}, retryT: 0,
+               browse: null, gotReg: false, dlConn: null, dlT: 0 };
+    function snLobbyId() { return 'elcshr1-' + (learningLangSafe() || 'en'); }
+    function snMyMeta() {
+        var levels = [];
+        try {
+            ((window.ELC && ELC.uploadedLevelList) ? ELC.uploadedLevelList() : []).forEach(function (l) {
+                var hasImg = false, hasAudio = false;
+                l.words.forEach(function (w) {
+                    if (w.img && /^(blob:|data:)/.test(String(w.img))) hasImg = true;
+                    if (w.audio && /^(blob:|data:)/.test(String(w.audio))) hasAudio = true;
+                });
+                levels.push({ id: l.name, name: l.name, n: l.words.length, img: hasImg, au: hasAudio });
+            });
+        } catch (e) {}
+        return { peer: SN.peer ? SN.peer.id : '', name: vsName(), levels: levels };
+    }
+    function snPublish() {
+        if (!SN.lobbyConn) return;
+        try { SN.lobbyConn.send(Object.assign({ t: 'pub' }, snMyMeta())); } catch (e) {}
+    }
+    function snRenderBar() {
+        var bar = document.getElementById('snShareBar');
+        if (!SN.sharing) { if (bar) bar.remove(); return; }
+        if (!bar) {
+            bar = document.createElement('div');
+            bar.id = 'snShareBar';
+            document.body.appendChild(bar);
+        }
+        var meta = snMyMeta();
+        bar.innerHTML = '📡 ' + ht('snSharing').replace('{n}', meta.levels.length) +
+            ' <button id="snShareStop">■ ' + ht('snStop') + '</button>';
+        document.getElementById('snShareStop').addEventListener('click', function () { click(); stopOnlineShare(); });
+    }
+    function startOnlineShare() {
+        if (SN.sharing) return;
+        if (!(window.ELC && ELC.uploadedLevelList && ELC.uploadedLevelList().length)) { toast(ht('snNoLevels')); return; }
+        loadPeerJs(function (ok) {
+            if (!ok) { toast(ht('mmFail')); return; }
+            SN.sharing = true;
+            snRenderBar();
+            var lobby = snLobbyId();
+            var p = new Peer(lobby, { debug: 0 });
+            SN.peer = p;
+            p.on('open', function () {
+                SN.isHost = true;
+                SN.registry = {};
+                snRenderBar();
+            });
+            p.on('connection', function (conn) {
+                conn.on('data', function (d) {
+                    if (!d || !d.t) return;
+                    if (d.t === 'pub' && SN.isHost) { SN.registry[d.peer] = { peer: d.peer, name: d.name, levels: d.levels || [] }; return; }
+                    if (d.t === 'unpub' && SN.isHost) { delete SN.registry[d.peer]; return; }
+                    if (d.t === 'list' && SN.isHost) { try { conn.send({ t: 'registry', items: [snMyMeta()].concat(Object.keys(SN.registry).map(function (k) { return SN.registry[k]; })) }); } catch (e) {} return; }
+                    if (d.t === 'req') { snAskConfirm(conn, d); return; }
+                });
+                conn.on('error', function () {});
+            });
+            p.on('error', function (e) {
+                if (!SN.sharing) return;
+                if (e && e.type === 'unavailable-id') {
+                    SN.isHost = false;
+                    var g = new Peer({ debug: 0 });
+                    SN.lobbyPeer2 = g;
+                    g.on('open', function () {
+                        SN.peer = g;
+                        var c = g.connect(lobby, { reliable: true });
+                        SN.lobbyConn = c;
+                        c.on('open', function () { snPublish(); snRenderBar(); });
+                        c.on('close', function () {
+                            if (!SN.sharing) return;
+                            SN.lobbyConn = null;
+                            clearTimeout(SN.retryT);
+                            SN.retryT = setTimeout(function () { if (SN.sharing) { stopOnlineShare(); startOnlineShare(); } }, 2500);   /* 庄主掉线重选 */
+                        });
+                        g.on('connection', function (conn) {
+                            conn.on('data', function (d) { if (d && d.t === 'req') snAskConfirm(conn, d); });
+                        });
+                    });
+                } else { toast(ht('mmFail')); stopOnlineShare(); }
+            });
+        });
+    }
+    function stopOnlineShare() {
+        SN.sharing = false;
+        clearTimeout(SN.retryT);
+        if (SN.lobbyConn) { try { SN.lobbyConn.send({ t: 'unpub', peer: SN.peer && SN.peer.id }); } catch (e) {} }
+        try { if (SN.peer) SN.peer.destroy(); } catch (e) {}
+        try { if (SN.lobbyPeer2) SN.lobbyPeer2.destroy(); } catch (e) {}
+        SN.peer = null; SN.lobbyPeer2 = null; SN.lobbyConn = null; SN.registry = {}; SN.isHost = false;
+        snRenderBar();
+    }
+    function toggleOnlineShare() { SN.sharing ? stopOnlineShare() : startOnlineShare(); }
+    /* 收到下载申请：确认条（30 秒超时自动拒绝） */
+    function snAskConfirm(conn, d) {
+        var old = document.getElementById('snReqBar');
+        if (old) { try { conn.send({ t: 'deny' }); } catch (e) {} return; }   /* 同刻只处理一个 */
+        var bar = document.createElement('div');
+        bar.id = 'snReqBar';
+        bar.innerHTML = '📥 <b>' + String(d.name || 'Player').slice(0, 10) + '</b> ' + ht('snReq').replace('{w}', String(d.levelId || '').slice(0, 16)) +
+            ' <button class="ok" id="snReqOk">✓ ' + ht('snAgree') + '</button><button id="snReqNo">✕ ' + ht('snDeny') + '</button>';
+        document.body.appendChild(bar);
+        var to = setTimeout(function () { done(false); }, 30000);
+        function done(agree) {
+            clearTimeout(to);
+            bar.remove();
+            if (!agree) { try { conn.send({ t: 'deny' }); } catch (e) {} return; }
+            var lvl = null;
+            try { (ELC.uploadedLevelList() || []).forEach(function (l) { if (l.name === d.levelId) lvl = l; }); } catch (e) {}
+            if (!lvl) { try { conn.send({ t: 'deny' }); } catch (e) {} return; }
+            serializeFullLevel(lvl, function (pack) {
+                try { conn.send({ t: 'level', level: pack }); toast(ht('snSent')); } catch (e) { toast('ERR'); }
+            });
+        }
+        document.getElementById('snReqOk').addEventListener('click', function () { click(); done(true); });
+        document.getElementById('snReqNo').addEventListener('click', function () { click(); done(false); });
+    }
+    /* 完整包序列化：原图/原音频 blob→dataURL（不压缩——在线直传保真） */
+    function serializeFullLevel(lvl, cb) {
+        var words = (lvl && lvl.words) || [];
+        var out = [], i = 0;
+        function nx() {
+            if (i >= words.length) { cb({ name: lvl.name, words: out }); return; }
+            var w = words[i++];
+            var mean = String(w.mean || '').slice(0, 60);
+            var img = (w.img && /^(blob:|data:|https?:)/.test(String(w.img))) ? String(w.img) : (w.img && String(w.img).length <= 4 ? String(w.img) : null);
+            var au = (w.audio && /^(blob:|data:)/.test(String(w.audio))) ? String(w.audio) : null;
+            urlToData(img, function (imgData) {
+                urlToData(au, function (auData) {
+                    out.push([w.word, mean, imgData || (img && img.length <= 4 ? img : null), auData || null]);
+                    nx();
+                });
+            });
+        }
+        nx();
+    }
+    /* ---- 浏览者：他人共享页签的在线发现 ---- */
+    function startBrowse() {
+        stopBrowse();
+        var host = document.getElementById('hsOnline');
+        if (!host) return;
+        host.innerHTML = '<div class="hs-sub">📡 ' + ht('snConnecting') + '</div>';
+        loadPeerJs(function (ok) {
+            if (!ok) { host.innerHTML = '<div class="hs-sub">📡 ' + ht('mmFail') + '</div>'; return; }
+            var p = new Peer({ debug: 0 });
+            SN.browse = p;
+            p.on('open', function () {
+                var c = p.connect(snLobbyId(), { reliable: true });
+                var to = setTimeout(function () { if (!SN.gotReg) host.innerHTML = '<div class="hs-sub">📡 ' + ht('snNoHost') + '</div>'; }, 8000);
+                c.on('open', function () { try { c.send({ t: 'list' }); } catch (e) {} });
+                c.on('data', function (d) {
+                    if (d && d.t === 'registry') { SN.gotReg = true; clearTimeout(to); renderOnlineList(d.items || []); }
+                });
+            });
+            p.on('error', function () { host.innerHTML = '<div class="hs-sub">📡 ' + ht('mmFail') + '</div>'; });
+        });
+    }
+    function stopBrowse() {
+        SN.gotReg = false;
+        try { if (SN.browse) SN.browse.destroy(); } catch (e) {}
+        SN.browse = null;
+        if (SN.dlConn) { try { SN.dlConn.close(); } catch (e) {} SN.dlConn = null; }
+        clearTimeout(SN.dlT);
+    }
+    function renderOnlineList(items) {
+        var host = document.getElementById('hsOnline');
+        if (!host) return;
+        var others = items.filter(function (it) { return it && it.peer && it.levels && it.levels.length && (!SN.peer || it.peer !== SN.peer.id); });
+        if (!others.length) { host.innerHTML = '<div class="hs-sub">📡 ' + ht('snNobody') + '</div>'; return; }
+        var html = '<div class="sn-head">📡 ' + ht('snOnline') + '（' + others.length + '）</div>';
+        others.forEach(function (it, oi) {
+            html += '<div class="sn-player">👤 <b>' + String(it.name || 'Player').slice(0, 12) + '</b></div>';
+            (it.levels || []).forEach(function (lv, li) {
+                html += '<div class="sl-item">' +
+                    '<div class="sl-info"><div class="sl-name">📗 ' + String(lv.name).slice(0, 22) + '</div>' +
+                    '<div class="sl-meta">' + lv.n + ht('wordsUnit') + (lv.img ? ' · 🖼' : '') + (lv.au ? ' · 🔊' : '') + '</div></div>' +
+                    '<button class="hh-btn ok mini" data-dl="' + oi + ':' + li + '">⬇ ' + ht('snDl') + '</button>' +
+                '</div>';
+            });
+        });
+        host.innerHTML = html;
+        host.querySelectorAll('[data-dl]').forEach(function (b) {
+            b.addEventListener('click', function () {
+                click();
+                var pr = b.dataset.dl.split(':');
+                var it = others[parseInt(pr[0], 10)];
+                var lv = it && it.levels[parseInt(pr[1], 10)];
+                if (!it || !lv || !SN.browse) return;
+                b.disabled = true; b.textContent = '⏳ ' + ht('snWait');
+                var c = SN.browse.connect(it.peer, { reliable: true });
+                SN.dlConn = c;
+                var to = setTimeout(function () {
+                    if (SN.dlConn === c) { try { c.close(); } catch (e) {} SN.dlConn = null; toast(ht('snTimeout')); renderOnlineList(items); }
+                }, 60000);
+                c.on('open', function () { try { c.send({ t: 'req', levelId: lv.id || lv.name, name: vsName() }); } catch (e) {} });
+                c.on('data', function (d) {
+                    clearTimeout(to);
+                    if (SN.dlConn === c) SN.dlConn = null;
+                    if (d && d.t === 'level') { receiveFullLevel(d.level); }
+                    else if (d && d.t === 'deny') { toast(ht('snDenied')); renderOnlineList(items); }
+                });
+            });
+        });
+    }
+    /* 接收完整包入库（含图/音频 dataURL；localStorage 预算 2.5MB） */
+    function receiveFullLevel(pack) {
+        if (!pack || !pack.words || pack.words.length < 3) { toast(ht('importBad')); return; }
+        var dict = {};
+        pack.words.forEach(function (row) {
+            if (!row || !row[0]) return;
+            var w = String(row[0]).slice(0, 12);
+            if (!/^[a-zà-ÿāáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜа-яё0-9]{1,12}$/i.test(w)) return;
+            var img = null;
+            if (typeof row[2] === 'string') {
+                if (/^data:image\//.test(row[2])) img = row[2];
+                else if (row[2].length <= 4) img = row[2];
+            }
+            var au = (typeof row[3] === 'string' && /^data:audio\//.test(row[3])) ? row[3] : null;
+            dict[w] = { mean: String(row[1] || '').slice(0, 60), img: img || '📝', audio: au, single: w.length === 1 };
+        });
+        if (Object.keys(dict).length < 3) { toast(ht('importBad')); return; }
+        var list = getSharedIn();
+        var lvl = { id: 'p' + Date.now(), name: String(pack.name || 'Shared').slice(0, 30), dict: dict, at: Date.now() };
+        list.unshift(lvl);
+        var json = JSON.stringify(list);
+        if (json.length > 2600000) {
+            list.shift();
+            toast(ht('snStorage'));
+        } else {
+            toast(ht('importOk'));
+        }
+        setSharedIn(list);
+        renderLibList();
     }
 
     /* ================= 语言选择界面：主角陪伴气泡（头像在信息栏） ================= */
@@ -1073,6 +1333,13 @@
         + '#heroShare,#heroSharedLib{position:fixed;inset:0;background:rgba(8,8,18,.96);z-index:4600;display:flex;align-items:center;justify-content:center;padding:12px;box-sizing:border-box;backdrop-filter:blur(6px);}'
         + '.sl-item{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:8px 10px;margin-bottom:8px;}'
         + '.sl-info{flex:1;min-width:0;} .sl-name{color:#fff;font-weight:900;font-size:.92rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}'
+        + '.sn-head{color:#4da8ff;font-weight:900;font-size:.9rem;margin:2px 0 6px;}'
+        + '.sn-player{color:#9fd0ff;font-size:.8rem;font-weight:700;margin:6px 0 3px;}'
+        + '#snShareBar{position:fixed;top:0;left:0;right:0;z-index:4700;background:linear-gradient(90deg,#145a9e,#1e78c8);color:#fff;font-size:.82rem;font-weight:700;padding:7px 12px;display:flex;align-items:center;gap:10px;justify-content:center;flex-wrap:wrap;box-shadow:0 3px 10px rgba(0,0,0,.4);}'
+        + '#snShareBar button{border:1px solid rgba(255,255,255,.5);background:rgba(255,255,255,.15);color:#fff;border-radius:12px;padding:2px 10px;font-size:.75rem;cursor:pointer;}'
+        + '#snReqBar{position:fixed;top:0;left:0;right:0;z-index:4750;background:linear-gradient(90deg,#9e6414,#c8861e);color:#fff;font-size:.85rem;font-weight:700;padding:8px 12px;display:flex;align-items:center;gap:10px;justify-content:center;flex-wrap:wrap;box-shadow:0 3px 10px rgba(0,0,0,.45);}'
+        + '#snReqBar button{border:none;border-radius:12px;padding:3px 14px;font-size:.8rem;font-weight:900;cursor:pointer;}'
+        + '#snReqBar button.ok{background:#53d769;color:#04250d;} #snReqBar button:not(.ok){background:#e84a5f;color:#fff;}'
         + '.sl-meta{color:rgba(255,255,255,.55);font-size:.72rem;}'
         + '.hr-hero{position:absolute;left:50%;bottom:34%;transform:translateX(-50%);font-size:4.6rem;line-height:1;z-index:8;display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 6px 8px rgba(0,0,0,.45));}'
         + '.hr-hero img{max-width:96px;max-height:96px;border-radius:14px;border:2px solid rgba(255,255,255,.5);height:auto!important;}'
@@ -1125,6 +1392,7 @@
         openBattleLobby: openBattleLobby,
         openShareLevel: openShareLevel,
         openSharedLib: openSharedLib,
+        toggleOnlineShare: toggleOnlineShare,
         avatarHtml: avatarHtml,
         applyAvatarToModes: applyAvatarToModes,
         normAns: normAns,

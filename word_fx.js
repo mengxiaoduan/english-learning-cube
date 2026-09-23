@@ -23,7 +23,9 @@
         + '@keyframes wfxHpFlash { 0%,100%{ color:#ff6b6b; } 50%{ color:#fff; text-shadow:0 0 12px #ff3030; } }'
         + '.wfx-hp-flash { animation: wfxHpFlash .5s ease 2 !important; }'
         + '@keyframes wfxGridGlow { 0%,100% { box-shadow: 0 0 0 rgba(0,0,0,0); } 25% { box-shadow: 0 0 52px 6px var(--wfx-glow,rgba(255,160,60,.95)), inset 0 0 26px var(--wfx-glow,rgba(255,160,60,.5)); } 60% { box-shadow: 0 0 30px 2px var(--wfx-glow,rgba(255,160,60,.85)), inset 0 0 16px var(--wfx-glow,rgba(255,160,60,.35)); } }'
-        + '.wfx-scene-glow { animation: wfxGridGlow 2.1s ease; }';
+        + '.wfx-scene-glow { animation: wfxGridGlow 2.1s ease; }'
+        + '.wfx-hero-gain { animation: wfxHeroGain .55s ease !important; }'
+        + '@keyframes wfxHeroGain { 0%{transform:scale(1)} 45%{transform:scale(1.45) translateY(-6px); filter:brightness(1.65) drop-shadow(0 0 12px rgba(255,215,0,.95));} 100%{transform:scale(1)} }';
     var styleEl = document.createElement('style');
     styleEl.textContent = CSS;
     document.head.appendChild(styleEl);
@@ -249,6 +251,16 @@
     }
 
     /* ================= 怪物受击 ================= */
+    /* 知识收获：飞达对象（主角/得分手）金光弹跳 */
+    function heroGain(el) {
+        try {
+            if (!el) return;
+            el.classList.remove('wfx-hero-gain');
+            void el.offsetWidth;
+            el.classList.add('wfx-hero-gain');
+            setTimeout(function () { el.classList.remove('wfx-hero-gain'); }, 650);
+        } catch (e) {}
+    }
     function monsterHit(monsterEl, damage, opts) {
         opts = opts || {};
         try {
@@ -487,7 +499,8 @@
         opts = opts || {};
         var myGen = gen;
         var src = opts.source || { x: window.innerWidth / 2, y: window.innerHeight / 2.6 };
-        var mEl = opts.monsterEl || document.getElementById('m3-mouth');
+        var mEl = opts.monsterEl || document.getElementById('m3-mouth');   // 粒子飞向的目标（知识归谁）
+        var hitEl = opts.hitEl || mEl;                                     // 受击表现对象（怪物掉血）
         var dst = { x: window.innerWidth * 0.5, y: 90 };
         if (mEl) { var r = mEl.getBoundingClientRect(); dst = { x: r.left + r.width / 2, y: r.top + r.height / 2 }; }
         var count = opts.big ? 16 : 10;
@@ -524,7 +537,8 @@
                                 p.dead = true;
                                 if (!hitDone) {
                                     hitDone = true;
-                                    monsterHit(opts.monsterEl, opts.damage, opts);
+                                    monsterHit(hitEl, opts.damage, opts);
+                                    heroGain(mEl);
                                     if (opts.onHit) { try { opts.onHit(); } catch (e) {} }
                                 }
                                 // 命中小火花
@@ -543,7 +557,7 @@
         }
         if (!hitDone) {
             // 兜底：即使粒子被清理也要有受击表现
-            setTimeout(function () { if (!hitDone && gen === myGen) { hitDone = true; monsterHit(opts.monsterEl, opts.damage, opts); if (opts.onHit) { try { opts.onHit(); } catch (e) {} } } }, dur + 120);
+            setTimeout(function () { if (!hitDone && gen === myGen) { hitDone = true; monsterHit(hitEl, opts.damage, opts); heroGain(mEl); if (opts.onHit) { try { opts.onHit(); } catch (e) {} } } }, dur + 120);
         }
     }
 
@@ -559,12 +573,12 @@
                 update: function (p, dt) { p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 240 * dt; p.alpha = Math.min(1, p.life * 1.8); },
                 draw: drawDot });
         }
-        // 一个大 emoji 冲向怪物
+        // 一个大 emoji 冲向收获对象（知识归主角）
         var mEl = opts.monsterEl || document.getElementById('m3-mouth');
         var myGen = gen;
         setTimeout(function () {
             if (gen !== myGen) return;
-            playSwarm(opts.emoji || '⭐', { monsterEl: mEl, source: src, big: false, silent: true, damage: opts.damage, lang: opts.lang, onHit: opts.onHit, fxKey: opts.fxKey });
+            playSwarm(opts.emoji || '⭐', { monsterEl: opts.heroEl || mEl, hitEl: mEl, source: src, big: false, silent: true, damage: opts.damage, lang: opts.lang, onHit: opts.onHit, fxKey: opts.fxKey });
         }, 120);
         startLoop(1600);
     }
@@ -614,13 +628,14 @@
         v: 1,
         /** 解析词 → 特效描述（供测试） */
         resolve: resolve,
-        /** 词事件入口：完成单词时调用 */
+        /** 词事件入口：完成单词时调用。heroEl=知识收获对象（粒子飞向它），monsterEl=受击对象 */
         wordEvent: function (word, opts) {
             opts = opts || {};
             var spec;
             try { spec = resolve(word, opts.lang, opts.display); } catch (e) {}
             if (opts.forceSpec) spec = opts.forceSpec;
             var monsterEl = opts.monsterEl || document.getElementById('m3-mouth');
+            var flyEl = opts.heroEl || monsterEl;   // 知识归谁：粒子飞向谁（默认打怪物）
             var source = opts.source;
             if (!source && opts.cells) { try { source = rectOfCells(opts.cells); } catch (e) {} }
             if (!source) source = { x: window.innerWidth / 2, y: window.innerHeight / 2.6 };
@@ -628,12 +643,13 @@
                 playScene(spec.sc || 'magic', opts);
                 playSound(spec.s, opts.lang);
                 monsterHit(monsterEl, opts.damage, opts);
+                heroGain(flyEl);
                 if (opts.onHit) { try { opts.onHit(); } catch (e) {} }
                 return spec;
             }
             if (spec && spec.t === 'swarm' && spec.e) {
                 playSwarm(spec.e, {
-                    monsterEl: monsterEl, source: source, big: !!opts.big, damage: opts.damage,
+                    monsterEl: flyEl, hitEl: monsterEl, source: source, big: !!opts.big, damage: opts.damage,
                     lang: opts.lang, sound: spec.s, wave: spec.sc === 'wave', onHit: opts.onHit,
                     fxKey: spec.key
                 });
@@ -641,7 +657,7 @@
             }
             // burst 兜底
             playBurst({
-                emoji: (spec && spec.e) || '✨', fxKey: spec ? spec.key : null, monsterEl: monsterEl, source: source,
+                emoji: (spec && spec.e) || '✨', fxKey: spec ? spec.key : null, monsterEl: monsterEl, heroEl: flyEl, source: source,
                 damage: opts.damage, lang: opts.lang, onHit: opts.onHit
             });
             return spec || { t: 'burst' };

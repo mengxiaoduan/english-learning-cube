@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#1a1a2e">
     <link rel="manifest" href="manifest.webmanifest">
-    <script src="i18n.js?v=eng-tetris-v41"></script>
+    <script src="i18n.js?v=eng-tetris-v42"></script>
     <link rel="apple-touch-icon" href="icons/icon-192.png">
     <title>世界语言方块</title>
     <style>
@@ -734,20 +734,20 @@
         }
     </style>
     <!-- JSZip 仅 ZIP 关卡上传用：本地加载（cdnjs 外链在国内阻塞首屏可达数秒，已移除） -->
-    <script src="jszip.min.js?v=eng-tetris-v41"></script>
-    <script src="wordbank_daily.js?v=eng-tetris-v41"></script>
-    <script src="wordbank_cet4.js?v=eng-tetris-v41"></script>
-    <script src="wordbank_cet6.js?v=eng-tetris-v41"></script>
-    <script src="wordbank_phon.js?v=eng-tetris-v41"></script>
-    <script src="wordbank_zh.js?v=eng-tetris-v41"></script>
-    <script src="wordbank_ru.js?v=eng-tetris-v41"></script>
-    <script src="word_fx_data.js?v=eng-tetris-v41"></script>
-    <script src="word_fx.js?v=eng-tetris-v41"></script>
-    <script src="modes_extra.js?v=eng-tetris-v41"></script>
-    <script src="hero_system.js?v=eng-tetris-v41"></script>
-    <script src="meanings.js?v=eng-tetris-v41"></script>
+    <script src="jszip.min.js?v=eng-tetris-v42"></script>
+    <script src="wordbank_daily.js?v=eng-tetris-v42"></script>
+    <script src="wordbank_cet4.js?v=eng-tetris-v42"></script>
+    <script src="wordbank_cet6.js?v=eng-tetris-v42"></script>
+    <script src="wordbank_phon.js?v=eng-tetris-v42"></script>
+    <script src="wordbank_zh.js?v=eng-tetris-v42"></script>
+    <script src="wordbank_ru.js?v=eng-tetris-v42"></script>
+    <script src="word_fx_data.js?v=eng-tetris-v42"></script>
+    <script src="word_fx.js?v=eng-tetris-v42"></script>
+    <script src="modes_extra.js?v=eng-tetris-v42"></script>
+    <script src="hero_system.js?v=eng-tetris-v42"></script>
+    <script src="meanings.js?v=eng-tetris-v42"></script>
     <script src="hanzi-writer.min.js"></script>
-    <script src="hanzi_data.js?v=eng-tetris-v41"></script>
+    <script src="hanzi_data.js?v=eng-tetris-v42"></script>
 </head>
 <body>
     <div id="loadingScreen">
@@ -970,7 +970,7 @@
     </div>
 
     <!-- 扩展玩法通用视图容器（听力挑战 / 记忆配对 / 未来玩法 / DIY） -->
-    <div id="gameVerBadge" style="position:fixed;left:10px;bottom:8px;z-index:40;font-size:12px;color:rgba(255,255,255,.35);letter-spacing:1px;user-select:none;">v2.4.1</div>
+    <div id="gameVerBadge" style="position:fixed;left:10px;bottom:8px;z-index:40;font-size:12px;color:rgba(255,255,255,.35);letter-spacing:1px;user-select:none;">v2.4.2</div>
     <div id="extra-mode-view"></div>
 
     <!-- 写字学中文模式视图 -->
@@ -2336,7 +2336,7 @@
                     try { var __el = m3CellElements[b.cells[0].r] && m3CellElements[b.cells[0].r][b.cells[0].c]; if (__el) { var __r = __el.getBoundingClientRect(); __src = { x: __r.left + __r.width / 2, y: __r.top + __r.height / 2 }; } } catch (e) {}
                     WORD_FX.wordEvent(b.word, {
                         display: _dw(b.word), lang: selectedLanguage, big: true, damage: m3MonDmg,
-                        monsterEl: document.getElementById('m3-mouth'), source: __src
+                        monsterEl: document.getElementById('m3-mouth'), heroEl: document.getElementById('m3-pk-hero'), source: __src
                     });
                 } else {
                     m3ThrowIconAtMonster(_imgUrl(b.word) || info.img, b.cells);
@@ -2373,13 +2373,14 @@
             m3RestoreRows(1); // 怪物吐出 1 行幕布
         }
         function m3ThrowIconAtMonster(icon, cells) {
-            const mouthEl = document.getElementById('m3-mouth');
+            /* 知识图标飞向主角：拼出的知识归玩家（抢夺逻辑），不再砸进怪物嘴里 */
+            const mouthEl = document.getElementById('m3-pk-hero');
             if (!mouthEl) return;
             let cx = 0, cy = 0, n = 0;
             cells.forEach(c => { const el = m3CellElements[c.r] && m3CellElements[c.r][c.c]; if (!el || el.style.display === 'none') return; const rr = el.getBoundingClientRect(); cx += rr.left + rr.width / 2; cy += rr.top + rr.height / 2; n++; });
             if (n > 0) { cx /= n; cy /= n; }
             else {
-                // 兜底：从网格中心飞向怪物
+                // 兜底：从网格中心飞向主角
                 const g = m3Container.getBoundingClientRect();
                 cx = g.left + g.width / 2; cy = g.top + g.height / 2;
             }
@@ -2397,7 +2398,7 @@
                 div.style.opacity = '0.85';
             });
             setTimeout(() => {
-                if (mouthEl) { mouthEl.classList.add('chomp'); setTimeout(() => mouthEl.classList.remove('chomp'), 450); }
+                if (mouthEl) { mouthEl.classList.remove('wfx-hero-gain'); void mouthEl.offsetWidth; mouthEl.classList.add('wfx-hero-gain'); setTimeout(() => mouthEl.classList.remove('wfx-hero-gain'), 650); }
                 div.remove();
             }, 720);
         }
@@ -2443,7 +2444,7 @@
                         try { var __el2 = m3CellElements[allCells[0][0]] && m3CellElements[allCells[0][0]][allCells[0][1]]; if (__el2) { var __r2 = __el2.getBoundingClientRect(); __src2 = { x: __r2.left + __r2.width / 2, y: __r2.top + __r2.height / 2 }; } } catch (e) {}
                         WORD_FX.wordEvent(word, {
                             display: _dw(word), lang: selectedLanguage, big: false,
-                            monsterEl: document.getElementById('m3-mouth'), source: __src2
+                            monsterEl: document.getElementById('m3-mouth'), heroEl: document.getElementById('m3-pk-hero'), source: __src2
                         });
                     }
                 } catch (e) {}
@@ -2669,6 +2670,8 @@
             } else {
                 m3VS.hpMe = Math.max(0, m3VS.hpMe - dmg);
                 playSoundBomb(); m3ShakeGrid();
+                const opEl = document.getElementById('m3-mouth');   // 对手头像收获知识
+                if (opEl) { opEl.classList.remove('wfx-hero-gain'); void opEl.offsetWidth; opEl.classList.add('wfx-hero-gain'); setTimeout(() => opEl.classList.remove('wfx-hero-gain'), 650); }
                 showM3Toast('💥 ' + _htElc('对手拼出了', 'Foe spelled', 'Соперник собрал', "L'adversaire a épelle") + ' ' + _dw(word) + _htElc('！你 -', '! You -', '! Ты −', ' ! Vous −') + dmg);
             }
             m3VSUpdateUI();
@@ -5360,7 +5363,7 @@
     </script>
     <script>
     (function () {
-        var GAME_VER = '2.4.1';
+        var GAME_VER = '2.4.2';
         try {
             var badge = document.getElementById('gameVerBadge');
             if (badge) badge.textContent = '世界语言方块 v' + GAME_VER;

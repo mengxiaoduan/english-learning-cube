@@ -54,9 +54,11 @@
         earnCoin: { zh: '金币 +', en: 'Coins +', ru: 'Монеты +', fr: 'Pièces +' },
         shopSub: { zh: '拼对目标语言单词即可下单，家具带回家摆进小屋', en: 'Spell a word to buy decorations', ru: 'Напиши слово и купи декор', fr: 'Épellez pour acheter' },
         roomSub: { zh: '你的专属空间：摆家具 · 养宠物 · 打扮主角', en: 'Your space: decorate & dress up', ru: 'Твоё пространство', fr: 'Votre espace' },
-        langBuddy: { zh: '选好想学的语言，我陪你一起学！', en: "Pick a language — let's learn together!", ru: 'Выбери язык — учимся вместе!', fr: 'Choisis une langue — apprenons ensemble !' },
+        langBuddy: { zh: '选好语言，我们一起学！', en: "Pick a language — let's learn!", ru: 'Выбери язык — учимся!', fr: 'Choisis — apprenons !' },
+        roomShort: { zh: '小屋', en: 'Room', ru:'Домик', fr: 'Chez' },
+        notEnough: { zh: '💰 金币不够，先去答题赚金币吧！', en: '💰 Not enough coins — play to earn more!', ru: '💰 Не хватает монет — играй!', fr: '💰 Pas assez de pièces — jouez !' },
         soloBtn: { zh: '单人游戏 · 赚金币', en: 'Single Player · Earn coins', ru: 'Одиночная игра · Монеты', fr: 'Solo · Gagner des pièces' },
-        vsBtn: { zh: '对战游戏 · 赌金币', en: 'Versus · Bet coins', ru: 'Дуэль · Ставка', fr: 'Duel · Miser' },
+        vsBtn: { zh: '对战游戏 · 赢金币', en: 'Versus · Win coins', ru: 'Дуэль · Монеты', fr: 'Duel · Pièces' },
         vsTitle: { zh: '对战游戏', en: 'Versus', ru: 'Дуэль', fr: 'Duel' },
         vsSub: { zh: '共用同一组目标单词，谁先拼出谁攻击（每词 10 血，血量 100，奖励词 5 血）', en: 'Same target words — first to spell attacks (10 dmg, 100 HP)', ru: 'Общие слова — кто первый соберёт, тот бьёт (10 урона, 100 HP)', fr: 'Mêmes mots — le premier à épeler attaque (10 dégâts, 100 PV)' },
         vsName: { zh: '昵称', en: 'Name', ru: 'Имя', fr: 'Pseudo' },
@@ -106,7 +108,7 @@
     var SHOP_ITEMS = [
         { id: 'bed', e: '🛏️', cat: 'floor', p: 60, w: { en: 'bed', ru: 'кровать', zh: 'chuang' }, hw: '床', n: { zh: '小床', en: 'Cozy Bed', ru: 'Кровать', fr: 'Lit' } },
         { id: 'sofa', e: '🛋️', cat: 'floor', p: 80, w: { en: 'sofa', ru: 'divan', zh: 'shafa' }, hw: '沙发', n: { zh: '沙发', en: 'Sofa', ru: 'Диван', fr: 'Canapé' } },
-        { id: 'desk', e: '🪑', cat: 'floor', p: 50, w: { en: 'desk', ru: 'parta', zh: 'zhuo' }, hw: '桌', n: { zh: '书桌椅', en: 'Desk & Chair', ru: 'Парта', fr: 'Bureau' } },
+        { id: 'desk', e: '🪑', cat: 'floor', p: 50, w: { en: 'chair', ru: 'stul', zh: 'yizi' }, hw: '椅子', n: { zh: '书桌椅', en: 'Desk & Chair', ru: 'Парта', fr: 'Bureau' } },
         { id: 'tv', e: '📺', cat: 'floor', p: 90, w: { en: 'tv', ru: 'televisor', zh: 'dianshi' }, hw: '电视', n: { zh: '电视机', en: 'TV', ru: 'Телевизор', fr: 'Télévision' } },
         { id: 'piano', e: '🎹', cat: 'floor', p: 160, w: { en: 'piano', ru: 'piano', zh: 'gangqin' }, hw: '钢琴', n: { zh: '钢琴', en: 'Piano', ru: 'Пианино', fr: 'Piano' } },
         { id: 'shelf', e: '📚', cat: 'floor', p: 75, w: { en: 'shelf', ru: 'polka', zh: 'shujia' }, hw: '书架', n: { zh: '大书架', en: 'Bookshelf', ru: 'Полка книг', fr: 'Bibliothèque' } },
@@ -208,7 +210,7 @@
                 '<div id="heroHubCoinsWrap" title="' + ht('hubTapCoins') + '">' + COIN_SVG + ' <b id="heroHubCoins">' + getCoins() + '</b></div>' +
             '</div>' +
             '<button class="hh-btn" id="heroHubShop">🛍️ ' + ht('shop') + '</button>' +
-            '<button class="hh-btn" id="heroHubRoom">🏠 ' + ht('room') + '</button>';
+            '<button class="hh-btn" id="heroHubRoom" title="' + ht('room') + '">🏠 ' + ht('roomShort') + '</button>';
         var h1 = screen.querySelector('h1');
         screen.insertBefore(hub, h1 ? h1.nextSibling : screen.firstChild);
         document.getElementById('heroHubAvatar').addEventListener('click', function () { click(); openRoom(); });
@@ -343,7 +345,7 @@
             '<div class="hsd-quiz">' + ht('buyTitle') + '</div>' +
             '<div class="hsd-quiz-box" id="hsdQuizBox"></div>' +
             '<div class="hsd-actions">' +
-                '<button class="hh-btn big ok" id="hsdBuy">' + ht('confirmBuy') + '</button>' +
+                '<button class="hh-btn big ok" id="hsdBuy"' + (getCoins() < it.p ? ' disabled' : '') + '>' + ht('confirmBuy') + '</button>' +
                 '<button class="hh-btn" id="hsdNewWord">' + ht('hintFirst') + '</button>' +
             '</div>';
         wireClose('hsdX2');
@@ -375,15 +377,18 @@
         var box = document.getElementById('hsdQuizBox'); if (!box) return;
         var w = itemChallenge(it);
         box._word = w; box._item = it;
+        var poor = getCoins() < it.p;   /* 余额不足：输入框灰掉，拼对也不给买 */
         var lenHint = w.isZh ? ((w.display || w.word).length + ht('wordHintZh')) : (String(w.word).length + ht('wordHint'));
         box.innerHTML =
             '<div class="hsd-hint"><span style="font-size:52px;line-height:1;">' + w.emoji + '</span></div>' +
             '<div class="hsd-mean">' + ht('quizItem') + '<b>' + w.mean + '</b>' + ht('quizItemEnd') + '</div>' +
-            '<div class="hsd-len" style="margin:-4px 0 2px;">' + lenHint + '</div>' +
-            '<input id="hsdInput" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="?">';
-        var input = document.getElementById('hsdInput');
-        input.focus();
-        input.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') tryBuy(it); });
+            (poor ? '<div class="hsd-poor">' + ht('notEnough') + '</div>' : '<div class="hsd-len" style="margin:-4px 0 2px;">' + lenHint + '</div>') +
+            '<input id="hsdInput" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="?"' + (poor ? ' disabled' : '') + '>';
+        if (!poor) {
+            var input = document.getElementById('hsdInput');
+            input.focus();
+            input.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') tryBuy(it); });
+        }
     }
     function tryBuy(it) {
         var box = document.getElementById('hsdQuizBox');
@@ -788,6 +793,9 @@
         + '#hsdInput{width:min(100%,280px);text-align:center;font-size:1.25rem;font-weight:900;letter-spacing:2px;padding:9px;border-radius:10px;border:2px solid rgba(241,196,15,.6);background:rgba(0,0,0,.5);color:#fff;outline:none;box-sizing:border-box;}'
         + '#hsdInput:focus{border-color:#f1c40f;box-shadow:0 0 10px rgba(241,196,15,.4);}'
         + '#hsdInput.shake{animation:hhShake .35s;} @keyframes hhShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}'
+        + '#hsdInput:disabled{opacity:.45;border-color:rgba(255,255,255,.15);background:rgba(0,0,0,.3);cursor:not-allowed;}'
+        + '.hh-btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none;}'
+        + '.hsd-poor{color:#ff9a9a;font-weight:900;font-size:.85rem;background:rgba(255,71,87,.12);border:1px solid rgba(255,71,87,.35);border-radius:10px;padding:6px 10px;}'
         + '.hsd-actions{display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap;}'
         /* 小屋场景 */
         + '.hr-scene{position:relative;width:100%;aspect-ratio:4/3;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.2);background:linear-gradient(to bottom,#2b3a67 0%,#3c5a99 40%,#5a4632 62%,#7a5c3e 100%);}'
@@ -803,7 +811,14 @@
         + '#heroLangBuddy{display:flex;align-items:center;justify-content:center;gap:8px;margin:0 0 8px;flex-wrap:wrap;}'
         + '.hlb-av{width:46px;height:46px;border-radius:50%;border:2px solid rgba(241,196,15,.7);background:rgba(0,0,0,.35);font-size:24px;display:flex;align-items:center;justify-content:center;overflow:hidden;}'
         + '.hlb-av img{max-width:38px;max-height:38px;border-radius:50%;} '
-        + '.hlb-bubble{background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:.85rem;font-weight:700;border-radius:14px;padding:6px 12px;max-width:min(60vw,300px);}'
+        + '.hlb-bubble{background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:.85rem;font-weight:700;border-radius:14px;padding:6px 12px;max-width:min(60vw,300px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}'
+        + '@media (max-width:520px){'
+        + '  #heroHub{gap:6px;}'
+        + '  #heroHubAvatar{width:42px;height:42px;font-size:21px;border-radius:11px;}'
+        + '  #heroHubAvatar img{max-width:32px;max-height:32px;}'
+        + '  #heroHubInfo{padding:3px 9px;font-size:.85rem;}'
+        + '  #heroHub .hh-btn{padding:5px 10px;font-size:.78rem;border-radius:15px;}'
+        + '}'
         /* 对战场大厅 */
         + '#heroBattle,#heroMatch{position:fixed;inset:0;background:rgba(8,8,18,.96);z-index:4600;display:flex;align-items:center;justify-content:center;padding:12px;box-sizing:border-box;backdrop-filter:blur(6px);}'
         + '.hb-row{display:flex;align-items:center;gap:10px;margin:8px 0;flex-wrap:wrap;}'

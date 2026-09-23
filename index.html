@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#1a1a2e">
     <link rel="manifest" href="manifest.webmanifest">
-    <script src="i18n.js?v=eng-tetris-v50"></script>
+    <script src="i18n.js?v=eng-tetris-v51"></script>
     <link rel="apple-touch-icon" href="icons/icon-192.png">
     <link rel="icon" type="image/png" href="icons/icon-192.png">
     <title>世界语言方块</title>
@@ -737,20 +737,20 @@
         }
     </style>
     <!-- JSZip 仅 ZIP 关卡上传用：本地加载（cdnjs 外链在国内阻塞首屏可达数秒，已移除） -->
-    <script src="jszip.min.js?v=eng-tetris-v50"></script>
-    <script src="wordbank_daily.js?v=eng-tetris-v50"></script>
-    <script src="wordbank_cet4.js?v=eng-tetris-v50"></script>
-    <script src="wordbank_cet6.js?v=eng-tetris-v50"></script>
-    <script src="wordbank_phon.js?v=eng-tetris-v50"></script>
-    <script src="wordbank_zh.js?v=eng-tetris-v50"></script>
-    <script src="wordbank_ru.js?v=eng-tetris-v50"></script>
-    <script src="word_fx_data.js?v=eng-tetris-v50"></script>
-    <script src="word_fx.js?v=eng-tetris-v50"></script>
-    <script src="modes_extra.js?v=eng-tetris-v50"></script>
-    <script src="hero_system.js?v=eng-tetris-v50"></script>
-    <script src="meanings.js?v=eng-tetris-v50"></script>
+    <script src="jszip.min.js?v=eng-tetris-v51"></script>
+    <script src="wordbank_daily.js?v=eng-tetris-v51"></script>
+    <script src="wordbank_cet4.js?v=eng-tetris-v51"></script>
+    <script src="wordbank_cet6.js?v=eng-tetris-v51"></script>
+    <script src="wordbank_phon.js?v=eng-tetris-v51"></script>
+    <script src="wordbank_zh.js?v=eng-tetris-v51"></script>
+    <script src="wordbank_ru.js?v=eng-tetris-v51"></script>
+    <script src="word_fx_data.js?v=eng-tetris-v51"></script>
+    <script src="word_fx.js?v=eng-tetris-v51"></script>
+    <script src="modes_extra.js?v=eng-tetris-v51"></script>
+    <script src="hero_system.js?v=eng-tetris-v51"></script>
+    <script src="meanings.js?v=eng-tetris-v51"></script>
     <script src="hanzi-writer.min.js"></script>
-    <script src="hanzi_data.js?v=eng-tetris-v50"></script>
+    <script src="hanzi_data.js?v=eng-tetris-v51"></script>
 </head>
 <body>
     <div id="loadingScreen">
@@ -975,7 +975,7 @@
     </div>
 
     <!-- 扩展玩法通用视图容器（听力挑战 / 记忆配对 / 未来玩法 / DIY） -->
-    <div id="gameVerBadge" style="position:fixed;left:10px;bottom:8px;z-index:40;font-size:12px;color:rgba(255,255,255,.35);letter-spacing:1px;user-select:none;">v2.6.1</div>
+    <div id="gameVerBadge" style="position:fixed;left:10px;bottom:8px;z-index:40;font-size:12px;color:rgba(255,255,255,.35);letter-spacing:1px;user-select:none;">v2.7.0</div>
     <div id="extra-mode-view"></div>
 
     <!-- 写字学中文模式视图 -->
@@ -1205,14 +1205,25 @@
         const _isZhLearn = () => (selectedLanguage === 'zh');
         const _dw = (word) => ((_isZhLearn() && window.ZH_DISPLAY && window.ZH_DISPLAY[word]) ? window.ZH_DISPLAY[word] : word);
         /* 词义图片：有素材库图返回 <img>，否则回退词库 emoji/📝 */
+        /* 用户上传图（自定义/共享关卡的 blob/data URL，gif 原样动图播放）优先于内置词图 */
+        const _userImgOf = (word) => {
+            try {
+                const info = (typeof m3WordMap !== 'undefined') && m3WordMap[word];
+                const u = info && info.img;
+                return (typeof u === 'string' && /^(blob:|data:|https?:)/.test(u)) ? u : null;
+            } catch (e) { return null; }
+        };
         const _imgHtml = (word, fallbackEmoji, style) => {
             try {
+                const uu = _userImgOf(word);
+                if (uu) return '<img src="' + uu + '" alt="" style="' + (style || 'width:110px;height:110px;object-fit:contain;') + '">';
                 const u = (window.WORD_FX && WORD_FX.imgFor) ? WORD_FX.imgFor(word, selectedLanguage, _dw(word)) : null;
                 if (u) return '<img src="' + u + '" alt="" style="' + (style || 'width:110px;height:110px;object-fit:contain;') + '">';
             } catch (e) {}
             return fallbackEmoji || '📝';
         };
         const _imgUrl = (word) => {
+            try { const uu = _userImgOf(word); if (uu) return uu; } catch (e) {}
             try { return (window.WORD_FX && WORD_FX.imgFor) ? WORD_FX.imgFor(word, selectedLanguage, _dw(word)) : null; } catch (e) { return null; }
         };
         try { if (window.WORD_FX && WORD_FX.preload) setTimeout(() => { try { WORD_FX.preload(); } catch (e) {} }, 2500); } catch (e) {}
@@ -1731,7 +1742,7 @@
         function handleCustomStart(isRandom) { playSoundClick(); const input = DOM.customWordInput.value; const customDict = parseCustomWords(input); const modal = DOM.customLoadingModal; const loadText = DOM.customLoadText; const loadBar = DOM.customLoadBar; const stopBtn = DOM.btnStopCustomLoad; if (Object.keys(customDict).length === 0) { loadText.innerText = _t('errFormat'); loadText.style.color = '#e94560'; loadBar.style.width = '100%'; modal.style.display = 'flex'; setTimeout(() => { modal.style.display = 'none'; loadText.innerText = _t('loadingBank'); loadText.style.color = 'white'; loadBar.style.width = '0%'; }, 2000); return; } DOM.customSelectScreen.classList.add('hidden'); modal.style.display = 'flex'; loadText.innerText = _t('loadingBank'); loadText.style.color = 'white'; loadBar.style.width = '0%'; let progress = 0; const loadInterval = setInterval(() => { progress += 5; loadBar.style.width = progress + '%'; if (progress >= 100) { clearInterval(loadInterval); loadText.innerText = _t('loadDone'); setTimeout(() => { modal.style.display = 'none'; setupCustomDifficulty(customDict, isRandom); startGame(); }, 500); } }, 50); stopBtn.onclick = () => { playSoundClick(); clearInterval(loadInterval); modal.style.display = 'none'; loadBar.style.width = '0%'; DOM.customSelectScreen.classList.remove('hidden'); }; }
         document.getElementById('btnStartCustomOrder').addEventListener('click', () => handleCustomStart(false));
         document.getElementById('btnStartCustomRandom').addEventListener('click', () => handleCustomStart(true));
-        document.getElementById('btnStartCustomFill').addEventListener('click', () => {
+        document.getElementById('btnStartCustomFill').addEventListener('click', () => { window.__m3FromCustom = true;
             playSoundClick();
             const customDict = parseCustomWords(DOM.customWordInput.value);
             if (Object.keys(customDict).length === 0) { alert(_t('errEmpty')); return; }
@@ -2339,9 +2350,11 @@
                 if (window.WORD_FX && window.WORD_FX_DATA) {
                     var __src = null;
                     try { var __el = m3CellElements[b.cells[0].r] && m3CellElements[b.cells[0].r][b.cells[0].c]; if (__el) { var __r = __el.getBoundingClientRect(); __src = { x: __r.left + __r.width / 2, y: __r.top + __r.height / 2 }; } } catch (e) {}
+                    const _uImg = m3WordMap[b.word] && m3WordMap[b.word].img;
                     WORD_FX.wordEvent(b.word, {
                         display: _dw(b.word), lang: selectedLanguage, big: true, damage: m3MonDmg,
-                        monsterEl: document.getElementById('m3-mouth'), source: __src
+                        monsterEl: document.getElementById('m3-mouth'), source: __src,
+                        imgUrl: (typeof _uImg === 'string' && /^(blob:|data:|https?:)/.test(_uImg)) ? _uImg : null
                     });
                 } else {
                     m3ThrowIconAtMonster(_imgUrl(b.word) || info.img, b.cells);
@@ -2451,9 +2464,11 @@
                     if (window.WORD_FX && window.WORD_FX_DATA) {
                         var __src2 = null;
                         try { var __el2 = m3CellElements[allCells[0][0]] && m3CellElements[allCells[0][0]][allCells[0][1]]; if (__el2) { var __r2 = __el2.getBoundingClientRect(); __src2 = { x: __r2.left + __r2.width / 2, y: __r2.top + __r2.height / 2 }; } } catch (e) {}
+                        const _uImg2 = m3WordMap[word] && m3WordMap[word].img;
                         WORD_FX.wordEvent(word, {
                             display: _dw(word), lang: selectedLanguage, big: false,
-                            monsterEl: document.getElementById('m3-mouth'), source: __src2
+                            monsterEl: document.getElementById('m3-mouth'), source: __src2,
+                            imgUrl: (typeof _uImg2 === 'string' && /^(blob:|data:|https?:)/.test(_uImg2)) ? _uImg2 : null
                         });
                     }
                 } catch (e) {}
@@ -3746,6 +3761,18 @@
             m3CleanupTransientFx();
             if (m3VS.on && !m3VS.over) { try { m3VSSend({ type: 'bye' }); } catch (e) {} }
             m3VSTeardown();
+            /* 自定义/共享关卡对局：返回上传关卡界面（继续管理/再玩），而非模式选择 */
+            if (!m3LevelMode && !m3FillPackKey && window.__m3FromCustom) {
+                window.__m3FromCustom = false;
+                document.getElementById('match3-view').style.display = 'none';
+                if (DOM.gameWrapper) DOM.gameWrapper.style.display = 'flex';
+                if (DOM.btnPauseIcon) DOM.btnPauseIcon.style.display = 'none';
+                DOM.overlay.style.display = 'none';
+                const ulm = document.getElementById('uploadLevelModal');
+                if (ulm) ulm.style.display = 'flex';
+                state = 'ready'; startBgMusic();
+                return;
+            }
             const ba = document.getElementById('battle-area'); if (ba) ba.style.display = 'none'; 
             if (m3ResultEl) m3ResultEl.style.display = 'none'; 
             document.getElementById('match3-view').style.display = 'none'; 
@@ -4222,6 +4249,7 @@
             return custom;
         }
         function startUploadedFill() {
+            window.__m3FromCustom = true;
             m3FillPackKey = null;
             m3PlayLevels = m3Levels;
             document.getElementById('uploadModeModal').style.display = 'none';
@@ -5429,6 +5457,7 @@
             attachVsNet: (conn, dict, vsCfg) => { try { m3LaunchVS(dict, Object.assign({ mode: 'net', net: conn }, vsCfg || {})); } catch (e) {} },
             startFillDict: (dict) => {
                 try {
+                    window.__m3FromCustom = true;
                     m3FillPackKey = null; m3LevelMode = false;
                     ['uploadLevelModal', 'uploadModeModal', 'levelSelectModal'].forEach(id => { const m = document.getElementById(id); if (m) m.style.display = 'none'; });
                     DOM.customSelectScreen.classList.add('hidden'); DOM.overlay.style.display = 'none';
@@ -5519,7 +5548,7 @@
     </script>
     <script>
     (function () {
-        var GAME_VER = '2.6.1';
+        var GAME_VER = '2.7.0';
         try {
             var badge = document.getElementById('gameVerBadge');
             if (badge) badge.textContent = '世界语言方块 v' + GAME_VER;

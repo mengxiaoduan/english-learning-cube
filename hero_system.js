@@ -781,6 +781,44 @@
     /* ================= 🌐 关卡共享：分享码（生成 / 复制 / 导入 / 游玩） =================
        异步社区方案：玩家生成"分享码"发到群/好友 → 对方在"他人共享的关卡"粘贴导入。
        图片自动压缩至 96px JPEG 内嵌；音频体积过大不随码传输。 */
+    /* 共享库双层存储：localStorage（小包）+ IndexedDB（GIF 等大包，配额大） */
+    var IDB_DB = null;
+    function idb() {
+        return new Promise(function (res) {
+            if (IDB_DB !== null) { res(IDB_DB); return; }
+            try {
+                var rq = indexedDB.open('elc_shared', 1);
+                rq.onupgradeneeded = function () { rq.result.createObjectStore('lib'); };
+                rq.onsuccess = function () { IDB_DB = rq.result; res(IDB_DB); };
+                rq.onerror = function () { IDB_DB = false; res(false); };
+            } catch (e) { IDB_DB = false; res(false); }
+        });
+    }
+    function idbSaveLib(list) {
+        return idb().then(function (db) {
+            if (!db) return false;
+            return new Promise(function (res) {
+                try {
+                    var tx = db.transaction('lib', 'readwrite');
+                    tx.objectStore('lib').put(list, 'lib');
+                    tx.oncomplete = function () { res(true); };
+                    tx.onerror = function () { res(false); };
+                } catch (e) { res(false); }
+            });
+        });
+    }
+    function idbLoadLib() {
+        return idb().then(function (db) {
+            if (!db) return null;
+            return new Promise(function (res) {
+                try {
+                    var rq = db.transaction('lib').objectStore('lib').get('lib');
+                    rq.onsuccess = function () { res(rq.result || null); };
+                    rq.onerror = function () { res(null); };
+                } catch (e) { res(null); }
+            });
+        });
+    }
     function getSharedIn() { try { return JSON.parse(lsGet('elc_shared_in', '[]')); } catch (e) { return []; } }
     function setSharedIn(a) { try { lsSet('elc_shared_in', JSON.stringify(a.slice(0, 60))); } catch (e) { toast('storage full'); } }
     /* 压缩内嵌：128px JPEG（图片是共享关卡的核心价值，保留可辨识清晰度）；
@@ -943,11 +981,28 @@
             renderLibList();
         });
         renderLibList();
+        /* 合并 IndexedDB 中的大包（GIF 等超 localStorage 预算的关卡） */
+        idbLoadLib().then(function (big) {
+            if (!big || !big.length) return;
+            var cur = getSharedIn();
+            var have = {}; cur.forEach(function (x) { have[x.id] = 1; });
+            var changed = false;
+            big = big.filter(function (lv) { if (!have[lv.id]) { cur.push(lv); changed = true; return true; } return false; });
+            if (changed) {
+                window.__snBigLib = (window.__snBigLib || []).concat(big);
+                idbSaveLib(window.__snBigLib);
+                if (document.getElementById('heroSharedLib')) renderLibList();
+            } else if (!window.__snBigLib) {
+                window.__snBigLib = big;
+                if (document.getElementById('heroSharedLib')) renderLibList();
+            }
+        });
     }
     function closeLib() { var el = document.getElementById('heroSharedLib'); if (el) el.remove(); stopBrowse(); }
     function renderLibList() {
         var host = document.getElementById('hsLibList'); if (!host) return;
-        var list = getSharedIn();
+        var list = getSharedIn().slice();
+        (window.__snBigLib || []).forEach(function (lv) { list.push(lv); });   /* IndexedDB 大包 */
         if (!list.length) { host.innerHTML = '<div class="hs-sub">' + ht('libEmpty') + '</div>'; return; }
         var html = '';
         list.forEach(function (lvl, i) {
@@ -964,7 +1019,7 @@
         host.querySelectorAll('[data-play]').forEach(function (b) {
             b.addEventListener('click', function () {
                 click();
-                var lvl = getSharedIn()[parseInt(b.dataset.play, 10)];
+                var lvl = list[parseInt(b.dataset.play, 10)];
                 if (!lvl) return;
                 closeLib();
                 var dict = {};
@@ -973,14 +1028,15 @@
             });
         });
         host.querySelectorAll('[data-share]').forEach(function (b) {
-            b.addEventListener('click', function () { click(); var lvl = getSharedIn()[parseInt(b.dataset.share, 10)]; if (lvl) { closeLib(); openShareLevel(lvl, true); } });
+            b.addEventListener('click', function () { click(); var lvl = list[parseInt(b.dataset.share, 10)]; if (lvl) { closeLib(); openShareLevel(lvl, true); } });
         });
         host.querySelectorAll('[data-del]').forEach(function (b) {
             b.addEventListener('click', function () {
                 click();
-                var list2 = getSharedIn();
-                list2.splice(parseInt(b.dataset.del, 10), 1);
-                setSharedIn(list2);
+                var idx = parseInt(b.dataset.del, 10);
+                var lsCount = getSharedIn().length;
+                if (idx < lsCount) { var l2 = getSharedIn(); l2.splice(idx, 1); setSharedIn(l2); }
+                else if (window.__snBigLib) { window.__snBigLib.splice(idx - lsCount, 1); idbSaveLib(window.__snBigLib); }
                 renderLibList();
             });
         });
@@ -1135,7 +1191,9 @@
             var au = (w.audio && /^(blob:|data:)/.test(String(w.audio))) ? String(w.audio) : null;
             if (img && img.length <= 4 && !/^(blob:|data:|https?:)/.test(img)) { out.push([w.word, mean, img, null]); nx(); return; }   /* emoji 词图直推，不走 fetch */
             urlToData(img, function (imgData) {
-                /* 在线包保真但控体积：>500KB 的原图降到 480px（动图取首帧） */
+                /* GIF 原版直传（动图是抽象词义的核心表达，重编码会丢动画）；
+                   其余 >500KB 原图降到 480px */
+                if (imgData && imgData.indexOf('data:image/gif') === 0) { pushW(imgData); return; }
                 if (imgData && imgData.length > 500000) {
                     shrinkImgTo(imgData, 480, 0.8, function (sm) { pushW(sm); });
                     return;
@@ -1259,16 +1317,23 @@
             dict[w] = { mean: String(row[1] || '').slice(0, 60), img: img || '📝', audio: au, single: w.length === 1 };
         });
         if (Object.keys(dict).length < 3) { toast(ht('importBad')); return; }
-        var list = getSharedIn();
         var lvl = { id: 'p' + Date.now(), name: String(pack.name || 'Shared').slice(0, 30), dict: dict, at: Date.now() };
-        list.unshift(lvl);
-        var json = JSON.stringify(list);
-        if (json.length > 2600000) {
-            list.shift();
-            toast(ht('snStorage'));
-        } else {
-            toast(ht('importOk'));
+        if (JSON.stringify(lvl).length > 2600000) {
+            /* 大包（GIF 等）→ IndexedDB（配额数百MB） */
+            idbLoadLib().then(function (big) {
+                big = big || [];
+                big.unshift(lvl);
+                idbSaveLib(big).then(function (ok) {
+                    window.__snBigLib = big;
+                    toast(ok ? ht('importOk') : ht('snStorage'));
+                    renderLibList();
+                });
+            });
+            return;
         }
+        var list = getSharedIn();
+        list.unshift(lvl);
+        toast(ht('importOk'));
         setSharedIn(list);
         renderLibList();
     }

@@ -184,6 +184,17 @@
         return null;
     }
     function drawKeyImgOrEmoji(p, ctx2) {
+        if (p.imgUrl && p.imgEl) {   /* 自定义词图（用户上传，含gif首帧） */
+            if (!p.imgEl.complete || !p.imgEl.naturalWidth) { drawEmoji(p, ctx2); return; }
+            ctx2.save();
+            ctx2.globalAlpha = Math.max(0, Math.min(1, p.alpha == null ? 1 : p.alpha));
+            ctx2.translate(p.x, p.y);
+            if (p.rot) ctx2.rotate(p.rot);
+            var ss = p.size * 1.35;
+            ctx2.drawImage(p.imgEl, -ss / 2, -ss / 2, ss, ss);
+            ctx2.restore();
+            return;
+        }
         var im = imgCache[p.fxKey];
         if (im) {
             ctx2.save();
@@ -517,11 +528,16 @@
                     if (gen !== myGen) return;   /* 会话已被 stopAll 终止：不再启动粒子 */
                     var startX = sx, startY = sy;
                     var fxKey = opts.fxKey || null;
+                    var imgEl = null;
+                    if (opts.imgUrl) {   /* 自定义词图：预载 Image（gif 会自动播首帧动画序列） */
+                        imgEl = new Image();
+                        imgEl.src = opts.imgUrl;
+                    }
                     if (fxKey) loadKeyImg(fxKey);
                     var ctrlX = (sx + dst.x) / 2 + rnd(-120, 120);
                     var ctrlY = Math.min(sy, dst.y) - rnd(60, 200);
                     var born = Date.now();
-                    spawn({ kind: 'swarm', emoji: emoji, fxKey: fxKey, size: rnd(20, opts.big ? 40 : 32), life: flyMs / 1000 + 0.05, alpha: 1, rot: 0, rotv: rnd(-4, 4), ph: rnd(0, 6.28), wave: !!opts.wave,
+                    spawn({ kind: 'swarm', emoji: emoji, fxKey: fxKey, imgUrl: opts.imgUrl || null, imgEl: imgEl, size: rnd(20, opts.big ? 40 : 32), life: flyMs / 1000 + 0.05, alpha: 1, rot: 0, rotv: rnd(-4, 4), ph: rnd(0, 6.28), wave: !!opts.wave,
                         update: function (p, dt) {
                             /* 实时追踪怪物：页面滚动/布局变化后依然命中，不做一次性快照 */
                             if (mEl) { try { var rr = mEl.getBoundingClientRect(); if (rr.width > 0) { dst.x = rr.left + rr.width / 2; dst.y = rr.top + rr.height / 2; } } catch (e) {} }
@@ -545,7 +561,7 @@
                                 for (var s = 0; s < 4; s++) spawn({ kind: 'imp', x: dst.x + rnd(-14, 14), y: dst.y + rnd(-14, 14), size: rnd(1.5, 3.4), color: pick(['#ffd04c', '#ffffff', '#ff8c42']), vx: rnd(-90, 90), vy: rnd(-110, -20), life: rnd(0.25, 0.5), alpha: 1, update: function (pp, dt2) { pp.x += pp.vx * dt2; pp.y += pp.vy * dt2; pp.vy += 340 * dt2; pp.alpha = pp.life * 2.4; }, draw: drawDot });
                             }
                         },
-                        draw: fxKey ? drawKeyImgOrEmoji : drawEmoji });
+                        draw: (fxKey || imgEl) ? drawKeyImgOrEmoji : drawEmoji });
                     startLoop((flyMs + delay) / 1000 * 1000 + 700);
                 }, delay);
             })(i);
@@ -578,7 +594,7 @@
         var myGen = gen;
         setTimeout(function () {
             if (gen !== myGen) return;
-            playSwarm(opts.emoji || '⭐', { monsterEl: opts.heroEl || mEl, hitEl: mEl, source: src, big: false, silent: true, damage: opts.damage, lang: opts.lang, onHit: opts.onHit, fxKey: opts.fxKey });
+            playSwarm(opts.emoji || '⭐', { monsterEl: opts.heroEl || mEl, hitEl: mEl, source: src, big: false, silent: true, damage: opts.damage, lang: opts.lang, onHit: opts.onHit, fxKey: opts.fxKey, imgUrl: opts.imgUrl || null });
         }, 120);
         startLoop(1600);
     }
@@ -647,18 +663,19 @@
                 if (opts.onHit) { try { opts.onHit(); } catch (e) {} }
                 return spec;
             }
-            if (spec && spec.t === 'swarm' && spec.e) {
-                playSwarm(spec.e, {
+            if ((spec && spec.t === 'swarm' && spec.e) || opts.imgUrl) {
+                playSwarm((spec && spec.e) || '⭐', {
                     monsterEl: flyEl, hitEl: monsterEl, source: source, big: !!opts.big, damage: opts.damage,
-                    lang: opts.lang, sound: spec.s, wave: spec.sc === 'wave', onHit: opts.onHit,
-                    fxKey: spec.key
+                    lang: opts.lang, sound: spec && spec.s, wave: spec && spec.sc === 'wave', onHit: opts.onHit,
+                    fxKey: spec ? spec.key : null,
+                    imgUrl: opts.imgUrl || null
                 });
                 return spec;
             }
             // burst 兜底
             playBurst({
-                emoji: (spec && spec.e) || '✨', fxKey: spec ? spec.key : null, monsterEl: monsterEl, heroEl: flyEl, source: source,
-                damage: opts.damage, lang: opts.lang, onHit: opts.onHit
+                emoji: opts.imgUrl ? null : ((spec && spec.e) || '✨'), fxKey: spec ? spec.key : null, monsterEl: monsterEl, heroEl: flyEl, source: source,
+                damage: opts.damage, lang: opts.lang, onHit: opts.onHit, imgUrl: opts.imgUrl || null
             });
             return spec || { t: 'burst' };
         },

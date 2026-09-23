@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#1a1a2e">
     <link rel="manifest" href="manifest.webmanifest">
-    <script src="i18n.js?v=eng-tetris-v44"></script>
+    <script src="i18n.js?v=eng-tetris-v45"></script>
     <link rel="apple-touch-icon" href="icons/icon-192.png">
     <link rel="icon" type="image/png" href="icons/icon-192.png">
     <title>世界语言方块</title>
@@ -736,20 +736,20 @@
         }
     </style>
     <!-- JSZip 仅 ZIP 关卡上传用：本地加载（cdnjs 外链在国内阻塞首屏可达数秒，已移除） -->
-    <script src="jszip.min.js?v=eng-tetris-v44"></script>
-    <script src="wordbank_daily.js?v=eng-tetris-v44"></script>
-    <script src="wordbank_cet4.js?v=eng-tetris-v44"></script>
-    <script src="wordbank_cet6.js?v=eng-tetris-v44"></script>
-    <script src="wordbank_phon.js?v=eng-tetris-v44"></script>
-    <script src="wordbank_zh.js?v=eng-tetris-v44"></script>
-    <script src="wordbank_ru.js?v=eng-tetris-v44"></script>
-    <script src="word_fx_data.js?v=eng-tetris-v44"></script>
-    <script src="word_fx.js?v=eng-tetris-v44"></script>
-    <script src="modes_extra.js?v=eng-tetris-v44"></script>
-    <script src="hero_system.js?v=eng-tetris-v44"></script>
-    <script src="meanings.js?v=eng-tetris-v44"></script>
+    <script src="jszip.min.js?v=eng-tetris-v45"></script>
+    <script src="wordbank_daily.js?v=eng-tetris-v45"></script>
+    <script src="wordbank_cet4.js?v=eng-tetris-v45"></script>
+    <script src="wordbank_cet6.js?v=eng-tetris-v45"></script>
+    <script src="wordbank_phon.js?v=eng-tetris-v45"></script>
+    <script src="wordbank_zh.js?v=eng-tetris-v45"></script>
+    <script src="wordbank_ru.js?v=eng-tetris-v45"></script>
+    <script src="word_fx_data.js?v=eng-tetris-v45"></script>
+    <script src="word_fx.js?v=eng-tetris-v45"></script>
+    <script src="modes_extra.js?v=eng-tetris-v45"></script>
+    <script src="hero_system.js?v=eng-tetris-v45"></script>
+    <script src="meanings.js?v=eng-tetris-v45"></script>
     <script src="hanzi-writer.min.js"></script>
-    <script src="hanzi_data.js?v=eng-tetris-v44"></script>
+    <script src="hanzi_data.js?v=eng-tetris-v45"></script>
 </head>
 <body>
     <div id="loadingScreen">
@@ -972,7 +972,7 @@
     </div>
 
     <!-- 扩展玩法通用视图容器（听力挑战 / 记忆配对 / 未来玩法 / DIY） -->
-    <div id="gameVerBadge" style="position:fixed;left:10px;bottom:8px;z-index:40;font-size:12px;color:rgba(255,255,255,.35);letter-spacing:1px;user-select:none;">v2.4.4</div>
+    <div id="gameVerBadge" style="position:fixed;left:10px;bottom:8px;z-index:40;font-size:12px;color:rgba(255,255,255,.35);letter-spacing:1px;user-select:none;">v2.4.5</div>
     <div id="extra-mode-view"></div>
 
     <!-- 写字学中文模式视图 -->
@@ -2353,7 +2353,7 @@
             } else {
                 /* 金币奖励 + 怪物掉血 */
                 try { if (window.HERO) window.HERO.addCoins(3); } catch (e) {}
-                m3CoinShower(3, null);
+                m3CoinShower(4, null, 3);
                 m3MonDamage(m3MonDmg);
             }
             showM3Toast(_t('m3BonusHit', { w: _dw(b.word) }));
@@ -2422,7 +2422,7 @@
             } else {
                 /* 金币奖励 + 怪物重击掉血（拼出目标词是最强攻击） */
                 try { if (window.HERO) window.HERO.addCoins(5); } catch (e) {}
-                m3CoinShower(4, null);
+                m3CoinShower(5, null, 5);
                 m3MonDamage(20 + String(m3HoleWord || '').length * 3);
             }
             m3RestoreRows(4);
@@ -2569,37 +2569,96 @@
                     window.HERO.addCoins(reward, r ? { x: r.left + r.width / 2, y: r.top + r.height / 2 } : undefined);
                 }
             } catch (e) {}
-            m3CoinShower(Math.min(10, Math.ceil(reward / 6)), document.getElementById('m3-mon-emoji'));
+            m3CoinShower(Math.min(10, Math.ceil(reward / 6)), document.getElementById('m3-mon-emoji'), reward);
             showM3Toast(_htElc('💥 击败怪物！掉落 ' + reward + ' 金币', '💥 Monster defeated! +' + reward + ' coins', '💥 Монстр побеждён! +' + reward, '💥 Monstre vaincu ! +' + reward));
             m3Mon.tier++;
             setTimeout(() => { if (state === 'match3' && m3State !== 'gameover') m3MonSpawn(); }, 900);
         }
 
         /* 金币雨：金币从 fromEl 位置哗啦啦飞向主角头像并收获闪光 */
-        function m3CoinShower(count, fromEl) {
+        let m3CoinGen = 0;   /* 金币动画会话代数：退出对局时递增，中断飞行中的金币 */
+        /* 金币雨 v2：金币从 fromEl 抛出，越过主角头顶划出弧形抛物线落入主角手中；
+           硬币飞行中自旋翻转，落定后星芒迸发 + 主角金光 + 头顶金额徽章 */
+        function m3CoinShower(count, fromEl, amount) {
             try {
                 const hero = document.getElementById('m3-pk-hero');
                 if (!hero || !window.HERO || !window.HERO.coinIcon) return;
+                const myGen = m3CoinGen;
                 const hr = hero.getBoundingClientRect();
                 let fx = 0, fy = 0;
                 if (fromEl && fromEl.getBoundingClientRect) { const r = fromEl.getBoundingClientRect(); fx = r.left + r.width / 2; fy = r.top + r.height / 2; }
-                else { const g = m3Container.getBoundingClientRect(); fx = g.left + g.width / 2; fy = g.top + g.height / 2; }
-                const n = Math.max(3, Math.min(10, Math.round(count)));
+                else { const g = m3Container.getBoundingClientRect(); fx = g.left + g.width / 2; fy = g.top + g.height * 0.35; }
+                const n = Math.max(4, Math.min(12, Math.round(count)));
                 for (let i = 0; i < n; i++) {
                     setTimeout(() => {
-                        const d = document.createElement('div');
-                        d.innerHTML = window.HERO.coinIcon();
-                        d.style.cssText = 'position:fixed;z-index:5350;pointer-events:none;font-size:' + (13 + Math.random() * 9) + 'px;transition:left .58s cubic-bezier(.3,.7,.4,1),top .58s cubic-bezier(.3,.7,.4,1),opacity .58s;left:' + (fx + (Math.random() * 100 - 50)) + 'px;top:' + (fy + (Math.random() * 40 - 20)) + 'px;transform:translate(-50%,-50%);opacity:1;';
-                        document.body.appendChild(d);
-                        requestAnimationFrame(() => {
-                            d.style.left = (hr.left + hr.width / 2 + (Math.random() * 12 - 6)) + 'px';
-                            d.style.top = (hr.top + hr.height / 2) + 'px';
-                            d.style.opacity = '0';
-                        });
-                        setTimeout(() => d.remove(), 640);
-                    }, i * 55);
+                        if (myGen !== m3CoinGen) return;
+                        m3FlyCoin(fx + (Math.random() * 90 - 45), fy + (Math.random() * 26 - 13), hr, myGen, i === n - 1);
+                    }, i * 85);
                 }
-                setTimeout(() => { hero.classList.remove('wfx-hero-gain'); void hero.offsetWidth; hero.classList.add('wfx-hero-gain'); setTimeout(() => hero.classList.remove('wfx-hero-gain'), 650); }, n * 55 + 280);
+                setTimeout(() => {
+                    if (myGen !== m3CoinGen) return;
+                    hero.classList.remove('wfx-hero-gain'); void hero.offsetWidth; hero.classList.add('wfx-hero-gain');
+                    setTimeout(() => hero.classList.remove('wfx-hero-gain'), 650);
+                    m3CoinBadge(amount, hr);
+                }, n * 85 + 900);
+            } catch (e) {}
+        }
+        function m3FlyCoin(x0, y0, hr, myGen, last) {
+            try {
+                const d = document.createElement('div');
+                d.innerHTML = window.HERO.coinIcon();
+                const size = 18 + Math.random() * 9;
+                d.style.cssText = 'position:fixed;z-index:5350;pointer-events:none;width:' + size + 'px;height:' + size + 'px;will-change:transform,opacity;transform:translate(-50%,-50%);';
+                document.body.appendChild(d);
+                const x1 = hr.left + hr.width / 2 + (Math.random() * 14 - 7);
+                const y1 = hr.top + hr.height / 2;
+                const arc = 110 + Math.random() * 90;            /* 弧高：越过主角头顶 */
+                const dur = 850 + Math.random() * 260;
+                const spin = 5 + Math.random() * 4;              /* 硬币翻转速度 */
+                const t0 = performance.now();
+                function frame(now) {
+                    if (myGen !== m3CoinGen) { d.remove(); return; }
+                    const t = Math.min(1, (now - t0) / dur);
+                    const x = x0 + (x1 - x0) * t;
+                    const y = (y0 + (y1 - y0) * t) - arc * 4 * t * (1 - t);   /* 抛物线：先扬起越过头顶再落入手中 */
+                    const flip = Math.max(0.18, Math.abs(Math.cos(t * Math.PI * spin)));
+                    d.style.left = x + 'px';
+                    d.style.top = y + 'px';
+                    d.style.transform = 'translate(-50%,-50%) scaleX(' + flip + ')';
+                    d.style.opacity = t > 0.92 ? String(Math.max(0, 1 - (t - 0.92) * 12.5)) : '1';
+                    if (t < 1) requestAnimationFrame(frame);
+                    else { if (last) m3CoinBurst(x1, y1); d.remove(); }
+                }
+                requestAnimationFrame(frame);
+            } catch (e) {}
+        }
+        /* 金币落袋星芒迸发 */
+        function m3CoinBurst(x, y) {
+            try {
+                for (let i = 0; i < 7; i++) {
+                    const sp = document.createElement('div');
+                    sp.textContent = '✦';
+                    sp.style.cssText = 'position:fixed;z-index:5351;pointer-events:none;color:#ffd700;font-size:' + (10 + Math.random() * 9) + 'px;font-weight:900;text-shadow:0 0 7px rgba(255,200,0,.95);transition:left .5s ease-out,top .5s ease-out,opacity .5s;left:' + x + 'px;top:' + y + 'px;transform:translate(-50%,-50%);';
+                    document.body.appendChild(sp);
+                    requestAnimationFrame(() => {
+                        sp.style.left = (x + (Math.random() * 76 - 38)) + 'px';
+                        sp.style.top = (y - 16 - Math.random() * 44) + 'px';
+                        sp.style.opacity = '0';
+                    });
+                    setTimeout(() => sp.remove(), 540);
+                }
+            } catch (e) {}
+        }
+        /* 主角头顶金额徽章：+N 金币大字上浮 */
+        function m3CoinBadge(amount, hr) {
+            try {
+                if (!amount) return;
+                const b = document.createElement('div');
+                b.innerHTML = (window.HERO.coinIcon ? window.HERO.coinIcon() : '') + ' +' + amount;
+                b.style.cssText = 'position:fixed;z-index:5352;pointer-events:none;font-size:22px;font-weight:900;color:#ffd700;text-shadow:0 0 10px rgba(255,190,0,.95),0 2px 4px rgba(0,0,0,.7);left:' + (hr.left + hr.width / 2) + 'px;top:' + (hr.top - 36) + 'px;transform:translate(-50%,-50%);transition:transform .95s ease-out,opacity .95s;';
+                document.body.appendChild(b);
+                requestAnimationFrame(() => { b.style.transform = 'translate(-50%,-135%) scale(1.18)'; b.style.opacity = '0'; });
+                setTimeout(() => b.remove(), 1000);
             } catch (e) {}
         }
 
@@ -2737,7 +2796,7 @@
             if (m3VS.net && !fromNet) m3VSSend({ type: 'end', win: !iWin });
             let coinDelta = 0;
             if (m3VS.bet > 0) {
-                if (iWin) { try { if (window.HERO) window.HERO.addCoins(m3VS.bet * 2); } catch (e) {} coinDelta = m3VS.bet; m3CoinShower(10, null); }
+                if (iWin) { try { if (window.HERO) window.HERO.addCoins(m3VS.bet * 2); } catch (e) {} coinDelta = m3VS.bet; m3CoinShower(10, null, m3VS.bet * 2); }
                 else coinDelta = -m3VS.bet;
             }
             if (m3VS.mode === 'ai') {
@@ -2883,6 +2942,7 @@
         /* 退出/重开对局时清掉所有"跨界面"的瞬时元素：特效画布、语音气泡 */
         function m3CleanupTransientFx() {
             try { if (window.WORD_FX && WORD_FX.stopAll) WORD_FX.stopAll(); } catch (e) {}
+            m3CoinGen++;   /* 中断飞行中的金币动画 */
             m3MicAbort();
         }
         /* 把听到的文本与目标词/奖励词匹配；命中则自动填洞 */
@@ -5410,7 +5470,7 @@
     </script>
     <script>
     (function () {
-        var GAME_VER = '2.4.4';
+        var GAME_VER = '2.4.5';
         try {
             var badge = document.getElementById('gameVerBadge');
             if (badge) badge.textContent = '世界语言方块 v' + GAME_VER;

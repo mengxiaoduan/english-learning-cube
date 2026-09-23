@@ -55,6 +55,7 @@
         shopSub: { zh: '拼对目标语言单词即可下单，家具带回家摆进小屋', en: 'Spell a word to buy decorations', ru: 'Напиши слово и купи декор', fr: 'Épellez pour acheter' },
         roomSub: { zh: '你的专属空间：摆家具 · 养宠物 · 打扮主角', en: 'Your space: decorate & dress up', ru: 'Твоё пространство', fr: 'Votre espace' },
         langBuddy: { zh: '选好语言，我们一起学！', en: "Pick a language — let's learn!", ru: 'Выбери язык — учимся!', fr: 'Choisis — apprenons !' },
+        modeBuddy: { zh: '选好模式，我们一起玩！', en: "Pick a mode - let's play!", ru: 'Выбери режим — играем!', fr: 'Choisis un mode — jouons !' },
         roomShort: { zh: '小屋', en: 'Room', ru:'Домик', fr: 'Chez' },
         notEnough: { zh: '💰 金币不够，先去答题赚金币吧！', en: '💰 Not enough coins — play to earn more!', ru: '💰 Не хватает монет — играй!', fr: '💰 Pas assez de pièces — jouez !' },
         soloBtn: { zh: '单人游戏 · 赚金币', en: 'Single Player · Earn coins', ru: 'Одиночная игра · Монеты', fr: 'Solo · Gagner des pièces' },
@@ -208,33 +209,37 @@
 
     function refreshHUD() {
         var c = getCoins();
-        ['heroHubCoins', 'm3-coins', 'q-coins', 'heroShopCoins', 'heroRoomCoins'].forEach(function (id) {
+        ['m3-coins', 'q-coins', 'heroShopCoins', 'heroRoomCoins'].forEach(function (id) {
             var el = document.getElementById(id); if (el) el.textContent = c;
         });
-        var hubAv = document.getElementById('heroHubAvatar');
-        if (hubAv) hubAv.innerHTML = avatarHtml();
+        document.querySelectorAll('.heroHubCoinsVal').forEach(function (el) { el.textContent = c; });
+        document.querySelectorAll('.heroHubAvatar').forEach(function (el) { el.innerHTML = avatarHtml(); });
     }
 
     /* ================= 语言选择页 · 主角决策中心（头像/金币/商城/小屋都在这里） ================= */
     function buildHub() {
-        var old = document.getElementById('heroHub'); if (old) old.remove();
-        var screen = document.getElementById('langSelectScreen');
-        if (!screen) return;
-        var hub = document.createElement('div');
-        hub.id = 'heroHub';
-        hub.innerHTML =
-            '<button id="heroHubAvatar" title="' + ht('hubTapRoom') + '">' + avatarHtml() + '</button>' +
-            '<div id="heroHubInfo">' +
-                '<div id="heroHubCoinsWrap" title="' + ht('hubTapCoins') + '">' + COIN_SVG + ' <b id="heroHubCoins">' + getCoins() + '</b></div>' +
-            '</div>' +
-            '<button class="hh-btn" id="heroHubShop">🛍️ ' + ht('shop') + '</button>' +
-            '<button class="hh-btn" id="heroHubRoom" title="' + ht('room') + '">🏠 ' + ht('roomShort') + '</button>';
-        var h1 = screen.querySelector('h1');
-        screen.insertBefore(hub, h1 ? h1.nextSibling : screen.firstChild);
-        document.getElementById('heroHubAvatar').addEventListener('click', function () { click(); openRoom(); });
-        document.getElementById('heroHubCoinsWrap').addEventListener('click', function () { click(); openShop(); });
-        document.getElementById('heroHubShop').addEventListener('click', function () { click(); openShop(); });
-        document.getElementById('heroHubRoom').addEventListener('click', function () { click(); openRoom(); });
+        /* 语言选择页 + 游玩模式选择页 各放一份主角决策栏（头像/金币/商城/小屋） */
+        [
+            { id: 'langSelectScreen', anchor: function (scr) { var h1 = scr.querySelector('h1'); return h1 ? h1.nextSibling : null; } },
+            { id: 'modeSelectScreen', anchor: function (scr) { return scr.querySelector('.mode-grid') || null; } }
+        ].forEach(function (cfg) {
+            var scr = document.getElementById(cfg.id); if (!scr) return;
+            var old = scr.querySelector('.heroHub'); if (old) old.remove();
+            var hub = document.createElement('div');
+            hub.className = 'heroHub';
+            hub.innerHTML =
+                '<button class="heroHubAvatar" title="' + ht('hubTapRoom') + '">' + avatarHtml() + '</button>' +
+                '<div class="heroHubInfo">' +
+                    '<div class="heroHubCoinsWrap" title="' + ht('hubTapCoins') + '">' + COIN_SVG + ' <b class="heroHubCoinsVal">' + getCoins() + '</b></div>' +
+                '</div>' +
+                '<button class="hh-btn heroHubShop">🛍️ ' + ht('shop') + '</button>' +
+                '<button class="hh-btn heroHubRoom" title="' + ht('room') + '">🏠 ' + ht('roomShort') + '</button>';
+            scr.insertBefore(hub, cfg.anchor(scr) || scr.firstChild);
+            hub.querySelector('.heroHubAvatar').addEventListener('click', function () { click(); openRoom(); });
+            hub.querySelector('.heroHubCoinsWrap').addEventListener('click', function () { click(); openShop(); });
+            hub.querySelector('.heroHubShop').addEventListener('click', function () { click(); openShop(); });
+            hub.querySelector('.heroHubRoom').addEventListener('click', function () { click(); openRoom(); });
+        });
         refreshHUD();
     }
     /* 单人/对战按钮文案（语言页底部，随界面语言刷新） */
@@ -827,7 +832,7 @@
             return { name: String(payload.n || 'Shared'), dict: dict };
         } catch (e) { return null; }
     }
-    function openShareLevel(lvl) {
+    function openShareLevel(lvl, returnLib) {
         closeSharePanel();
         var root = document.createElement('div');
         root.id = 'heroShare';
@@ -839,7 +844,7 @@
                 '<div id="hsShareBody" class="hs-sub">⏳ ' + ht('shareGen') + '</div>' +
             '</div>';
         document.body.appendChild(root);
-        document.getElementById('hsShareClose').addEventListener('click', function () { click(); closeSharePanel(); });
+        document.getElementById('hsShareClose').addEventListener('click', function () { click(); closeSharePanel(); if (returnLib) openSharedLib(); });
         encodeShareLevel(lvl, function (code) {
             var body = document.getElementById('hsShareBody');
             if (!body) return;
@@ -926,7 +931,7 @@
             });
         });
         host.querySelectorAll('[data-share]').forEach(function (b) {
-            b.addEventListener('click', function () { click(); var lvl = getSharedIn()[parseInt(b.dataset.share, 10)]; if (lvl) { closeLib(); openShareLevel(lvl); } });
+            b.addEventListener('click', function () { click(); var lvl = getSharedIn()[parseInt(b.dataset.share, 10)]; if (lvl) { closeLib(); openShareLevel(lvl, true); } });
         });
         host.querySelectorAll('[data-del]').forEach(function (b) {
             b.addEventListener('click', function () {
@@ -941,25 +946,29 @@
 
     /* ================= 语言选择界面：主角陪伴气泡（头像在信息栏） ================= */
     function buildLangBuddy() {
-        var scr = document.getElementById('langSelectScreen');
-        if (!scr) return;
-        var old = document.getElementById('heroLangBuddy');
-        if (old) old.remove();
-        var hub = document.getElementById('heroHub');
-        var anchor = hub ? hub.nextSibling : null;
-        if (!anchor) { var h1 = scr.querySelector('h1'); anchor = h1 ? h1.nextSibling : scr.firstChild; }
-        var d = document.createElement('div');
-        d.id = 'heroLangBuddy';
-        d.innerHTML = '<span class="hlb-bubble">💬 ' + ht('langBuddy') + '</span>';
-        scr.insertBefore(d, anchor);
+        /* 语言页与模式页的主角陪玩气泡（文案各不相同） */
+        [
+            { id: 'langSelectScreen', key: 'langBuddy' },
+            { id: 'modeSelectScreen', key: 'modeBuddy' }
+        ].forEach(function (cfg) {
+            var scr = document.getElementById(cfg.id); if (!scr) return;
+            var old = scr.querySelector('.heroLangBuddy'); if (old) old.remove();
+            var d = document.createElement('div');
+            d.className = 'heroLangBuddy';
+            d.innerHTML = '<span class="hlb-bubble">💬 ' + ht(cfg.key) + '</span>';
+            var hub = scr.querySelector('.heroHub');
+            var anchor = hub ? hub.nextSibling : null;
+            if (!anchor) { var h1 = scr.querySelector('h1'); anchor = h1 ? h1.nextSibling : scr.firstChild; }
+            scr.insertBefore(d, anchor);
+        });
     }
 
     /* ================= 样式注入 ================= */
     var CSS = ''
-        + '#heroHub{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:0 0 4px;}'
-        + '#heroHubAvatar{width:52px;height:52px;border-radius:14px;border:2px solid rgba(241,196,15,.75);background:rgba(0,0,0,.35);font-size:26px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;box-shadow:0 0 12px rgba(241,196,15,.25);transition:transform .15s;}'
-        + '#heroHubAvatar:hover{transform:scale(1.08);} #heroHubAvatar img{max-width:40px;max-height:40px;border-radius:8px;height:auto!important;}'
-        + '#heroHubInfo{background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:4px 12px;font-size:1rem;font-weight:900;color:#ffd700;cursor:pointer;}'
+        + '.heroHub{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:0 0 4px;}'
+        + '.heroHubAvatar{width:52px;height:52px;border-radius:14px;border:2px solid rgba(241,196,15,.75);background:rgba(0,0,0,.35);font-size:26px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;box-shadow:0 0 12px rgba(241,196,15,.25);transition:transform .15s;}'
+        + '.heroHubAvatar:hover{transform:scale(1.08);} .heroHubAvatar img{max-width:40px;max-height:40px;border-radius:8px;height:auto!important;}'
+        + '.heroHubInfo{background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:4px 12px;font-size:1rem;font-weight:900;color:#ffd700;cursor:pointer;}'
         + '.hh-btn{border:1px solid rgba(241,196,15,.6);background:linear-gradient(to bottom,#f1c40f,#d48806);color:#3a2400;font-weight:900;border-radius:20px;padding:7px 16px;font-size:.92rem;cursor:pointer;box-shadow:0 3px 0 #9c6a00,0 4px 10px rgba(0,0,0,.4);transition:transform .1s;}'
         + '.hh-btn:active{transform:translateY(2px);box-shadow:0 1px 0 #9c6a00;}'
         + '.hh-btn.big{padding:12px 20px;font-size:1rem;border-radius:24px;}'
@@ -1009,16 +1018,16 @@
         + '.pet-anim{animation:hrPet 1.6s ease-in-out infinite;} @keyframes hrPet{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}'
         + '.coin-ic{width:1.05em;height:1.05em;vertical-align:-0.15em;display:inline-block;}'
         /* 语言选择界面主角 */
-        + '#heroLangBuddy{display:flex;align-items:center;justify-content:center;gap:8px;margin:0 0 8px;flex-wrap:wrap;}'
+        + '.heroLangBuddy{display:flex;align-items:center;justify-content:center;gap:8px;margin:0 0 8px;flex-wrap:wrap;}'
         + '.hlb-av{width:46px;height:46px;border-radius:50%;border:2px solid rgba(241,196,15,.7);background:rgba(0,0,0,.35);font-size:24px;display:flex;align-items:center;justify-content:center;overflow:hidden;}'
         + '.hlb-av img{max-width:38px;max-height:38px;border-radius:50%;} '
         + '.hlb-bubble{background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:.85rem;font-weight:700;border-radius:14px;padding:6px 12px;max-width:min(60vw,300px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}'
         + '@media (max-width:520px){'
-        + '  #heroHub{gap:6px;}'
-        + '  #heroHubAvatar{width:42px;height:42px;font-size:21px;border-radius:11px;}'
-        + '  #heroHubAvatar img{max-width:32px;max-height:32px;}'
-        + '  #heroHubInfo{padding:3px 9px;font-size:.85rem;}'
-        + '  #heroHub .hh-btn{padding:5px 10px;font-size:.78rem;border-radius:15px;}'
+        + '  .heroHub{gap:6px;}'
+        + '  .heroHubAvatar{width:42px;height:42px;font-size:21px;border-radius:11px;}'
+        + '  .heroHubAvatar img{max-width:32px;max-height:32px;}'
+        + '  .heroHubInfo{padding:3px 9px;font-size:.85rem;}'
+        + '  .heroHub .hh-btn{padding:5px 10px;font-size:.78rem;border-radius:15px;}'
         + '}'
         /* 对战场大厅 */
         + '#heroBattle,#heroMatch{position:fixed;inset:0;background:rgba(8,8,18,.96);z-index:4600;display:flex;align-items:center;justify-content:center;padding:12px;box-sizing:border-box;backdrop-filter:blur(6px);}'

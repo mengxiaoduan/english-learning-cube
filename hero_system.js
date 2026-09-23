@@ -981,21 +981,12 @@
             renderLibList();
         });
         renderLibList();
-        /* 合并 IndexedDB 中的大包（GIF 等超 localStorage 预算的关卡） */
+        /* 合并 IndexedDB 中的大包（GIF 等超 localStorage 预算的关卡）。
+           IDB 是大包唯一真相源：__snBigLib 每次整体赋值，绝不 concat——
+           否则每次打开库都会把上次的内存副本再叠一层，列表翻倍增长 */
         idbLoadLib().then(function (big) {
-            if (!big || !big.length) return;
-            var cur = getSharedIn();
-            var have = {}; cur.forEach(function (x) { have[x.id] = 1; });
-            var changed = false;
-            big = big.filter(function (lv) { if (!have[lv.id]) { cur.push(lv); changed = true; return true; } return false; });
-            if (changed) {
-                window.__snBigLib = (window.__snBigLib || []).concat(big);
-                idbSaveLib(window.__snBigLib);
-                if (document.getElementById('heroSharedLib')) renderLibList();
-            } else if (!window.__snBigLib) {
-                window.__snBigLib = big;
-                if (document.getElementById('heroSharedLib')) renderLibList();
-            }
+            window.__snBigLib = big || [];
+            if (window.__snBigLib.length && document.getElementById('heroSharedLib')) renderLibList();
         });
     }
     function closeLib() { var el = document.getElementById('heroSharedLib'); if (el) el.remove(); stopBrowse(); }

@@ -609,7 +609,7 @@
                 '<div class="hb-tip">' + ht('vsMatchSub') + '</div>' +
             '</div>';
         document.body.appendChild(root);
-        document.getElementById('hbClose').addEventListener('click', function () { click(); closeBattle(); try { ELC.goMenu && ELC.goMenu('mainMenuScreen'); } catch (e) {} });
+        document.getElementById('hbClose').addEventListener('click', function () { click(); closeBattle(); try { ELC.goMenu && ELC.goMenu('langSelectScreen'); } catch (e) {} });
         document.getElementById('hbName').addEventListener('change', function () { lsSet('elc_vs_name', this.value.trim().slice(0, 10) || vsName()); });
         renderBetChips();
         document.getElementById('hbAi').addEventListener('click', function () { click(); startAiBattle(); });

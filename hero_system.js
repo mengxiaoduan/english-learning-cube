@@ -785,18 +785,19 @@
     function setSharedIn(a) { try { lsSet('elc_shared_in', JSON.stringify(a.slice(0, 60))); } catch (e) { toast('storage full'); } }
     /* 压缩内嵌：128px JPEG（图片是共享关卡的核心价值，保留可辨识清晰度）；
        透明 PNG 先铺白底，防止 JPEG 黑底 */
-    function shrinkImg(dataUrl, cb) {
+    function shrinkImg(dataUrl, cb) { return shrinkImgTo(dataUrl, 128, 0.72, cb); }
+    function shrinkImgTo(dataUrl, S, q, cb) {
         if (!dataUrl || dataUrl.indexOf('data:') !== 0) return cb(null);
         var im = new Image();
         im.onload = function () {
             try {
-                var S = 128, cv = document.createElement('canvas'); cv.width = S; cv.height = S;
+                var cv = document.createElement('canvas'); cv.width = S; cv.height = S;
                 var x = cv.getContext('2d');
                 x.fillStyle = '#ffffff';
                 x.fillRect(0, 0, S, S);
                 var r = Math.min(im.width, im.height);
                 x.drawImage(im, (im.width - r) / 2, (im.height - r) / 2, r, r, 0, 0, S, S);
-                cb(cv.toDataURL('image/jpeg', 0.72));
+                cb(cv.toDataURL('image/jpeg', q));
             } catch (e) { cb(null); }
         };
         im.onerror = function () { cb(null); };
@@ -1101,7 +1102,22 @@
             try { (ELC.uploadedLevelList() || []).forEach(function (l) { if (l.name === d.levelId) lvl = l; }); } catch (e) {}
             if (!lvl) { try { conn.send({ t: 'deny' }); } catch (e) {} return; }
             serializeFullLevel(lvl, function (pack) {
-                try { conn.send({ t: 'level', level: pack }); toast(ht('snSent')); } catch (e) { toast('ERR'); }
+                var json = '';
+                try { json = JSON.stringify(pack); } catch (e) { try { conn.send({ t: 'deny' }); } catch (e2) {} return; }
+                var CH = 12000;
+                var chunks = [];
+                for (var i = 0; i < json.length; i += CH) chunks.push(json.slice(i, i + CH));
+                try { conn.send({ t: 'lvlStart', total: chunks.length }); } catch (e) { toast('ERR'); return; }
+                chunks.forEach(function (ck, ci) {
+                    setTimeout(function () {
+                        try { conn.send({ t: 'lvlC', i: ci, s: ck }); } catch (e) {}
+                        if (ci === chunks.length - 1) {
+                            setTimeout(function () {
+                                try { conn.send({ t: 'lvlEnd' }); toast(ht('snSent')); } catch (e) { toast('ERR'); }
+                            }, 60);
+                        }
+                    }, ci * 40);
+                });
             });
         }
         document.getElementById('snReqOk').addEventListener('click', function () { click(); done(true); });
@@ -1117,11 +1133,21 @@
             var mean = String(w.mean || '').slice(0, 60);
             var img = (w.img && /^(blob:|data:|https?:)/.test(String(w.img))) ? String(w.img) : (w.img && String(w.img).length <= 4 ? String(w.img) : null);
             var au = (w.audio && /^(blob:|data:)/.test(String(w.audio))) ? String(w.audio) : null;
+            if (img && img.length <= 4 && !/^(blob:|data:|https?:)/.test(img)) { out.push([w.word, mean, img, null]); nx(); return; }   /* emoji 词图直推，不走 fetch */
             urlToData(img, function (imgData) {
-                urlToData(au, function (auData) {
-                    out.push([w.word, mean, imgData || (img && img.length <= 4 ? img : null), auData || null]);
-                    nx();
-                });
+                /* 在线包保真但控体积：>500KB 的原图降到 480px（动图取首帧） */
+                if (imgData && imgData.length > 500000) {
+                    shrinkImgTo(imgData, 480, 0.8, function (sm) { pushW(sm); });
+                    return;
+                }
+                pushW(imgData);
+                function pushW(imgOut) {
+                    urlToData(au, function (auData) {
+                        if (auData && auData.length > 1500000) auData = null;   /* 超大音频不传（体积失控） */
+                        out.push([w.word, mean, imgOut || (img && img.length <= 4 ? img : null), auData || null]);
+                        nx();
+                    });
+                }
             });
         }
         nx();
@@ -1185,11 +1211,33 @@
                     if (SN.dlConn === c) { try { c.close(); } catch (e) {} SN.dlConn = null; toast(ht('snTimeout')); renderOnlineList(items); }
                 }, 60000);
                 c.on('open', function () { try { c.send({ t: 'req', levelId: lv.id || lv.name, name: vsName() }); } catch (e) {} });
+                var buf = [];
                 c.on('data', function (d) {
-                    clearTimeout(to);
-                    if (SN.dlConn === c) SN.dlConn = null;
-                    if (d && d.t === 'level') { receiveFullLevel(d.level); }
-                    else if (d && d.t === 'deny') { toast(ht('snDenied')); renderOnlineList(items); }
+                    if (d && d.t === 'lvlStart') {
+                        clearTimeout(to);
+                        buf = [];
+                        b.textContent = '📥 0%';
+                        return;
+                    }
+                    if (d && d.t === 'lvlC') {
+                        buf[d.i] = d.s;
+                        var pct = Math.round(Object.keys(buf).length / (d.total || (d.i + 1)) * 100);
+                        b.textContent = '📥 ' + Math.min(99, pct) + '%';
+                        clearTimeout(to);
+                        to = setTimeout(function () { if (SN.dlConn === c) { try { c.close(); } catch (e) {} SN.dlConn = null; toast(ht('snTimeout')); renderOnlineList(items); } }, 60000);
+                        return;
+                    }
+                    if (d && d.t === 'lvlEnd') {
+                        clearTimeout(to);
+                        if (SN.dlConn === c) SN.dlConn = null;
+                        var pack = null;
+                        try { pack = JSON.parse(buf.join('')); } catch (e) {}
+                        if (pack) receiveFullLevel(pack);
+                        else toast(ht('importBad'));
+                        renderOnlineList(items);
+                        return;
+                    }
+                    if (d && d.t === 'deny') { clearTimeout(to); toast(ht('snDenied')); renderOnlineList(items); }
                 });
             });
         });

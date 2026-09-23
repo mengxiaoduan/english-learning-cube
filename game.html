@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#1a1a2e">
     <link rel="manifest" href="manifest.webmanifest">
-    <script src="i18n.js?v=eng-tetris-v49"></script>
+    <script src="i18n.js?v=eng-tetris-v50"></script>
     <link rel="apple-touch-icon" href="icons/icon-192.png">
     <link rel="icon" type="image/png" href="icons/icon-192.png">
     <title>世界语言方块</title>
@@ -737,20 +737,20 @@
         }
     </style>
     <!-- JSZip 仅 ZIP 关卡上传用：本地加载（cdnjs 外链在国内阻塞首屏可达数秒，已移除） -->
-    <script src="jszip.min.js?v=eng-tetris-v49"></script>
-    <script src="wordbank_daily.js?v=eng-tetris-v49"></script>
-    <script src="wordbank_cet4.js?v=eng-tetris-v49"></script>
-    <script src="wordbank_cet6.js?v=eng-tetris-v49"></script>
-    <script src="wordbank_phon.js?v=eng-tetris-v49"></script>
-    <script src="wordbank_zh.js?v=eng-tetris-v49"></script>
-    <script src="wordbank_ru.js?v=eng-tetris-v49"></script>
-    <script src="word_fx_data.js?v=eng-tetris-v49"></script>
-    <script src="word_fx.js?v=eng-tetris-v49"></script>
-    <script src="modes_extra.js?v=eng-tetris-v49"></script>
-    <script src="hero_system.js?v=eng-tetris-v49"></script>
-    <script src="meanings.js?v=eng-tetris-v49"></script>
+    <script src="jszip.min.js?v=eng-tetris-v50"></script>
+    <script src="wordbank_daily.js?v=eng-tetris-v50"></script>
+    <script src="wordbank_cet4.js?v=eng-tetris-v50"></script>
+    <script src="wordbank_cet6.js?v=eng-tetris-v50"></script>
+    <script src="wordbank_phon.js?v=eng-tetris-v50"></script>
+    <script src="wordbank_zh.js?v=eng-tetris-v50"></script>
+    <script src="wordbank_ru.js?v=eng-tetris-v50"></script>
+    <script src="word_fx_data.js?v=eng-tetris-v50"></script>
+    <script src="word_fx.js?v=eng-tetris-v50"></script>
+    <script src="modes_extra.js?v=eng-tetris-v50"></script>
+    <script src="hero_system.js?v=eng-tetris-v50"></script>
+    <script src="meanings.js?v=eng-tetris-v50"></script>
     <script src="hanzi-writer.min.js"></script>
-    <script src="hanzi_data.js?v=eng-tetris-v49"></script>
+    <script src="hanzi_data.js?v=eng-tetris-v50"></script>
 </head>
 <body>
     <div id="loadingScreen">
@@ -975,7 +975,7 @@
     </div>
 
     <!-- 扩展玩法通用视图容器（听力挑战 / 记忆配对 / 未来玩法 / DIY） -->
-    <div id="gameVerBadge" style="position:fixed;left:10px;bottom:8px;z-index:40;font-size:12px;color:rgba(255,255,255,.35);letter-spacing:1px;user-select:none;">v2.6.0</div>
+    <div id="gameVerBadge" style="position:fixed;left:10px;bottom:8px;z-index:40;font-size:12px;color:rgba(255,255,255,.35);letter-spacing:1px;user-select:none;">v2.6.1</div>
     <div id="extra-mode-view"></div>
 
     <!-- 写字学中文模式视图 -->
@@ -5519,7 +5519,7 @@
     </script>
     <script>
     (function () {
-        var GAME_VER = '2.6.0';
+        var GAME_VER = '2.6.1';
         try {
             var badge = document.getElementById('gameVerBadge');
             if (badge) badge.textContent = '世界语言方块 v' + GAME_VER;

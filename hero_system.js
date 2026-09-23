@@ -766,20 +766,36 @@
        图片自动压缩至 96px JPEG 内嵌；音频体积过大不随码传输。 */
     function getSharedIn() { try { return JSON.parse(lsGet('elc_shared_in', '[]')); } catch (e) { return []; } }
     function setSharedIn(a) { try { lsSet('elc_shared_in', JSON.stringify(a.slice(0, 60))); } catch (e) { toast('storage full'); } }
+    /* 压缩内嵌：128px JPEG（图片是共享关卡的核心价值，保留可辨识清晰度）；
+       透明 PNG 先铺白底，防止 JPEG 黑底 */
     function shrinkImg(dataUrl, cb) {
         if (!dataUrl || dataUrl.indexOf('data:') !== 0) return cb(null);
         var im = new Image();
         im.onload = function () {
             try {
-                var S = 96, cv = document.createElement('canvas'); cv.width = S; cv.height = S;
+                var S = 128, cv = document.createElement('canvas'); cv.width = S; cv.height = S;
                 var x = cv.getContext('2d');
+                x.fillStyle = '#ffffff';
+                x.fillRect(0, 0, S, S);
                 var r = Math.min(im.width, im.height);
                 x.drawImage(im, (im.width - r) / 2, (im.height - r) / 2, r, r, 0, 0, S, S);
-                cb(cv.toDataURL('image/jpeg', 0.55));
+                cb(cv.toDataURL('image/jpeg', 0.72));
             } catch (e) { cb(null); }
         };
         im.onerror = function () { cb(null); };
         im.src = dataUrl;
+    }
+    /* blob:/http: 图片取回内存转 dataURL（ZIP/文件夹上传的图片都是 blob 链接） */
+    function urlToData(url, cb) {
+        if (!url) return cb(null);
+        try {
+            fetch(url).then(function (r) { return r.blob(); }).then(function (b) {
+                var fr = new FileReader();
+                fr.onload = function () { cb(fr.result); };
+                fr.onerror = function () { cb(null); };
+                fr.readAsDataURL(b);
+            }).catch(function () { cb(null); });
+        } catch (e) { cb(null); }
     }
     function encodeShareLevel(lvl, cb) {
         var dict = (lvl && lvl.dict) || {};
@@ -795,14 +811,19 @@
             }
             var w = words[i++];
             var d = dict[w] || {};
-            var img = null;
-            if (typeof d.img === 'string') {
-                if (d.img.indexOf('data:') === 0) img = d.img;                       /* 自定义图片：压缩后内嵌 */
-                else if (d.img.length <= 4 && !/^(blob:|https?:)/.test(d.img)) img = d.img;  /* emoji：直接随码 */
+            var raw = (typeof d.img === 'string') ? d.img : null;
+            var mean = String(d.mean || '').slice(0, 60);
+            if (!raw) { out.push([w, mean, null]); next(); return; }
+            if (raw.length <= 4 && !/^(blob:|data:|https?:)/.test(raw)) { out.push([w, mean, raw]); next(); return; }        /* emoji 词图直传 */
+            if (raw.indexOf('data:') === 0) { shrinkImg(raw, function (sm) { out.push([w, mean, sm]); next(); }); return; }  /* dataURL：压缩内嵌 */
+            if (/^(blob:|https?:)/.test(raw)) {                                                                                 /* blob(ZIP/文件夹)/网络图：取回转码再压缩 */
+                urlToData(raw, function (dataUrl) {
+                    if (!dataUrl) { out.push([w, mean, null]); next(); return; }
+                    shrinkImg(dataUrl, function (sm) { out.push([w, mean, sm]); next(); });
+                });
+                return;
             }
-            if (!img) { out.push([w, String(d.mean || '').slice(0, 60), null]); next(); return; }
-            if (img.indexOf('data:') !== 0) { out.push([w, String(d.mean || '').slice(0, 60), img]); next(); return; }  /* emoji 直接随码 */
-            shrinkImg(img, function (sm) { out.push([w, String(d.mean || '').slice(0, 60), sm]); next(); });
+            out.push([w, mean, null]); next();
         }
         next();
     }
@@ -849,7 +870,7 @@
             var body = document.getElementById('hsShareBody');
             if (!body) return;
             if (!code) { body.innerHTML = '❌ ' + ht('shareGen'); return; }
-            var kb = Math.round(code.length / 1024);
+            var kb = code.length < 1024 ? code.length + ' B' : (code.length / 1024).toFixed(1) + ' KB';
             body.innerHTML =
                 '<textarea id="hsShareCode" readonly style="width:100%;height:120px;background:rgba(0,0,0,.5);color:#9fe8b0;font-size:.72rem;border:1px solid rgba(83,215,105,.4);border-radius:10px;padding:8px;box-sizing:border-box;word-break:break-all;">' + code + '</textarea>' +
                 '<div style="display:flex;gap:8px;justify-content:center;margin-top:8px;">' +

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#1a1a2e">
     <link rel="manifest" href="manifest.webmanifest">
-    <script src="i18n.js?v=eng-tetris-v52"></script>
+    <script src="i18n.js?v=eng-tetris-v53"></script>
     <link rel="apple-touch-icon" href="icons/icon-192.png">
     <link rel="icon" type="image/png" href="icons/icon-192.png">
     <title>世界语言方块</title>
@@ -737,20 +737,20 @@
         }
     </style>
     <!-- JSZip 仅 ZIP 关卡上传用：本地加载（cdnjs 外链在国内阻塞首屏可达数秒，已移除） -->
-    <script src="jszip.min.js?v=eng-tetris-v52"></script>
-    <script src="wordbank_daily.js?v=eng-tetris-v52"></script>
-    <script src="wordbank_cet4.js?v=eng-tetris-v52"></script>
-    <script src="wordbank_cet6.js?v=eng-tetris-v52"></script>
-    <script src="wordbank_phon.js?v=eng-tetris-v52"></script>
-    <script src="wordbank_zh.js?v=eng-tetris-v52"></script>
-    <script src="wordbank_ru.js?v=eng-tetris-v52"></script>
-    <script src="word_fx_data.js?v=eng-tetris-v52"></script>
-    <script src="word_fx.js?v=eng-tetris-v52"></script>
-    <script src="modes_extra.js?v=eng-tetris-v52"></script>
-    <script src="hero_system.js?v=eng-tetris-v52"></script>
-    <script src="meanings.js?v=eng-tetris-v52"></script>
+    <script src="jszip.min.js?v=eng-tetris-v53"></script>
+    <script src="wordbank_daily.js?v=eng-tetris-v53"></script>
+    <script src="wordbank_cet4.js?v=eng-tetris-v53"></script>
+    <script src="wordbank_cet6.js?v=eng-tetris-v53"></script>
+    <script src="wordbank_phon.js?v=eng-tetris-v53"></script>
+    <script src="wordbank_zh.js?v=eng-tetris-v53"></script>
+    <script src="wordbank_ru.js?v=eng-tetris-v53"></script>
+    <script src="word_fx_data.js?v=eng-tetris-v53"></script>
+    <script src="word_fx.js?v=eng-tetris-v53"></script>
+    <script src="modes_extra.js?v=eng-tetris-v53"></script>
+    <script src="hero_system.js?v=eng-tetris-v53"></script>
+    <script src="meanings.js?v=eng-tetris-v53"></script>
     <script src="hanzi-writer.min.js"></script>
-    <script src="hanzi_data.js?v=eng-tetris-v52"></script>
+    <script src="hanzi_data.js?v=eng-tetris-v53"></script>
 </head>
 <body>
     <div id="loadingScreen">
@@ -975,7 +975,7 @@
     </div>
 
     <!-- 扩展玩法通用视图容器（听力挑战 / 记忆配对 / 未来玩法 / DIY） -->
-    <div id="gameVerBadge" style="position:fixed;left:10px;bottom:8px;z-index:40;font-size:12px;color:rgba(255,255,255,.35);letter-spacing:1px;user-select:none;">v2.7.1</div>
+    <div id="gameVerBadge" style="position:fixed;left:10px;bottom:8px;z-index:40;font-size:12px;color:rgba(255,255,255,.35);letter-spacing:1px;user-select:none;">v2.7.2</div>
     <div id="extra-mode-view"></div>
 
     <!-- 写字学中文模式视图 -->
@@ -1424,16 +1424,27 @@
             const loadingText = DOM.loadingText, loadingBar = DOM.loadingBar, loadingPercent = DOM.loadingPercent;
             let progress = 0;
             /* 加载屏纯装饰：1.2s 快速过场（原 3s 拖慢进入游戏），进度条同步加速 */
-            const pi = setInterval(() => { progress += 4; if (progress >= 100) { progress = 100; clearInterval(pi); loadingBar.style.width = '100%'; loadingPercent.innerText = '100%'; } else { loadingBar.style.width = progress + '%'; loadingPercent.innerText = Math.floor(progress) + '%'; } }, 12);
+            const pi = setInterval(() => { progress += 8; if (progress >= 100) { progress = 100; clearInterval(pi); loadingBar.style.width = '100%'; loadingPercent.innerText = '100%'; } else { loadingBar.style.width = progress + '%'; loadingPercent.innerText = Math.floor(progress) + '%'; } }, 12);
             loadingText.innerText = _t('footer'); loadingText.classList.add('show');
-            setTimeout(() => { if(DOM.loadingScreen) DOM.loadingScreen.style.opacity = '0'; setTimeout(() => { if(DOM.loadingScreen) DOM.loadingScreen.style.display = 'none'; if(DOM.gameWrapper) DOM.gameWrapper.style.display = 'flex'; if(DOM.overlay) DOM.overlay.style.display = 'flex'; try { generatePile(); } catch(e) {} if (audioCtx) startBgMusic(); }, 400); }, 1200);
+            /* 进度条走完（约0.3s）即入场——纯装饰过场不压秒数 */
+            setTimeout(() => { if(DOM.loadingScreen) DOM.loadingScreen.style.opacity = '0'; setTimeout(() => { if(DOM.loadingScreen) DOM.loadingScreen.style.display = 'none'; if(DOM.gameWrapper) DOM.gameWrapper.style.display = 'flex'; if(DOM.overlay) DOM.overlay.style.display = 'flex'; try { generatePile(); } catch(e) {} if (audioCtx) startBgMusic(); }, 400); }, 420);
         }
         function generatePile() { const pile = document.getElementById('tetrisPile'); if (!pile || pile.children.length > 0) return; const COLS = 11, ROWS = 10, CELL = 30; const heights = [3, 5, 4, 7, 10, 6, 9, 4, 6, 3, 4]; const wordCols = { 4: 'book', 6: 'moon', 8: 'star' }; const letters = 'abcdefghijklmnopqrstuvwxyz'; const rnd = (n) => Math.floor(Math.random() * n); for (let c = 0; c < COLS; c++) { const word = wordCols[c] || null; for (let r = 0; r < heights[c]; r++) { if (!word && r > 0 && r < heights[c] - 1 && Math.random() < 0.06) continue; const cell = document.createElement('div'); cell.className = 'pile-cell'; cell.style.left = (c * CELL) + 'px'; cell.style.bottom = (r * CELL) + 'px'; cell.style.background = COLORS[rnd(COLORS.length)]; const fromTop = heights[c] - 1 - r; cell.innerText = word ? (word[fromTop] || letters[rnd(26)]) : letters[rnd(26)]; pile.appendChild(cell); } } }
-        function unlockAudio() { if (!audioCtx) { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} } if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); if ('speechSynthesis' in window) { try { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; setTimeout(function () { window.speechSynthesis.speak(u); }, 60); } catch(e) {} } if (audioCtx && !bgMusicTimer && (state === 'ready' || state === 'gameover')) startBgMusic(); }
+        let _audioUnlocked = false;
+        function unlockAudio() {
+            if (!audioCtx) { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} }
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+            /* TTS 解锁只做一次——每次点击都往合成引擎塞空 utterance 会积压队列造成卡顿 */
+            if (!_audioUnlocked && 'speechSynthesis' in window) {
+                _audioUnlocked = true;
+                try { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; setTimeout(function () { window.speechSynthesis.speak(u); }, 60); } catch(e) {}
+            }
+            if (audioCtx && !bgMusicTimer && (state === 'ready' || state === 'gameover')) startBgMusic();
+        }
         function loadVoices() { if ('speechSynthesis' in window) synthVoices = window.speechSynthesis.getVoices(); }
         if ('speechSynthesis' in window) { loadVoices(); if (typeof window.speechSynthesis.onvoiceschanged !== 'undefined') window.speechSynthesis.onvoiceschanged = loadVoices; }
         function playTone(freq, duration = 0.1, type = 'square', volume = 0.1, when = 0) { if (!audioCtx) return; const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = type; osc.frequency.value = freq; const startTime = audioCtx.currentTime + when; gain.gain.setValueAtTime(volume, startTime); gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(startTime); osc.stop(startTime + duration); }
-        function startBgMusic() { if (!audioCtx || bgMusicTimer) return; const melody = [{f:523.25,d:0.2},{f:659.25,d:0.2},{f:783.99,d:0.2},{f:1046.50,d:0.4},{f:783.99,d:0.2},{f:659.25,d:0.2},{f:523.25,d:0.2},{f:392.00,d:0.4},{f:440.00,d:0.2},{f:523.25,d:0.2},{f:659.25,d:0.2},{f:880.00,d:0.4},{f:659.25,d:0.2},{f:523.25,d:0.2},{f:440.00,d:0.2},{f:392.00,d:0.4}]; const bass = [{f:130.81,d:1.0},{f:196.00,d:1.0},{f:220.00,d:1.0},{f:196.00,d:1.0}]; let t = 0; melody.forEach(note => { let timeout = setTimeout(() => { if (!bgMusicTimer) return; if (note.f > 0) playTone(note.f, note.d * 0.9, 'triangle', 0.04); }, t * 1000); bgMusicTimeouts.push(timeout); t += note.d; }); let bt = 0; bass.forEach(note => { let timeout = setTimeout(() => { if (!bgMusicTimer) return; playTone(note.f, note.d * 0.9, 'sine', 0.03); }, bt * 1000); bgMusicTimeouts.push(timeout); bt += note.d; }); bgMusicTimer = setTimeout(() => { bgMusicTimer = null; startBgMusic(); }, t * 1000); }
+        function startBgMusic() { if (!audioCtx || bgMusicTimer) return; bgMusicTimeouts = [];   /* 新一轮旋律：清上一轮的句柄，防数组无限增长 */ const melody = [{f:523.25,d:0.2},{f:659.25,d:0.2},{f:783.99,d:0.2},{f:1046.50,d:0.4},{f:783.99,d:0.2},{f:659.25,d:0.2},{f:523.25,d:0.2},{f:392.00,d:0.4},{f:440.00,d:0.2},{f:523.25,d:0.2},{f:659.25,d:0.2},{f:880.00,d:0.4},{f:659.25,d:0.2},{f:523.25,d:0.2},{f:440.00,d:0.2},{f:392.00,d:0.4}]; const bass = [{f:130.81,d:1.0},{f:196.00,d:1.0},{f:220.00,d:1.0},{f:196.00,d:1.0}]; let t = 0; melody.forEach(note => { let timeout = setTimeout(() => { if (!bgMusicTimer) return; if (note.f > 0) playTone(note.f, note.d * 0.9, 'triangle', 0.04); }, t * 1000); bgMusicTimeouts.push(timeout); t += note.d; }); let bt = 0; bass.forEach(note => { let timeout = setTimeout(() => { if (!bgMusicTimer) return; playTone(note.f, note.d * 0.9, 'sine', 0.03); }, bt * 1000); bgMusicTimeouts.push(timeout); bt += note.d; }); bgMusicTimer = setTimeout(() => { bgMusicTimer = null; startBgMusic(); }, t * 1000); }
         function stopBgMusic() { if (bgMusicTimer) { clearTimeout(bgMusicTimer); bgMusicTimer = null; } bgMusicTimeouts.forEach(t => clearTimeout(t)); bgMusicTimeouts = []; }
         document.addEventListener('touchstart', unlockAudio, { once: true }); document.addEventListener('mousedown', unlockAudio, { once: true }); document.addEventListener('mousemove', unlockAudio, { once: true });
         function playSoundHover() { playTone(1200, 0.04, 'sine', 0.06); }
@@ -1492,6 +1503,7 @@
                 if (gen !== wordSpeakGen) return;
                 if (!u) { speakWordTTS(w, finish); return; }
                 if (wordAudioFail[u]) { next(u); return; }
+                if (activeWordAudios.length >= 3) { speakWordTTS(w, finish); return; }   /* 音频积压保险丝：超3条直接走TTS */
                 const a = new Audio(u);
                 a.volume = 1;
                 let fired = false;
@@ -5552,7 +5564,7 @@
     </script>
     <script>
     (function () {
-        var GAME_VER = '2.7.1';
+        var GAME_VER = '2.7.2';
         try {
             var badge = document.getElementById('gameVerBadge');
             if (badge) badge.textContent = '世界语言方块 v' + GAME_VER;

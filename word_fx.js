@@ -33,7 +33,7 @@
     /* ================= 画布层 ================= */
     var canvas = null, ctx = null, particles = [], rafId = 0, running = false, dpr = 1;
     var gen = 0;   /* 会话代数号：stopAll 递增，使所有挂起的延迟回调（粒子启动器/场景interval）失效 */
-    var MAX_PARTICLES = 260;
+    var MAX_PARTICLES = ((navigator.deviceMemory && navigator.deviceMemory <= 4) || (window.innerWidth * window.innerHeight > 2200000 && (window.devicePixelRatio || 1) >= 2)) ? 140 : 260;   /* 低端/高分小屏自适应降粒子 */
 
     function ensureCanvas() {
         if (canvas && canvas.isConnected) return;

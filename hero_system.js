@@ -188,6 +188,11 @@
             setTimeout(function () { d.remove(); }, 950);
         } catch (e) {}
     }
+    /* 本局金币记账：模式开局 mark，结算 delta 展示获得量 */
+    var _mark = 0;
+    function markCoins() { _mark = getCoins(); }
+    function deltaCoins() { return getCoins() - _mark; }
+
     function refreshHUD() {
         var c = getCoins();
         ['heroHubCoins', 'm3-coins', 'q-coins', 'heroShopCoins', 'heroRoomCoins'].forEach(function (id) {
@@ -883,6 +888,8 @@
         refreshHUD: refreshHUD,
         openShop: openShop,
         coinIcon: coinIcon,
+        markCoins: markCoins,
+        deltaCoins: deltaCoins,
         openRoom: openRoom,
         openBattleLobby: openBattleLobby,
         avatarHtml: avatarHtml,

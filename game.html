@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#1a1a2e">
     <link rel="manifest" href="manifest.webmanifest">
-    <script src="i18n.js?v=eng-tetris-v42"></script>
+    <script src="i18n.js?v=eng-tetris-v43"></script>
     <link rel="apple-touch-icon" href="icons/icon-192.png">
     <title>世界语言方块</title>
     <style>
@@ -327,7 +327,7 @@
             display: flex; align-items: center; justify-content: center;
         }
         #m3-feeder {
-            display: flex; justify-content: center; gap: 10px; padding: 8px 10px; height: 100%;
+            display: flex; justify-content: center; gap: 7px; padding: 8px 8px; height: 100%;
             box-sizing: border-box; align-items: center; overflow: hidden; white-space: nowrap; width: 100%;
         }
         #m3-meaning-bar { width: 100%; max-width: min(92vmin, max(230px, calc(100vh - 368px)), 620px); box-sizing: border-box; min-height: 20px; text-align: center; color: rgba(255,255,255,0.9); font-size: 0.9rem; font-weight: bold; padding: 3px 10px; word-break: break-all; background: rgba(15,52,96,0.4); border-radius: 10px; border: 1px solid rgba(255,255,255,0.08); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
@@ -340,7 +340,7 @@
         .m3-feeder-block.tapped { outline: 3px solid #53d769; outline-offset: 4px; border-radius: 8px; box-shadow: 0 0 14px rgba(83,215,105,0.7); transform: translateY(-4px); }
         @keyframes m3SlideIn { from { transform: translateX(70px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes m3SlideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(-80px); opacity: 0; } }
-        .m3-feeder-block .fb-cell { width: 20px; height: 20px; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #000; font-size: 13px; box-shadow: inset 0 -3px 0 rgba(0,0,0,0.25); }
+        .m3-feeder-block .fb-cell { width: 24px; height: 24px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #000; font-size: 15px; box-shadow: inset 0 -3px 0 rgba(0,0,0,0.28), 0 2px 5px rgba(0,0,0,0.35); }
         .m3-feeder-block .fb-cell.empty { background: rgba(255,255,255,0.06); box-shadow: none; }
         .m3-feeder-tip { font-size: 0.72rem; color: rgba(255,255,255,0.45); }
         .m3-cell.hole { background: rgba(15,52,96,0.4) !important; border: 2px dashed rgba(255,255,255,0.4) !important; box-shadow: inset 0 0 14px rgba(0,0,0,0.55) !important; color: rgba(255,255,255,0.25) !important; cursor: pointer; }
@@ -610,8 +610,8 @@
             #m3-grid-container { width: min(58vh, 44vw) !important; }
             #m3-feeder-box, #m3-mouth-bar, #m3-eat-track, #m3-mon-bar { max-width: min(60vh, 44vw); }
             #m3-meaning-bar { display: none; }
-            #m3-feeder-box { height: 42px; min-height: 42px; max-height: 42px; }
-            .m3-feeder-block .fb-cell { width: 13px; height: 13px; font-size: 9px; }
+            #m3-feeder-box { height: 46px; min-height: 46px; max-height: 46px; }
+            .m3-feeder-block .fb-cell { width: 17px; height: 17px; font-size: 11px; border-radius: 5px; }
             .m3-side { width: min(42vw, 250px); gap: 6px; }
             .m3-learned-panel { display: none; }
             #m3-target-panel { padding: 5px 8px; }
@@ -641,8 +641,9 @@
             #m3-pk-track { height: 10px; }
             #m3-eat-track { height: 4px; }
             #m3-grid-container { width: min(92vw, max(200px, calc(100dvh - 348px))); }
-            #m3-feeder-box { height: 56px; min-height: 56px; max-height: 56px; }
-            .m3-feeder-block .fb-cell { width: 15px; height: 15px; font-size: 10px; }
+            #m3-feeder-box { height: 60px; min-height: 60px; max-height: 60px; }
+            #m3-feeder { gap: 6px; padding: 6px; }
+            .m3-feeder-block .fb-cell { width: 21px; height: 21px; font-size: 13px; border-radius: 6px; }
             #m3-meaning-bar { display: none; }
             .m3-side { width: min(96vw, 420px); gap: 5px; }
             #m3-target-panel { padding: 5px 8px; border-radius: 10px; }
@@ -734,20 +735,20 @@
         }
     </style>
     <!-- JSZip 仅 ZIP 关卡上传用：本地加载（cdnjs 外链在国内阻塞首屏可达数秒，已移除） -->
-    <script src="jszip.min.js?v=eng-tetris-v42"></script>
-    <script src="wordbank_daily.js?v=eng-tetris-v42"></script>
-    <script src="wordbank_cet4.js?v=eng-tetris-v42"></script>
-    <script src="wordbank_cet6.js?v=eng-tetris-v42"></script>
-    <script src="wordbank_phon.js?v=eng-tetris-v42"></script>
-    <script src="wordbank_zh.js?v=eng-tetris-v42"></script>
-    <script src="wordbank_ru.js?v=eng-tetris-v42"></script>
-    <script src="word_fx_data.js?v=eng-tetris-v42"></script>
-    <script src="word_fx.js?v=eng-tetris-v42"></script>
-    <script src="modes_extra.js?v=eng-tetris-v42"></script>
-    <script src="hero_system.js?v=eng-tetris-v42"></script>
-    <script src="meanings.js?v=eng-tetris-v42"></script>
+    <script src="jszip.min.js?v=eng-tetris-v43"></script>
+    <script src="wordbank_daily.js?v=eng-tetris-v43"></script>
+    <script src="wordbank_cet4.js?v=eng-tetris-v43"></script>
+    <script src="wordbank_cet6.js?v=eng-tetris-v43"></script>
+    <script src="wordbank_phon.js?v=eng-tetris-v43"></script>
+    <script src="wordbank_zh.js?v=eng-tetris-v43"></script>
+    <script src="wordbank_ru.js?v=eng-tetris-v43"></script>
+    <script src="word_fx_data.js?v=eng-tetris-v43"></script>
+    <script src="word_fx.js?v=eng-tetris-v43"></script>
+    <script src="modes_extra.js?v=eng-tetris-v43"></script>
+    <script src="hero_system.js?v=eng-tetris-v43"></script>
+    <script src="meanings.js?v=eng-tetris-v43"></script>
     <script src="hanzi-writer.min.js"></script>
-    <script src="hanzi_data.js?v=eng-tetris-v42"></script>
+    <script src="hanzi_data.js?v=eng-tetris-v43"></script>
 </head>
 <body>
     <div id="loadingScreen">
@@ -970,7 +971,7 @@
     </div>
 
     <!-- 扩展玩法通用视图容器（听力挑战 / 记忆配对 / 未来玩法 / DIY） -->
-    <div id="gameVerBadge" style="position:fixed;left:10px;bottom:8px;z-index:40;font-size:12px;color:rgba(255,255,255,.35);letter-spacing:1px;user-select:none;">v2.4.2</div>
+    <div id="gameVerBadge" style="position:fixed;left:10px;bottom:8px;z-index:40;font-size:12px;color:rgba(255,255,255,.35);letter-spacing:1px;user-select:none;">v2.4.3</div>
     <div id="extra-mode-view"></div>
 
     <!-- 写字学中文模式视图 -->
@@ -1566,7 +1567,7 @@
         function createPiece() { pieceCounter++; let isSingle = false; if (pieceCounter > 20) { if (pieceCounter - lastSinglePieceCount >= 15) isSingle = true; else if (Math.random() < 0.05) isSingle = true; } if (isSingle) { lastSinglePieceCount = pieceCounter; const singles = ['i', 'a']; const dictKey = singles[Math.floor(Math.random() * singles.length)]; return { shape: [[1]], color: ACTIVE_WORDS[dictKey] ? ACTIVE_WORDS[dictKey].color : '#ff4136', letters: [[dictKey.toUpperCase()]], x: Math.floor(COLS / 2) - 1, y: 0, isSpecial: true }; } else { const shapeIndex = Math.floor(Math.random() * SHAPES.length); const shape = SHAPES[shapeIndex]; const color = COLORS[shapeIndex]; const letters = getLettersForPiece(shape); return { shape, color, letters, x: Math.floor(COLS / 2) - Math.ceil(shape[0].length / 2), y: 0, isSpecial: false }; } }
         function holdCurrentPiece() { if (state !== 'falling' || !canHold) return; canHold = false; playSoundHold(); if (holdPiece) { let temp = holdPiece; holdPiece = currentPiece; currentPiece = temp; currentPiece.x = Math.floor(COLS / 2) - Math.ceil(currentPiece.shape[0].length / 2); currentPiece.y = 0; } else { holdPiece = currentPiece; currentPiece = nextPiece; nextPiece = createPiece(); drawNextPiece(); } if (collision(currentPiece)) gameOver(); drawHoldPiece(); }
         function drawHoldPiece() { hctx.clearRect(0, 0, holdCanvas.width, holdCanvas.height); if (!holdPiece) return; const w = holdPiece.shape[0].length, h = holdPiece.shape.length; const offsetX = (holdCanvas.width / BLOCK_SIZE - w) / 2; const offsetY = (holdCanvas.height / BLOCK_SIZE - h) / 2; hctx.globalAlpha = canHold ? 1 : 0.4; holdPiece.shape.forEach((row, r) => { row.forEach((val, c) => { if (val) drawBlockAtPixel(hctx, (offsetX + c) * BLOCK_SIZE, (offsetY + r) * BLOCK_SIZE, holdPiece.color, holdPiece.letters[r][c], false, false, false); }); }); hctx.globalAlpha = 1; }
-        function startGame() { stopBgMusic(); currentGameId++; grid = Array.from({length: ROWS}, () => Array(COLS).fill(null)); score = 0; displayScore = 0; dropCounter = 0; lastTime = 0; popupQueue = []; movingBlocks = []; letterStream = ''; pieceCounter = 0; lastSinglePieceCount = 20; targetLetterDelay = 0; gravityQueue = []; holdPiece = null; canHold = true; statsWordsFound = 0; statsLinesCleared = 0; statsMaxCombo = 0; statsCurrentCombo = 0; gameStartTime = Date.now(); dropInterval = 1000; dasDirection = 0; dasTimer = 0; dasActive = false; softDropping = false; isWordLocked = false; seqGenIndex = 0; updateLockUI(); updateScoreDisplay(); DOM.scoreValue.innerText = '0'; DOM.levelValue.textContent = '1'; DOM.overlay.style.display = 'none'; DOM.wordPopup.classList.add('hidden'); DOM.pauseScreen.classList.add('hidden'); hctx.clearRect(0, 0, holdCanvas.width, holdCanvas.height); currentPiece = createPiece(); nextPiece = createPiece(); drawNextPiece(); state = 'falling'; if (animationId) cancelAnimationFrame(animationId); animationId = requestAnimationFrame(update); }
+        function startGame() { try { if (window.HERO && HERO.markCoins) HERO.markCoins(); } catch (e) {} stopBgMusic(); currentGameId++; grid = Array.from({length: ROWS}, () => Array(COLS).fill(null)); score = 0; displayScore = 0; dropCounter = 0; lastTime = 0; popupQueue = []; movingBlocks = []; letterStream = ''; pieceCounter = 0; lastSinglePieceCount = 20; targetLetterDelay = 0; gravityQueue = []; holdPiece = null; canHold = true; statsWordsFound = 0; statsLinesCleared = 0; statsMaxCombo = 0; statsCurrentCombo = 0; gameStartTime = Date.now(); dropInterval = 1000; dasDirection = 0; dasTimer = 0; dasActive = false; softDropping = false; isWordLocked = false; seqGenIndex = 0; updateLockUI(); updateScoreDisplay(); DOM.scoreValue.innerText = '0'; DOM.levelValue.textContent = '1'; DOM.overlay.style.display = 'none'; DOM.wordPopup.classList.add('hidden'); DOM.pauseScreen.classList.add('hidden'); hctx.clearRect(0, 0, holdCanvas.width, holdCanvas.height); currentPiece = createPiece(); nextPiece = createPiece(); drawNextPiece(); state = 'falling'; if (animationId) cancelAnimationFrame(animationId); animationId = requestAnimationFrame(update); }
         function drawBlockAtPixel(context, px, py, color, letter, clearing, isWordFlash, isMovingFlash) { let drawColor = color; const elapsed = performance.now() - clearStartTime; const flashCount = Math.floor(elapsed / 80); if (clearing) { if (flashCount % 2 === 0) drawColor = '#ffffff'; } else if (isWordFlash) { if (flashCount % 2 === 0) drawColor = '#ffffff'; } else if (isMovingFlash) { if (Math.floor(performance.now() / 80) % 2 === 0) drawColor = '#ffffff'; } context.fillStyle = drawColor; context.fillRect(px, py, BLOCK_SIZE, BLOCK_SIZE); context.fillStyle = 'rgba(255,255,255,0.2)'; context.fillRect(px, py, BLOCK_SIZE, 2); context.fillRect(px, py, 2, BLOCK_SIZE); context.fillStyle = 'rgba(0,0,0,0.2)'; context.fillRect(px, py + BLOCK_SIZE - 2, BLOCK_SIZE, 2); context.fillRect(px + BLOCK_SIZE - 2, py, 2, BLOCK_SIZE); context.strokeStyle = 'rgba(0,0,0,0.3)'; context.lineWidth = 1; context.strokeRect(px + 0.5, py + 0.5, BLOCK_SIZE - 1, BLOCK_SIZE - 1); context.fillStyle = '#000'; context.font = 'bold 18px Arial, sans-serif'; context.textAlign = 'center'; context.textBaseline = 'middle'; context.fillText(letter, px + BLOCK_SIZE / 2, py + BLOCK_SIZE / 2 + 1); }
         function drawGrid() { ctx.clearRect(0, 0, 300, 600); ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.lineWidth = 1; for (let r = 0; r < ROWS; r++) { for (let c = 0; c < COLS; c++) { ctx.strokeRect(c * BLOCK_SIZE, r * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); } } for (let r = 0; r < ROWS; r++) { for (let c = 0; c < COLS; c++) { if (grid[r][c]) drawBlockAtPixel(ctx, c * BLOCK_SIZE, r * BLOCK_SIZE, grid[r][c].color, grid[r][c].letter, grid[r][c].clearing, grid[r][c].isWordFlash, false); } } }
         function drawGhostPiece() { if (!currentPiece || state !== 'falling') return; let ghostY = currentPiece.y; let ghostPiece = { shape: currentPiece.shape, x: currentPiece.x, y: ghostY }; while (!collision(ghostPiece)) ghostPiece.y++; ghostPiece.y--; if (ghostPiece.y === currentPiece.y) return; ctx.globalAlpha = 0.2; ghostPiece.shape.forEach((row, r) => { row.forEach((val, c) => { if (val) { const px = (ghostPiece.x + c) * BLOCK_SIZE; const py = (ghostPiece.y + r) * BLOCK_SIZE; ctx.fillStyle = currentPiece.color; ctx.fillRect(px, py, BLOCK_SIZE, BLOCK_SIZE); ctx.strokeStyle = currentPiece.color; ctx.lineWidth = 1.5; ctx.strokeRect(px + 1, py + 1, BLOCK_SIZE - 2, BLOCK_SIZE - 2); } }); }); ctx.globalAlpha = 1; }
@@ -1598,7 +1599,7 @@
         function updateScoreDisplay() { DOM.scoreValueSide.innerText = score; let level = Math.floor(score / 2000) + 1; DOM.levelValue.textContent = level; DOM.scoreValue.classList.remove('bump'); void DOM.scoreValue.offsetWidth; DOM.scoreValue.classList.add('bump'); setTimeout(() => DOM.scoreValue.classList.remove('bump'), 150); updateGameSpeed(); }
         function animateScore() { if (displayScore < score) { let diff = score - displayScore; displayScore += Math.max(1, Math.ceil(diff * 0.15)); if (displayScore > score) displayScore = score; DOM.scoreValue.innerText = displayScore; } }
         function updateGameSpeed() { let level = Math.floor(score / 2000); let cycleLevel = level % 10; const speeds = [1000, 850, 700, 600, 500, 400, 300, 250, 200, 150]; dropInterval = speeds[cycleLevel]; }
-        function gameOver() { state = 'gameover'; cancelAnimationFrame(animationId); playSoundGameOver(); startBgMusic(); let isNewRecord = saveHighScore(); let elapsed = Math.floor((Date.now() - gameStartTime) / 1000); let minutes = Math.floor(elapsed / 60); let seconds = elapsed % 60; let timeStr = minutes + ':' + (seconds < 10 ? '0' : '') + seconds; DOM.newRecordBadge.classList.toggle('hidden', !isNewRecord); DOM.statsGrid.innerHTML = '<div class="stat-item"><div class="stat-val' + (isNewRecord ? ' new-record' : '') + '">' + score + '</div><div class="stat-label">' + _t('statScore') + '</div></div><div class="stat-item"><div class="stat-val">' + statsWordsFound + '</div><div class="stat-label">' + _t('statWords') + '</div></div><div class="stat-item"><div class="stat-val">' + statsLinesCleared + '</div><div class="stat-label">' + _t('statLines') + '</div></div><div class="stat-item"><div class="stat-val">' + statsMaxCombo + '</div><div class="stat-label">' + _t('statMaxCombo') + '</div></div><div class="stat-item"><div class="stat-val">Lv.' + (Math.floor(score / 2000) + 1) + '</div><div class="stat-label">' + _t('statLevel') + '</div></div><div class="stat-item"><div class="stat-val">' + timeStr + '</div><div class="stat-label">' + _t('statTime') + '</div></div>'; DOM.langSelectScreen.classList.add('hidden'); DOM.difficultySelectScreen.classList.add('hidden'); document.getElementById('mainMenuScreen').classList.add('hidden'); document.getElementById('modeSelectScreen').classList.add('hidden'); const nextBtnG = document.getElementById('btnNextUploadLevel'); if (nextBtnG) nextBtnG.classList.toggle('hidden', !(uploadedTetrisRun && uploadedTetrisRun.idx + 1 < m3Levels.length)); DOM.gameOverScreen.classList.remove('hidden'); DOM.overlay.style.display = 'flex'; }
+        function gameOver() { state = 'gameover'; cancelAnimationFrame(animationId); playSoundGameOver(); startBgMusic(); let isNewRecord = saveHighScore(); let elapsed = Math.floor((Date.now() - gameStartTime) / 1000); let minutes = Math.floor(elapsed / 60); let seconds = elapsed % 60; let timeStr = minutes + ':' + (seconds < 10 ? '0' : '') + seconds; DOM.newRecordBadge.classList.toggle('hidden', !isNewRecord); DOM.statsGrid.innerHTML = '<div class="stat-item"><div class="stat-val' + (isNewRecord ? ' new-record' : '') + '">' + score + '</div><div class="stat-label">' + _t('statScore') + '</div></div><div class="stat-item"><div class="stat-val">' + statsWordsFound + '</div><div class="stat-label">' + _t('statWords') + '</div></div><div class="stat-item"><div class="stat-val">' + statsLinesCleared + '</div><div class="stat-label">' + _t('statLines') + '</div></div><div class="stat-item"><div class="stat-val">' + statsMaxCombo + '</div><div class="stat-label">' + _t('statMaxCombo') + '</div></div><div class="stat-item"><div class="stat-val">Lv.' + (Math.floor(score / 2000) + 1) + '</div><div class="stat-label">' + _t('statLevel') + '</div></div><div class="stat-item"><div class="stat-val">' + timeStr + '</div><div class="stat-label">' + _t('statTime') + '</div></div>' + ((window.HERO && HERO.deltaCoins && HERO.deltaCoins() > 0) ? '<div class="stat-item"><div class="stat-val" style="color:#ffd700;">' + (HERO.coinIcon ? HERO.coinIcon() : '') + ' +' + HERO.deltaCoins() + '</div><div class="stat-label">' + _htElc('金币', 'Coins', 'Монеты', 'Pièces') + '</div></div>' : ''); DOM.langSelectScreen.classList.add('hidden'); DOM.difficultySelectScreen.classList.add('hidden'); document.getElementById('mainMenuScreen').classList.add('hidden'); document.getElementById('modeSelectScreen').classList.add('hidden'); const nextBtnG = document.getElementById('btnNextUploadLevel'); if (nextBtnG) nextBtnG.classList.toggle('hidden', !(uploadedTetrisRun && uploadedTetrisRun.idx + 1 < m3Levels.length)); DOM.gameOverScreen.classList.remove('hidden'); DOM.overlay.style.display = 'flex'; }
         function pauseGame() { if (state !== 'falling' && state !== 'gravity') return; savedState = state; state = 'paused'; stopBgMusic(); DOM.overlay.style.display = 'flex'; DOM.pauseScreen.classList.remove('hidden'); DOM.langSelectScreen.classList.add('hidden'); DOM.difficultySelectScreen.classList.add('hidden'); DOM.gameOverScreen.classList.add('hidden'); DOM.customSelectScreen.classList.add('hidden'); document.getElementById('mainMenuScreen').classList.add('hidden'); document.getElementById('modeSelectScreen').classList.add('hidden'); }
         function resumeGame() { DOM.overlay.style.display = 'none'; DOM.pauseScreen.classList.add('hidden'); state = savedState || 'falling'; lastTime = 0; }
         const keysDown = new Set();
@@ -2336,12 +2337,14 @@
                     try { var __el = m3CellElements[b.cells[0].r] && m3CellElements[b.cells[0].r][b.cells[0].c]; if (__el) { var __r = __el.getBoundingClientRect(); __src = { x: __r.left + __r.width / 2, y: __r.top + __r.height / 2 }; } } catch (e) {}
                     WORD_FX.wordEvent(b.word, {
                         display: _dw(b.word), lang: selectedLanguage, big: true, damage: m3MonDmg,
-                        monsterEl: document.getElementById('m3-mouth'), heroEl: document.getElementById('m3-pk-hero'), source: __src
+                        monsterEl: document.getElementById('m3-mouth'), source: __src
                     });
                 } else {
                     m3ThrowIconAtMonster(_imgUrl(b.word) || info.img, b.cells);
                 }
             } catch (e) { m3ThrowIconAtMonster(_imgUrl(b.word) || info.img, b.cells); }
+            /* 双阶段：攻击特效砸怪先飞 0.85s，知识图标再归主角 */
+            setTimeout(() => { try { if (state === 'match3' && m3State !== 'gameover') m3ThrowIconAtMonster(_imgUrl(b.word) || info.img, b.cells); } catch (e) {} }, 850);
             if (m3VS.on) {
                 /* 对战：奖励词 = 快攻 5 血 */
                 m3VSHit('op', 5, b.word);
@@ -2349,6 +2352,7 @@
             } else {
                 /* 金币奖励 + 怪物掉血 */
                 try { if (window.HERO) window.HERO.addCoins(3); } catch (e) {}
+                m3CoinShower(3, null);
                 m3MonDamage(m3MonDmg);
             }
             showM3Toast(_t('m3BonusHit', { w: _dw(b.word) }));
@@ -2417,6 +2421,7 @@
             } else {
                 /* 金币奖励 + 怪物重击掉血（拼出目标词是最强攻击） */
                 try { if (window.HERO) window.HERO.addCoins(5); } catch (e) {}
+                m3CoinShower(4, null);
                 m3MonDamage(20 + String(m3HoleWord || '').length * 3);
             }
             m3RestoreRows(4);
@@ -2444,7 +2449,7 @@
                         try { var __el2 = m3CellElements[allCells[0][0]] && m3CellElements[allCells[0][0]][allCells[0][1]]; if (__el2) { var __r2 = __el2.getBoundingClientRect(); __src2 = { x: __r2.left + __r2.width / 2, y: __r2.top + __r2.height / 2 }; } } catch (e) {}
                         WORD_FX.wordEvent(word, {
                             display: _dw(word), lang: selectedLanguage, big: false,
-                            monsterEl: document.getElementById('m3-mouth'), heroEl: document.getElementById('m3-pk-hero'), source: __src2
+                            monsterEl: document.getElementById('m3-mouth'), source: __src2
                         });
                     }
                 } catch (e) {}
@@ -2563,9 +2568,38 @@
                     window.HERO.addCoins(reward, r ? { x: r.left + r.width / 2, y: r.top + r.height / 2 } : undefined);
                 }
             } catch (e) {}
+            m3CoinShower(Math.min(10, Math.ceil(reward / 6)), document.getElementById('m3-mon-emoji'));
             showM3Toast(_htElc('💥 击败怪物！掉落 ' + reward + ' 金币', '💥 Monster defeated! +' + reward + ' coins', '💥 Монстр побеждён! +' + reward, '💥 Monstre vaincu ! +' + reward));
             m3Mon.tier++;
             setTimeout(() => { if (state === 'match3' && m3State !== 'gameover') m3MonSpawn(); }, 900);
+        }
+
+        /* 金币雨：金币从 fromEl 位置哗啦啦飞向主角头像并收获闪光 */
+        function m3CoinShower(count, fromEl) {
+            try {
+                const hero = document.getElementById('m3-pk-hero');
+                if (!hero || !window.HERO || !window.HERO.coinIcon) return;
+                const hr = hero.getBoundingClientRect();
+                let fx = 0, fy = 0;
+                if (fromEl && fromEl.getBoundingClientRect) { const r = fromEl.getBoundingClientRect(); fx = r.left + r.width / 2; fy = r.top + r.height / 2; }
+                else { const g = m3Container.getBoundingClientRect(); fx = g.left + g.width / 2; fy = g.top + g.height / 2; }
+                const n = Math.max(3, Math.min(10, Math.round(count)));
+                for (let i = 0; i < n; i++) {
+                    setTimeout(() => {
+                        const d = document.createElement('div');
+                        d.innerHTML = window.HERO.coinIcon();
+                        d.style.cssText = 'position:fixed;z-index:5350;pointer-events:none;font-size:' + (13 + Math.random() * 9) + 'px;transition:left .58s cubic-bezier(.3,.7,.4,1),top .58s cubic-bezier(.3,.7,.4,1),opacity .58s;left:' + (fx + (Math.random() * 100 - 50)) + 'px;top:' + (fy + (Math.random() * 40 - 20)) + 'px;transform:translate(-50%,-50%);opacity:1;';
+                        document.body.appendChild(d);
+                        requestAnimationFrame(() => {
+                            d.style.left = (hr.left + hr.width / 2 + (Math.random() * 12 - 6)) + 'px';
+                            d.style.top = (hr.top + hr.height / 2) + 'px';
+                            d.style.opacity = '0';
+                        });
+                        setTimeout(() => d.remove(), 640);
+                    }, i * 55);
+                }
+                setTimeout(() => { hero.classList.remove('wfx-hero-gain'); void hero.offsetWidth; hero.classList.add('wfx-hero-gain'); setTimeout(() => hero.classList.remove('wfx-hero-gain'), 650); }, n * 55 + 280);
+            } catch (e) {}
         }
 
         /* ==================== ⚔️ 填词对战系统：共用词序 · 抢词攻击 · 血量100 · 押注金币 ==================== */
@@ -2702,7 +2736,7 @@
             if (m3VS.net && !fromNet) m3VSSend({ type: 'end', win: !iWin });
             let coinDelta = 0;
             if (m3VS.bet > 0) {
-                if (iWin) { try { if (window.HERO) window.HERO.addCoins(m3VS.bet * 2); } catch (e) {} coinDelta = m3VS.bet; }
+                if (iWin) { try { if (window.HERO) window.HERO.addCoins(m3VS.bet * 2); } catch (e) {} coinDelta = m3VS.bet; m3CoinShower(10, null); }
                 else coinDelta = -m3VS.bet;
             }
             if (m3VS.mode === 'ai') {
@@ -3183,6 +3217,7 @@
             };
         }
         function startMatch3Game(customDict, level) {
+            try { if (window.HERO && HERO.markCoins) HERO.markCoins(); } catch (e) {}
             stopBgMusic();
             m3WordMap = {};
             for (const w in EN_WORDS) { if (!EN_WORDS[w].single && w.length >= 2) m3WordMap[w] = EN_WORDS[w]; }
@@ -3517,7 +3552,7 @@
             } 
             const nextLevelBtn = (m3LevelMode && m3CurrentLevel < m3PlayLevels.length - 1 && isWin) ? '<button class="m3-btn m3-btn-menu" onclick="m3NextLevel()">' + _t('m3NextLevel') + '</button>' : '';
             const selectLevelBtn = m3LevelMode ? '<button class="m3-btn" style="background:#444;" onclick="m3ShowLevelSelect()">' + _t('m3SelectLevel') + '</button>' : '';
-            m3ResultEl.innerHTML = '<div class="m3-result-title">' + title + '</div><div class="m3-stars"><div class="m3-star">★</div><div class="m3-star">★</div><div class="m3-star">★</div></div><div class="m3-result-line score">' + _t('m3RScore') + m3Score + '</div><div class="m3-result-line">' + _t('m3RTarget') + m3DoneCount() + ' / ' + m3Targets.length + '</div><div class="m3-result-line">' + _t('m3RSteps') + m3Steps + '</div><div class="m3-result-line">' + _t('m3Knowledge') + ' ' + m3KPlayer + ' / ' + m3KTotal + '</div>' + bookHtml + '<div class="m3-result-btns"><button class="m3-btn m3-btn-menu" onclick="m3Restart()">' + _t('m3Again') + '</button>' + nextLevelBtn + selectLevelBtn + '<button class="m3-btn" style="background:#444;" onclick="m3ExitToMenu()">' + _t('qHome') + '</button></div>'; 
+            m3ResultEl.innerHTML = '<div class="m3-result-title">' + title + '</div><div class="m3-stars"><div class="m3-star">★</div><div class="m3-star">★</div><div class="m3-star">★</div></div><div class="m3-result-line score">' + _t('m3RScore') + m3Score + '</div>' + ((window.HERO && HERO.deltaCoins && HERO.deltaCoins() !== 0) ? '<div class="m3-result-line" style="color:#ffd700;font-weight:900;">' + (HERO.coinIcon ? HERO.coinIcon() : '') + ' +' + HERO.deltaCoins() + '</div>' : '') + '<div class="m3-result-line">' + _t('m3RTarget') + m3DoneCount() + ' / ' + m3Targets.length + '</div><div class="m3-result-line">' + _t('m3RSteps') + m3Steps + '</div><div class="m3-result-line">' + _t('m3Knowledge') + ' ' + m3KPlayer + ' / ' + m3KTotal + '</div>' + bookHtml + '<div class="m3-result-btns"><button class="m3-btn m3-btn-menu" onclick="m3Restart()">' + _t('m3Again') + '</button>' + nextLevelBtn + selectLevelBtn + '<button class="m3-btn" style="background:#444;" onclick="m3ExitToMenu()">' + _t('qHome') + '</button></div>'; 
             m3ResultEl.style.display = 'flex'; 
             m3StarEls = m3ResultEl.querySelectorAll('.m3-star'); 
             for (let i = 0; i < stars; i++) { 
@@ -3752,6 +3787,8 @@
                 const dist = (cx - c) * (cx - c) + (cy - r) * (cy - r);
                 if (dist < bestDist) { bestDist = dist; best = hs; }
             }
+            /* 只有落在空洞附近（约2.5格内）才吸附——拖到幕布任意位置不再自动拼上 */
+            if (bestDist > 6) return null;
             return best;
         }
         function m3SetupDrop() {
@@ -3831,7 +3868,15 @@
                     if (m3Busy || (m3State !== 'idle' && m3State !== 'selecting')) return;
                     const target = m3FindDropTarget(ev.clientX, ev.clientY, cells);
                     if (target) m3DoFillHole(block, target, letters);
-                    else showM3Toast(_t('m3DropSameShape'));
+                    else {
+                        showM3Toast(_t('m3DropSameShape'));
+                        const br = block.getBoundingClientRect();
+                        const back = block.cloneNode(true);
+                        back.style.cssText += 'position:fixed;z-index:4500;pointer-events:none;margin:0;transition:left .32s ease-out,top .32s ease-out,opacity .32s;left:' + ev.clientX + 'px;top:' + ev.clientY + 'px;transform:translate(-50%,-50%) scale(.9);opacity:.9;';
+                        document.body.appendChild(back);
+                        requestAnimationFrame(() => { back.style.left = (br.left + br.width / 2) + 'px'; back.style.top = (br.top + br.height / 2) + 'px'; back.style.opacity = '0'; });
+                        setTimeout(() => back.remove(), 380);
+                    }
                 };
                 document.addEventListener('pointermove', onMove, true);
                 document.addEventListener('pointerup', onUp, true);
@@ -4269,6 +4314,7 @@
             qShowBanner();
         }
         function qReset(runWords, packKey, levels) {
+            try { if (window.HERO && HERO.markCoins) HERO.markCoins(); } catch (e) {}
             quest = {
                 state: 'off', packKey: packKey, stage: 1, hp: Q_MAX_HEARTS,
                 score: 0, combo: 0, maxCombo: 0, cleanStreak: 0,
@@ -4773,7 +4819,7 @@
             const learnedHtml = q.learned.length ? '<div class="q-result-line">' + _t('qResultLearned') + q.learned.slice(-12).map(x => '<span class="q-review-chip" style="background:rgba(83,215,105,0.2);border-color:#53d769;color:#a8f0b8;">' + _dw(x.word) + ' ' + _lm(x.word, x.mean) + '</span>').join(' ') + '</div>' : '';
             const wrongHtml = q.wrongFinal.length ? '<div class="q-result-line">' + _t('qResultReview') + '</div><div class="q-review-box">' + q.wrongFinal.map(w => '<span class="q-review-chip">' + w + '</span>').join('') + '</div>' : '';
             const nextBtn = win ? '<button class="q-btn" style="background:linear-gradient(to bottom,#53d769,#1e7d36);" onclick="qNextStage()">' + _t('qNextStage') + '</button>' : '';
-            qResultEl.innerHTML = '<div class="q-result-title">' + title + '</div><div class="q-result-stars">' + starHtml + '</div><div class="q-result-line">' + _t('qRStage') + (q.levelName || q.packName) + '</div><div class="q-result-line">' + _t('qRScore') + '<b>' + q.score + '</b>　' + _t('qRCombo') + '<b>' + q.maxCombo + '</b></div><div class="q-result-line">' + _t('qRWords') + (q.stageWordCount || q.words.length) + ' ' + _t('qRWordsUnit') + '　' + _t('qRHearts') + q.hp + '</div>' + learnedHtml + wrongHtml + '<div class="q-result-btns">' + nextBtn + '<button class="q-btn" style="background:#444;" onclick="qReplayStage()">' + _t('qReplay') + '</button><button class="q-btn" style="background:#444;" onclick="qOpenMap()">' + _t('qAdventureMap') + '</button><button class="q-btn q-btn-red" onclick="qExitToMenu()">' + _t('qHome') + '</button></div>';
+            qResultEl.innerHTML = '<div class="q-result-title">' + title + '</div><div class="q-result-stars">' + starHtml + '</div><div class="q-result-line">' + _t('qRStage') + (q.levelName || q.packName) + '</div><div class="q-result-line">' + _t('qRScore') + '<b>' + q.score + '</b>　' + _t('qRCombo') + '<b>' + q.maxCombo + '</b></div>' + ((window.HERO && HERO.deltaCoins && HERO.deltaCoins() > 0) ? '<div class="q-result-line" style="color:#ffd700;font-weight:900;">' + (HERO.coinIcon ? HERO.coinIcon() : '') + ' +' + HERO.deltaCoins() + '</div>' : '') + '<div class="q-result-line">' + _t('qRWords') + (q.stageWordCount || q.words.length) + ' ' + _t('qRWordsUnit') + '　' + _t('qRHearts') + q.hp + '</div>' + learnedHtml + wrongHtml + '<div class="q-result-btns">' + nextBtn + '<button class="q-btn" style="background:#444;" onclick="qReplayStage()">' + _t('qReplay') + '</button><button class="q-btn" style="background:#444;" onclick="qOpenMap()">' + _t('qAdventureMap') + '</button><button class="q-btn q-btn-red" onclick="qExitToMenu()">' + _t('qHome') + '</button></div>';
             qResultEl.style.display = 'flex';
         }
         function qNextStage() {
@@ -5363,7 +5409,7 @@
     </script>
     <script>
     (function () {
-        var GAME_VER = '2.4.2';
+        var GAME_VER = '2.4.3';
         try {
             var badge = document.getElementById('gameVerBadge');
             if (badge) badge.textContent = '世界语言方块 v' + GAME_VER;

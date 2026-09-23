@@ -347,6 +347,7 @@
             });
         }
         function playListenLevel(levels, idx, prog, progKey, srcTag) {
+            try { if (window.HERO && window.HERO.markCoins) window.HERO.markCoins(); } catch (e) {}   /* 本局金币记账 */
             var words = levels[idx];
             var state = { score: 0, streak: 0, hearts: 3, asked: 0, order: words.slice(), cur: null, lock: false, paused: false, pendingNext: false };
             var highKey = 'elc_listen_high_' + ELC.learningLang;
@@ -433,7 +434,8 @@
                 }
                 btns.push({ label: ELC.t('m3Map'), secondary: true, fn: function () { openListenMap(levels, srcTag); } });
                 btns.push({ label: ELC.t('qHome'), secondary: true, fn: function () { ELC.closeExtraView(); } });
-                openEndPanel('lis-end', pass ? ELC.t('qWin') : ELC.t('qFail'), stars ? starStr(stars) : '', String(state.score), btns);
+                var dcoin = 0; try { if (window.HERO) dcoin = window.HERO.deltaCoins(); } catch (e) {}
+                openEndPanel('lis-end', pass ? ELC.t('qWin') : ELC.t('qFail'), stars ? starStr(stars) : '', String(state.score) + (dcoin > 0 ? '　·　' + (window.HERO.coinIcon ? window.HERO.coinIcon() : '') + ' +' + dcoin : ''), btns);
             }
             byId('lis-play').addEventListener('click', function () { if (state.cur) speakWordObj(state.cur); });
             byId('lis-map').addEventListener('click', function () { openListenMap(levels, srcTag); });
@@ -466,6 +468,7 @@
             });
         }
         function playMemoryLevel(levels, idx, prog, progKey, srcTag) {
+            try { if (window.HERO && window.HERO.markCoins) window.HERO.markCoins(); } catch (e) {}   /* 本局金币记账 */
             var words = levels[idx];
             var CH = 6;   // 每屏 6 词
             var state = { round: idx + 1, offset: 0, moves: 0, score: 0, first: null, lock: false, matched: 0, roundTotal: Math.min(CH, words.length), paused: false };
@@ -566,7 +569,8 @@
                 if (idx + 1 < levels.length) btns.push({ label: ELC.t('qNextStage'), fn: function () { playMemoryLevel(levels, idx + 1, prog, progKey, srcTag); } });
                 btns.push({ label: ELC.t('qReplay'), secondary: true, fn: function () { playMemoryLevel(levels, idx, prog, progKey, srcTag); } });
                 btns.push({ label: ELC.t('m3Map'), secondary: true, fn: function () { openMemoryMap(levels, srcTag); } });
-                openEndPanel('mem-end', ELC.t('qWin'), starStr(stars), String(state.score), btns);
+                var mcoin = 0; try { if (window.HERO) mcoin = window.HERO.deltaCoins(); } catch (e) {}
+                openEndPanel('mem-end', ELC.t('qWin'), starStr(stars), String(state.score) + (mcoin > 0 ? '　·　' + (window.HERO.coinIcon ? window.HERO.coinIcon() : '') + ' +' + mcoin : ''), btns);
             }
             byId('mem-map').addEventListener('click', function () { openMemoryMap(levels, srcTag); });
             byId('mem-exit').addEventListener('click', function () { ELC.closeExtraView(); });
